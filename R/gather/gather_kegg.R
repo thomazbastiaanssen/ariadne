@@ -26,4 +26,6 @@ colnames(ko_labs)      = c("ko",  "ko_labs")
 
 save(ko_ec, cpd_drug, 
      cpd_ec, drug_ko, 
-     cpd_labs, drug_labs, ec_labs, ko_labs, file = "data/heiti.RData")
+     cpd_labs, drug_labs, ec_labs, ko_labs, file = "data/ariadne.RData")
+
+#load("data/ariadne.RData")
