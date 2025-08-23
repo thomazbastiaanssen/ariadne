@@ -17,10 +17,13 @@ biocViews: Microbiome, Software
 License: Artistic-2.0
 Encoding: UTF-8
 Depends:
-    TreeSummarizedExperiment
-Imports:
-    mia,
+    R (>= 4.0),
     UniProt.ws
+Imports:
+    dplyr,
+    mia,
+    stringr,
+    tidyr
 Suggests:
     BiocStyle,
     knitr,
@@ -32,4 +35,3 @@ BugReports: https://github.com/thomazbastiaanssen/ariadne/issues
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 VignetteBuilder: knitr
-Config/testthat/edition: 3

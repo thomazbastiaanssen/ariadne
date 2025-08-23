@@ -1,67 +1,78 @@
+
 mapFiles <- list(
-    KO = KO2UniRef90,
+    KO = importMapping("data/KO_uniref90_dict.txt")
     #EF = ...
 )
 
-mapTaxonomy <- function(modules, from = "KO"){
+#' @export
+#' @importFrom UniProt.ws mapUniProt queryUniProt
+#' @importFrom mia getTaxonomyRanks
+#' @importFrom tidyr separate_wider_delim
+#' @importFrom dplyr bind_rows
+#' @importFrom stringr str_detect
+mapTax <- function(modules, from = "KO"){
   
-  map <- mapFiles[[from]]
+    map <- mapFiles[[from]]
   
-  keep <- names(map) %in% unique(unlist(modules))
+    keep <- names(map) %in% unique(unlist(modules))
   
-  map <- map[keep]
+    map <- map[keep]
   
-  # Reduce size for testing
-  map <- map[seq(1, 10)]
-  map <- lapply(map, function(x) x[seq(1, 10)])
+    # Reduce size for testing
+    map <- map[seq(1, 10)]
+    map <- lapply(map, function(x) x[seq(1, 10)])
   
-  tax.list <- list()
+    tax <- list()
   
-  for( i in seq_along(map) ){
+    for( i in seq_along(map) ){
     
-    module <- map[[i]]
-    name <- names(module)[i]
+        item <- map[[i]]
+        key <- names(map)[[i]]
+
+        item.members <- mapUniProt(
+            from = "UniProtKB_AC-ID",
+            to = "UniRef90",
+            query = item,
+            columns = c("id", "members")
+        )
+
+        uniref.ids <- unlist(strsplit(item.members$Cluster.members, "; "))
     
-    module <- mapUniProt(
-      from = "UniProtKB_AC-ID",
-      to = "UniRef90",
-      query = module,
-      columns = c("id", "members")
-    )
+        item.tax <- queryUniProt(
+            query = uniref.ids,
+            fields = c("id", "organism_name", "lineage"),
+            collapse = " OR "
+        )
     
-    uniref_ids <- unlist(strsplit(module$Cluster.members, "; "))
+        tax[key] <- list(item.tax)
     
-    tax <- queryUniProt(
-      query = uniref_ids,
-      fields = c("id", "organism_name", "lineage"),
-      collapse = " OR "
-    )
+    }
+  
+    df <- bind_rows(tax, .id = "source")
     
-    tax.list[name] <- list(tax)
-    
-  }
+    tax.ranks <- getTaxonomyRanks()[-2]
   
-  df <- bind_rows(tax.list, .id = "source")
+    pattern <- paste(tax.ranks, collapse = "|")
+    pattern <- paste0("\\((", pattern, ")\\)")
   
-  pattern <- paste(TAXONOMY_RANKS[-2], collapse = "|")
-  pattern <- paste0("\\((", pattern, ")\\)")
+    df <- df[df$Taxonomic.lineage != "", ]
   
-  df <- df[df$Taxonomic.lineage != "", ]
+    splitted_taxa <- strsplit(df$Taxonomic.lineage, split = ", ")
   
-  splitted_taxa <- strsplit(df$Taxonomic.lineage, split = ", ")
+    df$Taxonomic.lineage <- lapply(splitted_taxa, function(x)
+        paste0(x[str_detect(x, pattern)], collapse = ", "))
   
-  df$Taxonomic.lineage <- lapply(splitted_taxa, function(x)
-    paste0(x[str_detect(x, pattern)], collapse = ", "))
+    df <- df |>
+        separate_wider_delim(
+            cols = "Taxonomic.lineage", delim = ", ",
+            names = tax.ranks, too_few = "align_start"
+        )
   
-  df <- df |>
-    separate_wider_delim(cols = "Taxonomic.lineage", delim = ", ",
-                         names = TAXONOMY_RANKS[-2], too_few = "align_start")
+    df[ , tax.ranks] <- apply(df[ , tax.ranks], 2L,
+        function(col) gsub(" \\(\\w+\\)", "", col))
   
-  df[ , TAXONOMY_RANKS[-2]] <- apply(df[ , TAXONOMY_RANKS[-2]], 2L, function(col)
-    gsub(" \\(\\w+\\)", "", col))
+    # This shouldn't be needed
+    df[is.na(df)] <- ""
   
-  # This shouldn't be needed
-  df[is.na(df)] <- ""
-  
-  return(df)
+    return(df)
 }

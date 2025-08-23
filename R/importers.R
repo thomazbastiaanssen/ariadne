@@ -6,30 +6,33 @@ importMapping <- function(map.file){
     lines <- readLines(map.file)
   
     values <- list()
-    keys <- list()
+    keys <- c()
   
     for (line in lines) {
         # Split by tab character
         items <- unlist(strsplit(line, "\t"))
         # Append the entire line as a vector
-        values <- append(vectors, list(items[-1]))
+        values <- append(values, list(items[-1]))
         keys <- append(keys, items[1])
-  }
+    }
   
-  names(values) <- keys
-  return(values)
+    names(values) <- keys
+  
+    values <- lapply(values, function(x) gsub("UniRef90_", "", x))
+  
+    return(values)
 }
 
-module.bases <- list(
-    GMM = "https://raw.githubusercontent.com/raeslab/GMMs/refs/heads/master/GMMs.v1.07.txt",
+moduleDatabases <- list(
+    GMM = "https://raw.githubusercontent.com/raeslab/GMMs/refs/heads/master/GMMs.v1.07.txt"
     # GBM = "https://raeslab.org/software/GBMs.zip"
 )
 
 #' @export
 importModules <- function(module.file){
   
-    if( module.file %in% names(module.bases) ){
-        lines <- readLines(module.bases[[module.file]])
+    if( module.file %in% names(moduleDatabases) ){
+        lines <- readLines(moduleDatabases[[module.file]])
     }else{
         lines <- readLines(module.file)
     }

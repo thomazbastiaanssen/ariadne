@@ -1,14 +1,8 @@
-devtools::load_all() # mia
-library(UniProt.ws)
-library(httr)
-library(tidyr)
 
-KO2UniRef90 <- importMapping("data/KO_uniref90_dict.txt")
-KO2UniRef90 <- lapply(KO2UniRef90, function(x) gsub("UniRef90_", "", x))
 
-gbm <- importModules("GMM")
+gmm <- importModules("GMM")
 
-sigs <- mapTaxonomy(gbm, from = "KO")
+sigs <- mapTax(gmm, from = "KO")
 
 # Fix to group by mod col
 sigs <- mia:::.tax_table2label(sigs[ , TAXONOMY_RANKS[-2]])
