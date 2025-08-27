@@ -18,12 +18,13 @@ License: Artistic-2.0
 Encoding: UTF-8
 Depends:
     R (>= 4.0),
-    UniProt.ws
 Imports:
+    BiocFileCache,
     dplyr,
     mia,
     stringr,
-    tidyr
+    tidyr,
+    UniProt.ws
 Suggests:
     BiocStyle,
     knitr,

@@ -1,10 +1,27 @@
 
+mapDatabases <- list(
+    KO = "data/KO_uniref90_dict.txt"
+    #EF =,
+)
+
+moduleDatabases <- list(
+    GMM = "https://github.com/omixer/omixer-rpmR/raw/refs/heads/main/inst/extdata/GMMs.v1.07.txt",
+    GBM = "https://github.com/omixer/omixer-rpmR/raw/refs/heads/main/inst/extdata/GBMs.v1.0.txt"
+)
+
 #' @export
 importMapping <- function(map.file){
   
-    # Read the file content
-    lines <- readLines(map.file)
-  
+    if( map.file %in% names(mapDatabases) ){
+      # Cache database
+      cached <- .getFile(mapDatabases[[map.file]])
+      # Read the file content
+      lines <- readLines(cached)
+    }else{
+      # Read the file content
+      lines <- readLines(map.file)
+    }
+    
     values <- list()
     keys <- c()
   
@@ -23,18 +40,23 @@ importMapping <- function(map.file){
     return(values)
 }
 
-moduleDatabases <- list(
-    GMM = "https://raw.githubusercontent.com/raeslab/GMMs/refs/heads/master/GMMs.v1.07.txt"
-    # GBM = "https://raeslab.org/software/GBMs.zip"
-)
-
 #' @export
 importModules <- function(module.file){
   
     if( module.file %in% names(moduleDatabases) ){
-        lines <- readLines(moduleDatabases[[module.file]])
+    
+        cached <- .getFile(moduleDatabases[[module.file]])
+        lines <- readLines(cached)
+    
     }else{
+    
         lines <- readLines(module.file)
+    
+    }
+    
+    # GBM is missing /// at the end
+    if( module.file == "GBM" ){
+        lines <- append(lines, "///")
     }
     
     keys <- c()

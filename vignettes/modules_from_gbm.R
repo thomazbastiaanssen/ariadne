@@ -1,8 +1,10 @@
 
 
-gmm <- importModules("GMM")
+gmm <- importModules("GBM")
 
-sigs <- mapTax(gmm, from = "KO")
+map <- importMapping("KO")
+
+sigs <- mapTax(gmm, map)
 
 # Fix to group by mod col
 sigs <- mia:::.tax_table2label(sigs[ , TAXONOMY_RANKS[-2]])
