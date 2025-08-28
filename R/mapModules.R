@@ -4,7 +4,7 @@
 #' @importFrom tidyr separate_wider_delim
 #' @importFrom dplyr bind_rows
 #' @importFrom stringr str_detect
-mapTax <- function(modules, map){
+mapModules <- function(modules, map){
     
     keep <- names(map) %in% unique(unlist(modules))
     
@@ -37,34 +37,47 @@ mapTax <- function(modules, map){
         )
     
         tax[key] <- list(item.tax)
-    
     }
     
-    df <- bind_rows(tax, .id = "source")
+    tax.df <- bind_rows(tax, .id = "source")
     
     tax.ranks <- getTaxonomyRanks()[-2]
     
     pattern <- paste(tax.ranks, collapse = "|")
     pattern <- paste0("\\((", pattern, ")\\)")
     
-    df <- df[df$Taxonomic.lineage != "", ]
+    tax.df <- tax.df[tax.df$Taxonomic.lineage != "", ]
     
-    splitted_taxa <- strsplit(df$Taxonomic.lineage, split = ", ")
+    splitted.tax <- strsplit(tax.df$Taxonomic.lineage, split = ", ")
     
-    df$Taxonomic.lineage <- lapply(splitted_taxa, function(x)
+    tax.df$Taxonomic.lineage <- lapply(splitted.tax, function(x)
         paste0(x[str_detect(x, pattern)], collapse = ", "))
     
-    df <- df |>
+    tax.df <- tax.df |>
         separate_wider_delim(
             cols = "Taxonomic.lineage", delim = ", ",
             names = tax.ranks, too_few = "align_start"
         )
     
-    df[ , tax.ranks] <- apply(df[ , tax.ranks], 2L,
+    tax.df[ , tax.ranks] <- apply(tax.df[ , tax.ranks], 2L,
         function(col) gsub(" \\(\\w+\\)", "", col))
     
     # This shouldn't be needed
-    df[is.na(df)] <- ""
+    tax.df[is.na(tax.df)] <- ""
     
-    return(df)
+    tax.lab <- mia:::.tax_table2label(tax.df[ , tax.ranks])
+
+    sig.list <- list()
+    
+    for( i in seq_along(modules) ){
+      
+        module <- names(modules[i])
+        keep <- tax.df$source %in% modules[[i]]
+    
+        if( any(keep) ){
+            sig.list[[module]] <- tax.lab[keep]
+        }
+    }
+    
+    return(sig.list)
 }

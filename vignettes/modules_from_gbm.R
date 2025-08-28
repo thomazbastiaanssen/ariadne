@@ -1,26 +1,24 @@
 
+# 3 options (module.file, table, list)
+# addModules(tse, sigs = "GBM", ids = rowdata.colname)
+# addModules(tse, sigs = butyrate)
+# addModules(tse, sigs = sig.list)
 
-gmm <- importModules("GBM")
+gbm <- importModules("GBM")
 
-map <- importMapping("KO")
+map <- importMapping("data/map_ko_uniref90.txt")
 
-sigs <- mapTax(gmm, map)
-
-# Fix to group by mod col
-sigs <- mia:::.tax_table2label(sigs[ , TAXONOMY_RANKS[-2]])
-
+sigs <- mapModules(gbm, map)
 
 # Import dataset
 data("Tengeler2020", package = "mia")
 tse <- Tengeler2020
 
-mods <- getModules(tse, sigs)
+modules <- getModules(tse, sigs)
 
 tse <- addModules(tse, sigs)
 
-tse.mod <- agglomerateByModule(tse, by = 1L, group = "module")
-
-
+tse.mod <- agglomerateByModule(tse, by = 1L, group = names(sigs))
 
 
 

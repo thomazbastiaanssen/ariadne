@@ -14,7 +14,7 @@ adhd.bugs <- bsdb |>
 # Retrieve signatures from selected studies
 adhd.sigs <- getSignatures(
     adhd.bugs,
-    tax.id.type = "taxname"
+    tax.id.type = "metaphlan"
 )
 
 # Import dataset

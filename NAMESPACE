@@ -2,7 +2,7 @@
 
 export(importMapping)
 export(importModules)
-export(mapTax)
+export(mapModules)
 importFrom(BiocFileCache,BiocFileCache)
 importFrom(BiocFileCache,bfcdownload)
 importFrom(BiocFileCache,bfcneedsupdate)

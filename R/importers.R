@@ -1,25 +1,16 @@
 
-mapDatabases <- list(
-    KO = "data/KO_uniref90_dict.txt"
-    #EF =,
-)
-
-moduleDatabases <- list(
-    GMM = "https://github.com/omixer/omixer-rpmR/raw/refs/heads/main/inst/extdata/GMMs.v1.07.txt",
-    GBM = "https://github.com/omixer/omixer-rpmR/raw/refs/heads/main/inst/extdata/GBMs.v1.0.txt"
-)
 
 #' @export
 importMapping <- function(map.file){
   
     if( map.file %in% names(mapDatabases) ){
-      # Cache database
-      cached <- .getFile(mapDatabases[[map.file]])
-      # Read the file content
-      lines <- readLines(cached)
+        # Cache database
+        cached <- .getFile(mapDatabases[[map.file]])
+        # Read the file content
+        lines <- readLines(cached)
     }else{
-      # Read the file content
-      lines <- readLines(map.file)
+        # Read the file content
+        lines <- readLines(map.file)
     }
     
     values <- list()
