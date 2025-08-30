@@ -26,7 +26,7 @@ importMapping <- function(map.file){
   
     names(values) <- keys
   
-    values <- lapply(values, function(x) gsub("UniRef90_", "", x))
+    # values <- lapply(values, function(x) gsub("UniRef90_", "", x))
   
     return(values)
 }

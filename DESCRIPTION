@@ -21,10 +21,8 @@ Depends:
 Imports:
     BiocFileCache,
     dplyr,
-    mia,
+    reticulate,
     stringr,
-    tidyr,
-    UniProt.ws
 Suggests:
     BiocStyle,
     knitr,
