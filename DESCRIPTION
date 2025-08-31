@@ -20,6 +20,7 @@ Depends:
     R (>= 4.0)
 Imports:
     BiocFileCache,
+    BiocParallel,
     dplyr,
     reticulate,
     stringr,

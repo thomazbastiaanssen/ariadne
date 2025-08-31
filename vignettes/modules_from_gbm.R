@@ -8,15 +8,14 @@ gbm <- importModules("GBM")
 
 map <- importMapping("data/map_ko_uniref90.txt")
 
-sigs <- mapModules(gbm, map)
+sigs <- mapModules(gbm, map) # reasonably fast
 
-sigs <- fastMapModules(gbm, map[seq(1, 20)])
 
 # Import dataset
 data("Tengeler2020", package = "mia")
 tse <- Tengeler2020
 
-modules <- getModules(tse, sigs)
+modules <- getModules(tse, sigs) # quite slow
 
 tse <- addModules(tse, sigs)
 
