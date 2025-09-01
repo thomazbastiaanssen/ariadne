@@ -20,22 +20,23 @@ rdflib <- import("rdflib")
     query_part1 <- "
         PREFIX uniprot: <http://purl.uniprot.org/core/>
         PREFIX uniref: <http://purl.uniprot.org/uniref/>
-        PREFIX taxon: <http://purl.uniprot.org/taxonomy/>
 
-        SELECT DISTINCT ?unirefId ?taxId ?name
+        SELECT ?name
         WHERE {
             SERVICE <https://sparql.uniprot.org/> {
-                VALUES ?unirefIn {
+            {
+                SELECT DISTINCT ?sciName ?rank
+                WHERE {
+                    VALUES ?unirefId {
         "
     
     query_part3 <- "
+                    }
+                    ?unirefId uniprot:member ?member.
+                    ?member uniprot:organism ?taxIn.
+                    ?taxIn uniprot:scientificName ?sciName; uniprot:rank ?rank.
                 }
-            ?unirefIn uniprot:member ?member.
-            ?member uniprot:organism ?taxIn.
-            ?taxIn uniprot:scientificName ?sciName; uniprot:rank ?rank.
-  
-            bind(strafter(str(?unirefIn), '_') as ?unirefId)
-            bind(strafter(str(?taxIn), 'taxonomy/') as ?taxId)
+            }
 
             bind(lcase(substr(strafter(str(?rank), 'Rank_'), 1, 1)) as ?prefix)
             bind(concat(?prefix, '__', ?sciName) as ?name)
