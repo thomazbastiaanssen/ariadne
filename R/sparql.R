@@ -12,10 +12,9 @@ if( Sys.info()[["sysname"]] == "Darwin" ){
 
 rdflib <- import("rdflib")
 
-#' @importFrom dplyr
 .querySPARQL <- function(module, graph = rdflib$Graph()){
     # Collapse UniRef90 ids into long string
-    uniref.ids <- paste0("\t\t\tuniref:", module, collapse = "\n")
+    uniref.ids <- paste0("uniref:", module, collapse = " ")
     # Define first part of query
     query_part1 <- "
         PREFIX uniprot: <http://purl.uniprot.org/core/>
@@ -48,7 +47,7 @@ rdflib <- import("rdflib")
         }
         "
     # Build query
-    query <- paste0(query_part1, uniref.ids, query_part2)
+    query <- paste0(query_part1, "\t\t\t", uniref.ids, query_part2)
     # Execute query
     qres <- graph$query(query)
     # Convert name bindings to vector
