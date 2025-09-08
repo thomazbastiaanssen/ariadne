@@ -1,29 +1,24 @@
 
-
 #' @export
+#' @importFrom utils read.table
 importMapping <- function(map.file){
     # Whether to use package or custom mapping
     if( map.file %in% names(mapDatabases) ){
         # Cache database
-        cached <- .getFile(mapDatabases[[map.file]])
-        # Read the file content
-        lines <- readLines(cached)
-    }else{
-        # Read the file content
-        lines <- readLines(map.file)
+        map.file <- .getFile(mapDatabases[[map.file]])
     }
-    # Convert each line to vector with key in 1 and values in 2+ positions
-    items <- bplapply(lines, function(line) {
-        item <- unlist(strsplit(line, "\t"))
-        item <- list(key = item[1], value = item[-1])
-        return(item)
-    })
-    # Retrieve keys and values
-    keys <- vapply(items, function(x) x$key, character(1))
-    values <- lapply(items, function(x) x$value)
-    # Name values with keys
-    names(values) <- keys
-    return(values)
+    # Read lines
+    map <- read.table(
+        map.file,
+        sep = "\t",
+        row.names = 1,
+        fill = TRUE,
+        flush = TRUE
+    )
+    # Convert data.frame to list of named vectors
+    map <- apply(map, 1L, function(key)
+        key[1:match("", key, nomatch = ncol(map) + 1) - 1])
+    return(map)
 }
 
 #' @export

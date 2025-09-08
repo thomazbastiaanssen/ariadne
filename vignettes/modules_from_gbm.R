@@ -1,4 +1,3 @@
-
 # 3 options (module.file, table, list)
 # addModules(tse, sigs = "GBM", ids = rowdata.colname)
 # addModules(tse, sigs = butyrate)
@@ -8,13 +7,11 @@ gbm <- importModules("GBM")
 
 map <- importMapping("data/map_ko_uniref90.txt")
 
-sigs <- mapModules(gbm, map)
+sigs <- mapModules(gbm, map, remove.empty = TRUE)
 
 # Import dataset
 data("Tengeler2020", package = "mia")
 tse <- Tengeler2020
-
-sigs <- Filter(function(sig) length(sig) > 0, sigs)
 
 modules <- getModules(tse, sigs)
 

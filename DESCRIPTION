@@ -21,9 +21,9 @@ Depends:
 Imports:
     BiocFileCache,
     BiocParallel,
-    dplyr,
     reticulate,
     stringr,
+    utils
 Suggests:
     BiocStyle,
     knitr,
@@ -33,5 +33,5 @@ Suggests:
 URL: https://github.com/thomazbastiaanssen/ariadne
 BugReports: https://github.com/thomazbastiaanssen/ariadne/issues
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 VignetteBuilder: knitr
