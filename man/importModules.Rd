@@ -5,10 +5,14 @@
 \alias{importModules,character-method}
 \title{Import modules from a file or a database}
 \usage{
-importModules(module.file)
+importModules(module.file, merge = TRUE, message = TRUE)
 
-\S4method{importModules}{character}(module.file)
+\S4method{importModules}{character}(module.file, merge = TRUE, message = TRUE)
+}
+\arguments{
+\item{map.file}{\code{Character vector}. One or more paths to custom mapping
+files or one or more of the available databases (\code{"ChocoPhlAn"}).}
 }
 \description{
-Import modules from a file or a database
+\code{importModules} retrieves modules information from a file or database.
 }

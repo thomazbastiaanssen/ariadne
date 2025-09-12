@@ -13,8 +13,19 @@ test_that("importMapping", {
     expect_no_error(
         map <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
     )
+    
+    expect_named(map)
   
-    #expect_error(
-    #    importMappings("ChocoPhlAn", from = c("eggnog", "ko"), to = "uniref90")
-    #)
+    expect_error(
+        importMapping(
+            "ChocoPhlAn",
+            from = c("eggnog", "ko"),
+            to = c("uniref90", "uniref90", "uniref90")
+        ),
+        "'map.files', 'from' and 'to' must have compatible lengths."
+    )
+    
+    expect_no_error(
+        importMapping("ChocoPhlAn", from = c("eggnog", "ko"), to = "uniref90")
+    )
 })

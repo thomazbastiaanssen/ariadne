@@ -5,9 +5,6 @@
 #' SPARQL. Membership is based on whether a taxon meets the criteria specified
 #' by a module.
 #'
-#' @param x a
-#' \code{\link[TreeSummarizedExperiment:TreeSummarizedExperiment-constructor]{TreeSummarizedExperiment}}.
-#'
 #' @param modules \code{Named character list}. Named list of vectors, where each
 #'   vector is a module and its elements are the module members.
 #'
@@ -31,9 +28,9 @@
 #' # Import GBM
 #' gbm <- importModules("GBM")
 #' # Import ko-to-uniref90 mapping
-#' map1 <- importMapping("ko.uniref90")
+#' map <- importMapping("ko.uniref90")
 #' # Map modules to taxa
-#' sigs <- mapModules(gbm[seq(3)], map1)
+#' sigs <- mapModules(gbm[seq(3)], map)
 #' 
 #' @name mapModules
 NULL
@@ -58,9 +55,14 @@ setMethod("mapModules", signature = c(modules = "list"),
         # Keep only relevant bindings
         keep <- names(map) %in% unique(unlist(modules, use.names = FALSE))
         map <- map[keep]
+        # Check matched uniref ids
+        uniref.length <- length(unlist(map))
+        if( uniref.length == 0){
+            stop("'map' did not match any element in 'modules'.", call. = FALSE)
+        }
         if( message ){
             message("Mapping ", length(modules), " modules to ",
-                length(unlist(map)), " uniref ids.")
+                uniref.length, " uniref ids.")
         }
         # Query taxonomy from UniRef90
         tax.list <- bplapply(map, .querySPARQL)

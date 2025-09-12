@@ -2,12 +2,10 @@
 
 export(as.linkMap)
 export(importMapping)
-export(importMappings)
 export(importModules)
 export(mapModules)
 exportMethods(as.linkMap)
 exportMethods(importMapping)
-exportMethods(importMappings)
 exportMethods(importModules)
 exportMethods(mapModules)
 importFrom(BiocFileCache,BiocFileCache)

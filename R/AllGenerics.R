@@ -1,19 +1,13 @@
 #' @rdname importMapping
 #' @export
 setGeneric("importMapping", signature = "map.file",
-    function(map.file, from = NULL, to = NULL, message = TRUE)
+    function(map.file, from = NULL, to = NULL, merge = TRUE, message = TRUE)
     standardGeneric("importMapping"))
-
-#' @rdname importMappings
-#' @export
-setGeneric("importMappings", signature = "map.files",
-    function(map.files, from = NULL, to = NULL, merge = TRUE, message = TRUE)
-    standardGeneric("importMappings"))
 
 #' @rdname importModules
 #' @export
 setGeneric("importModules", signature = "module.file",
-    function(module.file)
+    function(module.file, merge = TRUE, message = TRUE)
     standardGeneric("importModules"))
 
 #' @rdname mapModules
