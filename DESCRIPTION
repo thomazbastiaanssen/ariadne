@@ -19,11 +19,11 @@ Encoding: UTF-8
 Depends:
     R (>= 4.0)
 Imports:
+    anansi,
     BiocFileCache,
     BiocParallel,
     reticulate,
-    stringr,
-    utils
+    stringr
 Suggests:
     BiocStyle,
     knitr,

@@ -3,11 +3,12 @@
 # addModules(tse, sigs = butyrate)
 # addModules(tse, sigs = sig.list)
 
-gbm <- importModules("GBM")
 
-map <- importMapping("data/map_ko_uniref90.txt")
 
-sigs <- mapModules(gbm, map, remove.empty = TRUE)
+mod.ko <- importModules("GMM")
+ko.uniref90 <- importMapping("ko.uniref90")
+
+sigs <- mapModules(mod.ko, ko.uniref90, drop.unmatched = TRUE)
 
 # Import dataset
 data("Tengeler2020", package = "mia")

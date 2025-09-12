@@ -12,22 +12,22 @@ if( Sys.info()[["sysname"]] == "Darwin" ){
 
 rdflib <- import("rdflib")
 
-.querySPARQL <- function(module, graph = rdflib$Graph()){
+.querySPARQL <- function(uniref.ids, graph = rdflib$Graph()){
     # Collapse UniRef90 ids into long string
-    uniref.ids <- paste0("uniref:", module, collapse = " ")
+    uniref.ids <- paste0("uniref:", uniref.ids, collapse = " ")
     # Define first part of query
     query_part1 <- "
         PREFIX uniprot: <http://purl.uniprot.org/core/>
         PREFIX uniref: <http://purl.uniprot.org/uniref/>
         # Outer query to get final names
-        SELECT ?name
+        SELECT ?unirefOut ?name
         WHERE {
             SERVICE <https://sparql.uniprot.org/> {
             {   # Inner query to get distinct taxa
-                SELECT DISTINCT ?taxId
+                SELECT DISTINCT ?unirefIn ?taxId
                 WHERE {
                     # List UniRef90 ids
-                    VALUES ?unirefId {
+                    VALUES ?unirefIn {
         "
     # Define second part of query
     query_part2 <- "
@@ -40,9 +40,11 @@ rdflib <- import("rdflib")
             }
             # Bind taxa to scientific names and ranks
             ?taxId uniprot:scientificName ?sciName; uniprot:rank ?rank.
+            # Strip prefix from uniref ids
+            BIND(strafter(str(?unirefIn), 'uniref/') as ?unirefOut)
             # Process name to prefix__taxon format
-            bind(lcase(substr(strafter(str(?rank), 'Rank_'), 1, 1)) as ?prefix)
-            bind(concat(?prefix, '__', ?sciName) as ?name)
+            BIND(lcase(substr(strafter(str(?rank), 'Rank_'), 1, 1)) as ?prefix)
+            BIND(concat(?prefix, '__', ?sciName) as ?name)
             }
         }
         "
@@ -53,5 +55,10 @@ rdflib <- import("rdflib")
     # Convert name bindings to vector
     tax.vec <- vapply(qres$bindings, function(binding)
         binding[["name"]], character(1))
-    return(tax.vec)
+    # Convert uniref bindings to vector
+    uniref.vec <- vapply(qres$bindings, function(binding)
+        binding[["unirefOut"]], character(1))
+    # Combine into linkMap
+    uniref.tax <- data.frame(uniref = uniref.vec, tax = tax.vec)
+    return(uniref.tax)
 }
