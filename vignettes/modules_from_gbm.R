@@ -5,9 +5,11 @@
 
 gbm <- importModules("GBM")
 
-map <- importMapping("data/map_ko_uniref90.txt")
+map1 <- importMapping("ko.uniref90")
+map2 <- importMapping("eggnog.uniref90")
+map3 <- importMappings(c("ko.uniref90", "eggnog.uniref90"))
 
-sigs <- mapModules(gbm, map, remove.empty = TRUE)
+sigs <- mapModules(gbm, map3)
 
 # Import dataset
 data("Tengeler2020", package = "mia")
