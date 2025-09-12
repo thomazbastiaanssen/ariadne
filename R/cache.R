@@ -2,7 +2,7 @@
 
 # Adapted from UniProt.ws utilities.R
 #' @importFrom BiocFileCache BiocFileCache bfcneedsupdate bfcrpath bfcdownload
-.getFile <- function(url){
+.getCache <- function(url){
   
     cache <- tools::R_user_dir("ariadne", "cache")
     
