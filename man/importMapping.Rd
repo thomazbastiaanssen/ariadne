@@ -3,15 +3,69 @@
 \name{importMapping}
 \alias{importMapping}
 \alias{importMapping,character-method}
-\alias{importMappings,character-method}
 \title{Import mappings from a file or a database}
 \usage{
-importMapping(map.file, from = NULL, to = NULL, message = TRUE)
+importMapping(map.file, from = NULL, to = NULL, merge = TRUE, message = TRUE)
 
-\S4method{importMapping}{character}(map.file, from = NULL, to = NULL, message = TRUE)
+\S4method{importMapping}{character}(map.file, from = NULL, to = NULL, merge = TRUE, message = TRUE)
+}
+\arguments{
+\item{map.file}{\code{Character vector}. One or more paths to custom mapping
+files or one or more of the available databases (\code{"ChocoPhlAn"}).}
 
-\S4method{importMappings}{character}(map.files, merge = TRUE)
+\item{from}{\code{Character vector}. One or more strings specifying the
+keys from which mapping is performed. (Default: \code{NULL})}
+
+\item{to}{\code{Character vector}. One or more strings specifying the
+values to which mapping is performed. (Default: \code{NULL})}
+
+\item{merge}{\code{Logical scalar}. Should multiple mapping files be merged.
+(Default: \code{TRUE}).}
+
+\item{message}{\code{Logical scalar}. Should information on execution be
+printed in the console. (Default: \code{TRUE}).}
+}
+\value{
+\code{importMapping} returns a named list of vectors, where each vector is a
+mapping key and its elements are the mapped values.
 }
 \description{
-Import mappings from a file or a database
+\code{importMapping} retrieves mapping information from a file or a database.
+}
+\details{
+Structure of \code{map.file}
+
+Currently, the following databases are available:
+\itemize{
+\item{\code{"ChocoPhlAn"}: x-to-uniref mapping files from bioBakery
+\itemize{
+\item{repo: \href{https://zenodo.org/records/17100034}{https://zenodo.org/records/17100034}}
+\item{from: \code{c("eggnog", "go", "ko", "level4ec")}}
+\item{to: \code{c("uniref50", "uniref90")}}}
+}
+\item{\code{"WoLtka"}: description
+\itemize{
+\item{repo: \href{https://ftp.microbio.me/pub/wol-20April2021/}{https://ftp.microbio.me/pub/wol-20April2021/}}
+\item{from: }
+\item{to: }
+}}
+}
+}
+\examples{
+# Import eggnog-to-uniref90 mapping from ChocoPhlAn
+map1 <- importMapping("ChocoPhlAn", from = "eggnog", to = "uniref90")
+
+# Import ko-to-uniref90 mapping from ChocoPhlAn
+map2 <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
+
+# Import and merge ko- and eggnog-to-uniref90 mappings from ChocoPhlAn
+map3 <- importMapping(
+    "ChocoPhlAn",
+    from = c("eggnog", "ko"),
+    to = "uniref90"
+)
+
+# Import local mapping file
+# map4 <- importMapping("path/to/file")
+
 }

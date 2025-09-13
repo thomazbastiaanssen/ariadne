@@ -21,9 +21,6 @@ taxa be removed. (Default: \code{TRUE}).}
 
 \item{message}{\code{Logical scalar}. Should information on execution be
 printed in the console. (Default: \code{TRUE}).}
-
-\item{x}{a
-\code{\link[TreeSummarizedExperiment:TreeSummarizedExperiment-constructor]{TreeSummarizedExperiment}}.}
 }
 \value{
 \code{mapModules} returns a named list of vectors, where each vector is a
@@ -41,9 +38,11 @@ Additional details
 \examples{
 # Import GBM
 gbm <- importModules("GBM")
+
 # Import ko-to-uniref90 mapping
-map1 <- importMapping("ko.uniref90")
+map <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
+
 # Map modules to taxa
-sigs <- mapModules(gbm[seq(3)], map1)
+sigs <- mapModules(gbm[seq(3)], map)
 
 }

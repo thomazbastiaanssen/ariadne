@@ -1,19 +1,13 @@
 #' @rdname importMapping
 #' @export
 setGeneric("importMapping", signature = "map.file",
-    function(map.file, from = NULL, to = NULL, message = TRUE)
+    function(map.file, from = NULL, to = NULL, merge = TRUE, message = TRUE)
     standardGeneric("importMapping"))
-
-#' @rdname importMappings
-#' @export
-setGeneric("importMappings", signature = "map.files",
-    function(map.files, from = NULL, to = NULL, merge = TRUE, message = TRUE)
-    standardGeneric("importMappings"))
 
 #' @rdname importModules
 #' @export
 setGeneric("importModules", signature = "module.file",
-    function(module.file)
+    function(module.file, merge = TRUE, message = TRUE)
     standardGeneric("importModules"))
 
 #' @rdname mapModules
@@ -24,6 +18,6 @@ setGeneric("mapModules", signature = "modules",
 
 #' @rdname utils
 #' @export
-setGeneric("as.linkMap", signature = "values",
+setGeneric("as.linkmap", signature = "values",
     function(values, keys = NULL, col.names = NULL)
-    standardGeneric("as.linkMap"))
+    standardGeneric("as.linkmap"))
