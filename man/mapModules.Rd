@@ -38,8 +38,10 @@ Additional details
 \examples{
 # Import GBM
 gbm <- importModules("GBM")
+
 # Import ko-to-uniref90 mapping
-map <- importMapping("ko.uniref90")
+map <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
+
 # Map modules to taxa
 sigs <- mapModules(gbm[seq(3)], map)
 

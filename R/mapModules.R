@@ -27,8 +27,10 @@
 #' @examples
 #' # Import GBM
 #' gbm <- importModules("GBM")
+#' 
 #' # Import ko-to-uniref90 mapping
-#' map <- importMapping("ko.uniref90")
+#' map <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
+#' 
 #' # Map modules to taxa
 #' sigs <- mapModules(gbm[seq(3)], map)
 #' 
@@ -67,7 +69,7 @@ setMethod("mapModules", signature = c(modules = "list"),
         # Query taxonomy from UniRef90
         tax.list <- bplapply(map, .querySPARQL)
         # Find functions for each taxon
-        tax.linkmap <- as.linkMap(tax.list)
+        tax.linkmap <- as.linkmap(tax.list)
         tax <- split(tax.linkmap$x, tax.linkmap$y)
         if( message ){
             message(length(tax), " tax ids were retrieved from UniProt.")

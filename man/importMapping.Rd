@@ -35,10 +35,24 @@ mapping key and its elements are the mapped values.
 \details{
 Structure of \code{map.file}
 
-ChocoPhlAn files (link to Zenodo) and databases
+Currently, the following databases are available:
+\itemize{
+\item{\code{"ChocoPhlAn"}: x-to-uniref mapping files from bioBakery
+\itemize{
+\item{repo: \href{https://zenodo.org/records/17100034}{https://zenodo.org/records/17100034}}
+\item{from: \code{c("eggnog", "go", "ko", "level4ec")}}
+\item{to: \code{c("uniref50", "uniref90")}}}
+}
+\item{\code{"WoLtka"}: description
+\itemize{
+\item{repo: \href{https://ftp.microbio.me/pub/wol-20April2021/}{https://ftp.microbio.me/pub/wol-20April2021/}}
+\item{from: }
+\item{to: }
+}}
+}
 }
 \examples{
-Import eggnog-to-uniref90 mapping from ChocoPhlAn
+# Import eggnog-to-uniref90 mapping from ChocoPhlAn
 map1 <- importMapping("ChocoPhlAn", from = "eggnog", to = "uniref90")
 
 # Import ko-to-uniref90 mapping from ChocoPhlAn

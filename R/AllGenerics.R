@@ -18,6 +18,6 @@ setGeneric("mapModules", signature = "modules",
 
 #' @rdname utils
 #' @export
-setGeneric("as.linkMap", signature = "values",
+setGeneric("as.linkmap", signature = "values",
     function(values, keys = NULL, col.names = NULL)
-    standardGeneric("as.linkMap"))
+    standardGeneric("as.linkmap"))

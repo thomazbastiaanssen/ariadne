@@ -2,9 +2,15 @@
 #' 
 #' \code{importModules} retrieves modules information from a file or database.
 #' 
-#' @param map.file \code{Character vector}. One or more paths to custom mapping
-#'   files or one or more of the available databases (\code{"ChocoPhlAn"}).
-#'
+#' @param module.file \code{Character vector}. One or more paths to custom
+#'   module files or one or more of the available databases
+#'   (\code{c("GBM", "GMM")}).
+#' 
+#' @param merge \code{Logical scalar}. Should multiple mapping files be merged.
+#'   (Default: \code{TRUE}).
+#' 
+#' @param message \code{Logical scalar}. Should information on execution be
+#'   printed in the console. (Default: \code{TRUE}).
 #' 
 #' @name importModules
 NULL

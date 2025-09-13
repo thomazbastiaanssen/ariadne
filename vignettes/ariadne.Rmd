@@ -1,0 +1,161 @@
+---
+title: "# ariadne: on-demand annotation and module analysis"
+author: 
+  - name: Giulio Benedetti
+    affiliation: University of Turku
+    email: giulio.benedetti@utu.fi
+output:
+    BiocStyle::html_document:
+        fig_height: 7
+        fig_width: 10
+        toc: true
+        toc_float: true
+        toc_depth: 2
+        number_sections: true
+        self_contained: true
+        code_folding: show
+# bibliography: ../inst/REFERENCES.bib
+date: "`r doc_date()`"
+package: "`r pkg_ver('ariadne')`"
+vignette: >
+  %\VignetteIndexEntry{ariadne}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+## Motivation
+
+# Tutorial
+
+## Installation
+
+```{r install, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("ariadne")
+```
+
+Here, the terms "module" and "signature" are used in place of each other.
+
+```{r}
+library(ariadne)
+library(mia)
+
+# Import dataset
+data("Tengeler2020", package = "mia")
+tse <- Tengeler2020
+```
+
+## Retrieve taxonomic modules
+
+```{r}
+library(bugsigdbr)
+
+# Download database
+bsdb <- importBugSigDB()
+
+# Retrieve microbial signatures
+bsdb.sigs <- getSignatures(bsdb, tax.id.type = "metaphlan")
+```
+
+```{r}
+# Add module membership to rowData
+tse <- addModules(tse, bsdb.sigs)
+```
+
+## Retrieve functional modules
+
+```{r}
+# Import GBM
+gbm <- importModules("GBM")
+
+# Import ko-to-uniref90 mapping
+ko.uniref90 <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
+```
+
+```{r}
+# Map modules to taxa
+gbm.sigs <- mapModules(gbm, ko.uniref90)
+```
+
+```{r}
+# Add module membership to rowData
+tse <- addModules(tse, bsdb.sigs)
+```
+
+## Module analysis
+
+```{r}
+# Collect all module names
+all.sigs <- c(names(bsdb.sigs), names(gbm.sigs))
+
+# Agglomerate features by every module
+tse.mod <- agglomerateByModule(tse, by = 1L, group = all.sigs)
+```
+
+```{r include=FALSE}
+# Add arg to agglomerateByModule to remove.empty
+keep <- rowSums(assay(tse.mod)) > 0
+tse.mod <- tse.mod[keep, ]
+```
+
+Make some plots
+
+```{r}
+
+```
+
+
+## Microbe-set enrichment analysis
+
+# Resources
+
+## Citation
+
+We hope that miaDash will be useful for your research. Please use the following
+information to cite the package and the overall approach. Thank you!
+
+```{r citation}
+## Citation info
+citation("ariadne")
+```
+
+## Background Knowledge
+
+ariadne originates from the joint effort of the R/Bioconductor community. It is
+mainly based on the following software:
+
+- [R](https://www.r-project.org/), statistical programming language [@core2025r]
+- [mia](https://bioconductor.org/packages/release/bioc/html/mia.html),
+  framework for microbiome data analysis [@borman2025mia]
+- [anansi](https://github.com/thomazbastiaanssen/anansi/),
+  Annotation-based Analysis of Specific Interactions [@bastiaanssen2023anansi]
+- [TreeSummarizedExperiment](https://bioconductor.org/packages/release/bioc/html/TreeSummarizedExperiment.htmlm), S4 container for hierarchical data [@huang2020treesummarizedexperiment]
+
+## Help
+
+You can reach us by one of the communication channels listed
+[here](https://microbiome.github.io/OMA/docs/devel/pages/support.html). We are
+happy to receive questions, suggestions as well as contributions. For the last
+point, check the
+[contributor guidelines](https://microbiome.github.io/mia/CONTRIBUTING.html).
+
+# Reproducibility
+
+R session information:
+
+```{r reproduce, echo=FALSE}
+# Session info
+options(width = 120)
+sessionInfo()
+```
