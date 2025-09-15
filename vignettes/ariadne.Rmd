@@ -99,7 +99,7 @@ gbm.sigs <- mapModules(gbm, ko.uniref90)
 
 ```{r}
 # Add module membership to rowData
-tse <- addModules(tse, bsdb.sigs)
+tse <- addModules(tse, gbm.sigs)
 ```
 
 ## Module analysis

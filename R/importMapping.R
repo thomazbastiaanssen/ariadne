@@ -28,11 +28,11 @@
 #'       \item{from: \code{c("eggnog", "go", "ko", "level4ec")}}
 #'       \item{to: \code{c("uniref50", "uniref90")}}}
 #'   }
-#'   \item{\code{"WoLtka"}: description
+#'   \item{\code{"Woltka"}: x-to-uniref mapping files from the Web of Life
 #'     \itemize{
 #'       \item{repo: \href{https://ftp.microbio.me/pub/wol-20April2021/}{https://ftp.microbio.me/pub/wol-20April2021/}}
-#'       \item{from: }
-#'       \item{to: }
+#'       \item{from: c("eggnog", "go", "ko", "orthodb", "refseq")}
+#'       \item{to: "uniref90"}
 #'     }}
 #' }
 #' 
@@ -65,11 +65,18 @@ MappingDatabases <- list(
         repo = "https://zenodo.org/records/17100034/files/",
         from = c("eggnog", "go", "ko", "level4ec"),
         to = c("uniref50", "uniref90"),
-        prefix = "map_",
-        suffix = ".txt.gz",
-        sep = "_"
+        path = function(repo, from, to){
+            paste0(repo, "map_", from, "_", to, ".txt.gz")
+        }
+    ),
+    Woltka = list(
+        repo = "https://ftp.microbio.me/pub/wol-20April2021/",
+        from = c("eggnog", "go", "ko", "orthodb", "refseq"),
+        to = "uniref90",
+        path = function(repo, from, to){
+            paste0(repo, "function/", from, "/", from, ".map.xz")
+        }
     )
-    # WoLtka <- list()
 )
 
 #' @rdname importMapping
@@ -142,8 +149,28 @@ setMethod("importMapping", signature = c(map.file = "character"),
         stop("'to' should be defined and be one of ",
             paste(map.db$to, collapse = ", "), ".", call. = FALSE)
     }
-    map.file <- paste0(
-        map.db$repo, map.db$prefix, from, map.db$sep, to, map.db$suffix
-    )
+    map.file <- map.db$path(map.db$repo, from, to)
     return(map.file)
 }
+
+.adjust_woltka <- function(woltka.map){
+    names(woltka.map) <- paste0("UniRef90_", names(woltka.map))
+    linkmap <- as.linkmap(woltka.map)
+    woltka.map <- split(linkmap$x, linkmap$y)
+    return(woltka.map)
+}
+
+map1 <- importMapping("ChocoPhlAn", "eggnog", "uniref90")
+map2 <- importMapping("Woltka", "eggnog", "uniref90")
+
+map2 <- .adjust_woltka(map2)
+
+lengths(list(map1, map2))
+sum(lengths(list(map1, map2)))
+length(unique(c(names(map1), names(map2))))
+
+l <- list(map1, map2)
+keys <- unique(unlist(lapply(l, names)))
+map <- do.call(mapply, c(FUN=c, lapply(l, `[`, keys)))
+names(map) <- keys
+
