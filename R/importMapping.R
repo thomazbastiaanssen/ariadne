@@ -3,7 +3,8 @@
 #' \code{importMapping} retrieves mapping information from a file or a database.
 #' 
 #' @param map.file \code{Character vector}. One or more paths to custom mapping
-#'   files or one or more of the available databases (\code{"ChocoPhlAn"}).
+#'   files or one or more names from the available databases
+#'   (\code{c("ChocoPhlAn", "Woltka")}).
 #'
 #' @param from \code{Character vector}. One or more strings specifying the
 #'   keys from which mapping is performed. (Default: \code{NULL})
@@ -100,24 +101,29 @@ setMethod("importMapping", signature = c(map.file = "character"),
         # Import each mapping file
         map <- mapply(
             .import_mapping,
-            map.file = map.file, from = from, to = to,
+            x = map.file, from = from, to = to,
             MoreArgs = list(message = message),
             SIMPLIFY = FALSE, USE.NAMES = FALSE
         )
         # Merge mapping files
         if( merge ){
-            map <- unlist(map, recursive = FALSE)
+            # Find unique keys
+            keys <- unique(unlist(lapply(map, names)))
+            # Merge values by unique keys
+            map <- do.call(mapply, c(FUN = c, lapply(map, `[`, keys)))
+            # Use keys as names
+            names(map) <- keys
         }
         return(map)
     }
 )
 
 # Import single mapping file
-.import_mapping <- function(map.file, from, to, message){
+.import_mapping <- function(x, from, to, message){
     # Whether to use package or custom mapping
-    if( map.file %in% names(MappingDatabases) ){
+    if( x %in% names(MappingDatabases) ){
         # Construct path to database
-        map.file <- .getPath(map.file, from, to)
+        map.file <- .getPath(x, from, to)
         # Cache database
         map.file <- .getCache(map.file)
     }
@@ -134,6 +140,10 @@ setMethod("importMapping", signature = c(map.file = "character"),
     values <- lapply(items, FUN = function(x) x[-1])
     # Add names to list
     names(values) <- keys
+    # Flip names and values of Woltka mapping file
+    if( x == "Woltka" ){
+        values <- .process_woltka(values)
+    }
     return(values)
 }
 
@@ -153,24 +163,9 @@ setMethod("importMapping", signature = c(map.file = "character"),
     return(map.file)
 }
 
-.adjust_woltka <- function(woltka.map){
+.process_woltka <- function(woltka.map){
     names(woltka.map) <- paste0("UniRef90_", names(woltka.map))
     linkmap <- as.linkmap(woltka.map)
     woltka.map <- split(linkmap$x, linkmap$y)
     return(woltka.map)
 }
-
-map1 <- importMapping("ChocoPhlAn", "eggnog", "uniref90")
-map2 <- importMapping("Woltka", "eggnog", "uniref90")
-
-map2 <- .adjust_woltka(map2)
-
-lengths(list(map1, map2))
-sum(lengths(list(map1, map2)))
-length(unique(c(names(map1), names(map2))))
-
-l <- list(map1, map2)
-keys <- unique(unlist(lapply(l, names)))
-map <- do.call(mapply, c(FUN=c, lapply(l, `[`, keys)))
-names(map) <- keys
-

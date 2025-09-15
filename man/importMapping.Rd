@@ -11,7 +11,8 @@ importMapping(map.file, from = NULL, to = NULL, merge = TRUE, message = TRUE)
 }
 \arguments{
 \item{map.file}{\code{Character vector}. One or more paths to custom mapping
-files or one or more of the available databases (\code{"ChocoPhlAn"}).}
+files or one or more names from the available databases
+(\code{c("ChocoPhlAn", "Woltka")}).}
 
 \item{from}{\code{Character vector}. One or more strings specifying the
 keys from which mapping is performed. (Default: \code{NULL})}
@@ -43,11 +44,11 @@ Currently, the following databases are available:
 \item{from: \code{c("eggnog", "go", "ko", "level4ec")}}
 \item{to: \code{c("uniref50", "uniref90")}}}
 }
-\item{\code{"WoLtka"}: description
+\item{\code{"Woltka"}: x-to-uniref mapping files from the Web of Life
 \itemize{
 \item{repo: \href{https://ftp.microbio.me/pub/wol-20April2021/}{https://ftp.microbio.me/pub/wol-20April2021/}}
-\item{from: }
-\item{to: }
+\item{from: c("eggnog", "go", "ko", "orthodb", "refseq")}
+\item{to: "uniref90"}
 }}
 }
 }
