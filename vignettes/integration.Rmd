@@ -1,0 +1,21 @@
+
+
+
+```{r}
+mae <- curatedMetagenomicData("GuptaA_2019", dryrun = FALSE)
+```
+
+```{r}
+names(mae)
+```
+
+```{r}
+tse <- mae[["2021-03-31.GuptaA_2019.relative_abundance"]]
+genes <- mae[["2021-03-31.GuptaA_2019.gene_families"]]
+pathways <- mae[["2021-03-31.GuptaA_2019.pathway_abundance"]]
+```
+
+```{r}
+rownames(genes)
+```
+

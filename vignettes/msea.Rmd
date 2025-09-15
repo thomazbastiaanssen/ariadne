@@ -1,0 +1,19 @@
+
+# RESTful APIs or resources for taxonomic module databases
+
+- [BugSigDB](https://waldronlab.io/bugsigdbr/articles/bugsigdbr.html)
+  (bugsigdbr)
+
+## Health & Disease
+- [GMRepoV2](https://github.com/evolgeniusteam/GMrepoProgrammableAccess/blob/master/programmable-access/R.md)
+  (programmable access)
+- [mBodyMap](https://github.com/whchenlab/mBodymap/blob/main/programmable-access/R.md)
+  (programmable access)
+  
+## Gut Microbe-Microbial Metabolite
+- [gutMGene](https://bio-computing.hrbmu.edu.cn/gutmgene/#/Resource)
+  (literature-based associations, blocked)
+- [MiMeDB](https://mimedb.org/downloads) (pathways)
+
+
+
