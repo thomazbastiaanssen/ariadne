@@ -14,7 +14,7 @@
 #' @param remove.empty \code{Logical scalar}. Should modules with no matching
 #'   taxa be removed. (Default: \code{TRUE}).
 #' 
-#' @param message \code{Logical scalar}. Should information on execution be
+#' @param verbose \code{Logical scalar}. Should information on execution be
 #'   printed in the console. (Default: \code{TRUE}).
 #' 
 #' @details
@@ -41,15 +41,17 @@ NULL
 #' @export
 #' @importFrom BiocParallel bplapply
 setMethod("mapModules", signature = c(modules = "list"),
-    function(modules, map, remove.empty = TRUE, message = TRUE){
+    function(modules, map, remove.empty = TRUE, uniprot = FALSE, verbose = TRUE){
         # Check arguments
         if( !is.vector(modules) ){
-          stop("'modules' must be a character vector or list of character ",
-              "vectors, where each vector corresponds to a module.", call. = FALSE)
+            stop("'modules' must be a character vector or list of character ",
+                "vectors, where each vector corresponds to a module.",
+                call. = FALSE)
         }
         if( !is.vector(map) ){
-          stop("'map' must be a character vector or list of character ",
-              "vectors, where each vector corresponds to a mapping.", call. = FALSE)
+            stop("'map' must be a character vector or list of character ",
+                "vectors, where each vector corresponds to a mapping.",
+                call. = FALSE)
         }
         if( !is.logical(remove.empty) ){
             stop("'remove.empty' should be TRUE or FALSE.", call. = FALSE)
@@ -58,31 +60,22 @@ setMethod("mapModules", signature = c(modules = "list"),
         keep <- names(map) %in% unique(unlist(modules, use.names = FALSE))
         map <- map[keep]
         # Check matched uniref ids
-        uniref.length <- length(unlist(map))
-        if( uniref.length == 0){
+        map.size <- length(unlist(map))
+        if( map.size == 0){
             stop("'map' did not match any element in 'modules'.", call. = FALSE)
         }
-        if( message ){
+        if( verbose ){
             message("Mapping ", length(modules), " modules to ",
-                uniref.length, " uniref ids.")
+                map.size, " values.")
         }
-        # Query taxonomy from UniRef90
-        tax.list <- bplapply(map, .querySPARQL)
-        # Find functions for each taxon
-        tax.linkmap <- as.linkmap(tax.list)
-        tax <- split(tax.linkmap$x, tax.linkmap$y)
-        if( message ){
-            message(length(tax), " tax ids were retrieved from UniProt.")
+        if( uniprot ){
+            # Query taxonomy from UniRef90
+            map <- bplapply(map, .querySPARQL)
         }
         # Store taxa in modules list
-        sig.list <- bplapply(modules, function(module) {
-            members <- vapply(tax, function(tax.item) {
-                all(vapply(module, function(mod) any(mod %in% tax.item), logical(1)))
-            }, logical(1))
-            names(tax)[members]
-        })
+        sig.list <- .andor_mapping(modules, map)
+        # Remove empty modules
         if( remove.empty ){
-            # Remove empty modules 
             sig.list <- Filter(function(sig) length(sig) > 0, sig.list)
         }
         return(sig.list)
@@ -132,4 +125,30 @@ setMethod("mapModules", signature = c(modules = "list"),
     tax.vec <- vapply(qres$bindings, function(binding)
         binding[["name"]], character(1))
     return(tax.vec)
+}
+
+# Perform one-to-one mapping
+.oto_mapping <- function(modules, values){
+    # Store taxa in modules list
+    sig.list <- bplapply(modules, function(module){
+        keep <- names(tax.list) %in% module
+        module <- unname(unlist(tax.list[keep]))
+        return(module)
+    })
+    return(sig.list)
+}
+
+# Perform and/or mapping (reaction pathway modules)
+.andor_mapping <- function(modules, values){
+    # Find functions for each taxon
+    linkmap <- as.linkmap(values)
+    tax <- split(linkmap$x, linkmap$y)
+    # Store taxa in modules list
+    sig.list <- bplapply(modules, function(module) {
+        members <- vapply(tax, function(tax.item) {
+            all(vapply(module, function(comp) any(comp %in% tax.item), logical(1)))
+        }, logical(1))
+        names(tax)[members]
+    })
+    return(sig.list)
 }

@@ -15,7 +15,7 @@
 #' @param merge \code{Logical scalar}. Should multiple mapping files be merged.
 #'   (Default: \code{TRUE}).
 #' 
-#' @param message \code{Logical scalar}. Should information on execution be
+#' @param verbose \code{Logical scalar}. Should information on execution be
 #'   printed in the console. (Default: \code{TRUE}).
 #' 
 #' @details
@@ -83,7 +83,7 @@ MappingDatabases <- list(
 #' @rdname importMapping
 #' @export
 setMethod("importMapping", signature = c(map.file = "character"),
-    function(map.file, from = NULL, to = NULL, merge = TRUE, message = TRUE){
+    function(map.file, from = NULL, to = NULL, merge = TRUE, verbose = TRUE){
         # Find number of mapping files
         input.lengths <- lengths(list(map.file, from, to))
         max.length <- max(input.lengths)
@@ -95,14 +95,14 @@ setMethod("importMapping", signature = c(map.file = "character"),
         if( !is.logical(merge) ){
             stop("'merge' must be TRUE or FALSE.", call. = FALSE)
         }
-        if( !is.logical(message) ){
-            stop("'message' must be TRUE or FALSE.", call. = FALSE)
+        if( !is.logical(verbose) ){
+            stop("'verbose' must be TRUE or FALSE.", call. = FALSE)
         }
         # Import each mapping file
         map <- mapply(
             .import_mapping,
             x = map.file, from = from, to = to,
-            MoreArgs = list(message = message),
+            MoreArgs = list(verbose = verbose),
             SIMPLIFY = FALSE, USE.NAMES = FALSE
         )
         # Merge mapping files
@@ -119,7 +119,7 @@ setMethod("importMapping", signature = c(map.file = "character"),
 )
 
 # Import single mapping file
-.import_mapping <- function(x, from, to, message){
+.import_mapping <- function(x, from, to, verbose){
     # Whether to use package or custom mapping
     if( x %in% names(MappingDatabases) ){
         # Construct path to database
@@ -127,7 +127,7 @@ setMethod("importMapping", signature = c(map.file = "character"),
         # Cache database
         map.file <- .getCache(map.file)
     }
-    if( message ){
+    if( verbose ){
         message("Retrieving mappings from ", map.file, ".")
     }
     # Read file content

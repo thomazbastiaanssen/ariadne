@@ -5,9 +5,9 @@
 \alias{importMapping,character-method}
 \title{Import mappings from a file or a database}
 \usage{
-importMapping(map.file, from = NULL, to = NULL, merge = TRUE, message = TRUE)
+importMapping(map.file, from = NULL, to = NULL, merge = TRUE, verbose = TRUE)
 
-\S4method{importMapping}{character}(map.file, from = NULL, to = NULL, merge = TRUE, message = TRUE)
+\S4method{importMapping}{character}(map.file, from = NULL, to = NULL, merge = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{map.file}{\code{Character vector}. One or more paths to custom mapping
@@ -23,7 +23,7 @@ values to which mapping is performed. (Default: \code{NULL})}
 \item{merge}{\code{Logical scalar}. Should multiple mapping files be merged.
 (Default: \code{TRUE}).}
 
-\item{message}{\code{Logical scalar}. Should information on execution be
+\item{verbose}{\code{Logical scalar}. Should information on execution be
 printed in the console. (Default: \code{TRUE}).}
 }
 \value{
