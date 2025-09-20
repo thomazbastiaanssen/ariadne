@@ -5,13 +5,14 @@
 \alias{importMapping,character-method}
 \title{Import mappings from a file or a database}
 \usage{
-importMapping(map.file, from = NULL, to = NULL, merge = TRUE, message = TRUE)
+importMapping(map.file, from = NULL, to = NULL, merge = TRUE, verbose = TRUE)
 
-\S4method{importMapping}{character}(map.file, from = NULL, to = NULL, merge = TRUE, message = TRUE)
+\S4method{importMapping}{character}(map.file, from = NULL, to = NULL, merge = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{map.file}{\code{Character vector}. One or more paths to custom mapping
-files or one or more of the available databases (\code{"ChocoPhlAn"}).}
+files or one or more names from the available databases
+(\code{c("ChocoPhlAn", "Woltka")}).}
 
 \item{from}{\code{Character vector}. One or more strings specifying the
 keys from which mapping is performed. (Default: \code{NULL})}
@@ -22,7 +23,7 @@ values to which mapping is performed. (Default: \code{NULL})}
 \item{merge}{\code{Logical scalar}. Should multiple mapping files be merged.
 (Default: \code{TRUE}).}
 
-\item{message}{\code{Logical scalar}. Should information on execution be
+\item{verbose}{\code{Logical scalar}. Should information on execution be
 printed in the console. (Default: \code{TRUE}).}
 }
 \value{
@@ -43,11 +44,11 @@ Currently, the following databases are available:
 \item{from: \code{c("eggnog", "go", "ko", "level4ec")}}
 \item{to: \code{c("uniref50", "uniref90")}}}
 }
-\item{\code{"WoLtka"}: description
+\item{\code{"Woltka"}: x-to-uniref mapping files from the Web of Life
 \itemize{
 \item{repo: \href{https://ftp.microbio.me/pub/wol-20April2021/}{https://ftp.microbio.me/pub/wol-20April2021/}}
-\item{from: }
-\item{to: }
+\item{from: c("eggnog", "go", "ko", "orthodb", "refseq")}
+\item{to: "uniref90"}
 }}
 }
 }

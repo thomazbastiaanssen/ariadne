@@ -9,7 +9,7 @@
 #' @param merge \code{Logical scalar}. Should multiple mapping files be merged.
 #'   (Default: \code{TRUE}).
 #' 
-#' @param message \code{Logical scalar}. Should information on execution be
+#' @param verbose \code{Logical scalar}. Should information on execution be
 #'   printed in the console. (Default: \code{TRUE}).
 #' 
 #' @name importModules
@@ -23,14 +23,14 @@ ModuleDatabases <- list(
 #' @rdname importModules
 #' @export
 setMethod("importModules", signature = c(module.file = "character"),
-    function(module.file, merge = TRUE, message = TRUE){
+    function(module.file, merge = TRUE, verbose = TRUE){
         if( !is.logical(merge) ){
             stop("'merge' must be TRUE or FALSE.", call. = FALSE)
         }
-        if( !is.logical(message) ){
-            stop("'message' must be TRUE or FALSE.", call. = FALSE)
+        if( !is.logical(verbose) ){
+            stop("'verbose' must be TRUE or FALSE.", call. = FALSE)
         }
-        modules <- lapply(module.file, .import_modules, message = message)
+        modules <- lapply(module.file, .import_modules, verbose = verbose)
         # Merge mapping files
         if( merge ){
             modules <- unlist(modules, recursive = FALSE)
@@ -39,7 +39,7 @@ setMethod("importModules", signature = c(module.file = "character"),
     }
 )
 
-.import_modules <- function(module.file, message){
+.import_modules <- function(module.file, verbose){
     # Whether to use package or custom modules
     if( module.file %in% names(ModuleDatabases) ){
         # Cache database

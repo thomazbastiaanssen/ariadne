@@ -5,9 +5,9 @@
 \alias{importModules,character-method}
 \title{Import modules from a file or a database}
 \usage{
-importModules(module.file, merge = TRUE, message = TRUE)
+importModules(module.file, merge = TRUE, verbose = TRUE)
 
-\S4method{importModules}{character}(module.file, merge = TRUE, message = TRUE)
+\S4method{importModules}{character}(module.file, merge = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{module.file}{\code{Character vector}. One or more paths to custom
@@ -17,7 +17,7 @@ module files or one or more of the available databases
 \item{merge}{\code{Logical scalar}. Should multiple mapping files be merged.
 (Default: \code{TRUE}).}
 
-\item{message}{\code{Logical scalar}. Should information on execution be
+\item{verbose}{\code{Logical scalar}. Should information on execution be
 printed in the console. (Default: \code{TRUE}).}
 }
 \description{

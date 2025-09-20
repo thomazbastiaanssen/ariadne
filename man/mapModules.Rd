@@ -5,9 +5,9 @@
 \alias{mapModules,list-method}
 \title{Map modules to taxa}
 \usage{
-mapModules(modules, map, remove.empty = TRUE, message = TRUE)
+mapModules(modules, map, remove.empty = TRUE, uniprot = FALSE, verbose = TRUE)
 
-\S4method{mapModules}{list}(modules, map, remove.empty = TRUE, message = TRUE)
+\S4method{mapModules}{list}(modules, map, remove.empty = TRUE, uniprot = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{modules}{\code{Named character list}. Named list of vectors, where each
@@ -19,7 +19,7 @@ vector is a mapping key and its elements are the mapped values.}
 \item{remove.empty}{\code{Logical scalar}. Should modules with no matching
 taxa be removed. (Default: \code{TRUE}).}
 
-\item{message}{\code{Logical scalar}. Should information on execution be
+\item{verbose}{\code{Logical scalar}. Should information on execution be
 printed in the console. (Default: \code{TRUE}).}
 }
 \value{

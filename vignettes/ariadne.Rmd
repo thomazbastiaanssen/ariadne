@@ -32,6 +32,15 @@ knitr::opts_chunk$set(
 
 # Introduction
 
+ariadne aims to provide a rapid and robust approach to incorporate taxonomic
+and functional module analyses into your bioinformatic workflow. Despite the
+presence of specialised bioinformatic tools, on-demand functional annotation of
+taxonomic features directly in R has remained challenging. To make this simple,
+ariadne offers tools to rapidly annotate features with taxonomic or functional
+modules based on online resources (BugSigDB, ChocoPhlAn, Web of Life and UniProt).
+In addition, we provide tools to incorporate, analyse and visualise module
+information into popular standardised containers, such as TreeSummarizedExperiment.
+
 ## Motivation
 
 # Tutorial
@@ -90,7 +99,7 @@ gbm.sigs <- mapModules(gbm, ko.uniref90)
 
 ```{r}
 # Add module membership to rowData
-tse <- addModules(tse, bsdb.sigs)
+tse <- addModules(tse, gbm.sigs)
 ```
 
 ## Module analysis

@@ -1,5 +1,5 @@
 Package: ariadne
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: 
     c(person(given = "Giulio", family = "Benedetti", role = c("aut", "cre"),
           email = "giulio.benedetti@utu.fi",
@@ -10,10 +10,20 @@ Authors@R:
     person(given = "Leo", family = "Lahti", role = c("aut"),
           email = "leo.lahti@iki.fi",
           comment = c(ORCID = "0000-0001-5537-637X")))
-Title: On-demand functional annotation and mapping for microbiome data
+Title: On-demand annotation and mapping for module analysis
 Description:
-    Description of the package
-biocViews: Microbiome, Software
+    ariadne aims to provide a rapid and robust approach to incorporate taxonomic
+    and functional module analyses into your bioinformatic workflow. Despite
+    the presence of specialised bioinformatic tools, on-demand functional
+    annotation of taxonomic features directly in R has remained challenging. To
+    make this simple, ariadne offers tools to rapidly annotate features with
+    taxonomic or functional modules based on online resources (BugSigDB,
+    ChocoPhlAn, Web of Life and UniProt). In addition, we provide tools to
+    incorporate, analyse and visualise module information into popular
+    standardised containers, such as TreeSummarizedExperiment.
+biocViews:
+    Software, DataImport, Metabolomics, Metagenomics, Microbiome, Annotation,
+    Pathways, Visualization
 License: Artistic-2.0
 Encoding: UTF-8
 Depends:
@@ -24,6 +34,8 @@ Imports:
     methods,
     mia,
     reticulate,
+    stringr,
+    SummarizedExperiment,
     TreeSummarizedExperiment
 Suggests:
     BiocStyle,

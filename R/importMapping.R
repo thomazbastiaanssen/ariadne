@@ -3,7 +3,8 @@
 #' \code{importMapping} retrieves mapping information from a file or a database.
 #' 
 #' @param map.file \code{Character vector}. One or more paths to custom mapping
-#'   files or one or more of the available databases (\code{"ChocoPhlAn"}).
+#'   files or one or more names from the available databases
+#'   (\code{c("ChocoPhlAn", "Woltka")}).
 #'
 #' @param from \code{Character vector}. One or more strings specifying the
 #'   keys from which mapping is performed. (Default: \code{NULL})
@@ -14,7 +15,7 @@
 #' @param merge \code{Logical scalar}. Should multiple mapping files be merged.
 #'   (Default: \code{TRUE}).
 #' 
-#' @param message \code{Logical scalar}. Should information on execution be
+#' @param verbose \code{Logical scalar}. Should information on execution be
 #'   printed in the console. (Default: \code{TRUE}).
 #' 
 #' @details
@@ -28,11 +29,11 @@
 #'       \item{from: \code{c("eggnog", "go", "ko", "level4ec")}}
 #'       \item{to: \code{c("uniref50", "uniref90")}}}
 #'   }
-#'   \item{\code{"WoLtka"}: description
+#'   \item{\code{"Woltka"}: x-to-uniref mapping files from the Web of Life
 #'     \itemize{
 #'       \item{repo: \href{https://ftp.microbio.me/pub/wol-20April2021/}{https://ftp.microbio.me/pub/wol-20April2021/}}
-#'       \item{from: }
-#'       \item{to: }
+#'       \item{from: c("eggnog", "go", "ko", "orthodb", "refseq")}
+#'       \item{to: "uniref90"}
 #'     }}
 #' }
 #' 
@@ -65,17 +66,24 @@ MappingDatabases <- list(
         repo = "https://zenodo.org/records/17100034/files/",
         from = c("eggnog", "go", "ko", "level4ec"),
         to = c("uniref50", "uniref90"),
-        prefix = "map_",
-        suffix = ".txt.gz",
-        sep = "_"
+        path = function(repo, from, to){
+            paste0(repo, "map_", from, "_", to, ".txt.gz")
+        }
+    ),
+    Woltka = list(
+        repo = "https://ftp.microbio.me/pub/wol-20April2021/",
+        from = c("eggnog", "go", "ko", "orthodb", "refseq"),
+        to = "uniref90",
+        path = function(repo, from, to){
+            paste0(repo, "function/", from, "/", from, ".map.xz")
+        }
     )
-    # WoLtka <- list()
 )
 
 #' @rdname importMapping
 #' @export
 setMethod("importMapping", signature = c(map.file = "character"),
-    function(map.file, from = NULL, to = NULL, merge = TRUE, message = TRUE){
+    function(map.file, from = NULL, to = NULL, merge = TRUE, verbose = TRUE){
         # Find number of mapping files
         input.lengths <- lengths(list(map.file, from, to))
         max.length <- max(input.lengths)
@@ -87,34 +95,39 @@ setMethod("importMapping", signature = c(map.file = "character"),
         if( !is.logical(merge) ){
             stop("'merge' must be TRUE or FALSE.", call. = FALSE)
         }
-        if( !is.logical(message) ){
-            stop("'message' must be TRUE or FALSE.", call. = FALSE)
+        if( !is.logical(verbose) ){
+            stop("'verbose' must be TRUE or FALSE.", call. = FALSE)
         }
         # Import each mapping file
         map <- mapply(
             .import_mapping,
-            map.file = map.file, from = from, to = to,
-            MoreArgs = list(message = message),
+            x = map.file, from = from, to = to,
+            MoreArgs = list(verbose = verbose),
             SIMPLIFY = FALSE, USE.NAMES = FALSE
         )
         # Merge mapping files
         if( merge ){
-            map <- unlist(map, recursive = FALSE)
+            # Find unique keys
+            keys <- unique(unlist(lapply(map, names)))
+            # Merge values by unique keys
+            map <- do.call(mapply, c(FUN = c, lapply(map, `[`, keys)))
+            # Use keys as names
+            names(map) <- keys
         }
         return(map)
     }
 )
 
 # Import single mapping file
-.import_mapping <- function(map.file, from, to, message){
+.import_mapping <- function(x, from, to, verbose){
     # Whether to use package or custom mapping
-    if( map.file %in% names(MappingDatabases) ){
+    if( x %in% names(MappingDatabases) ){
         # Construct path to database
-        map.file <- .getPath(map.file, from, to)
+        map.file <- .getPath(x, from, to)
         # Cache database
         map.file <- .getCache(map.file)
     }
-    if( message ){
+    if( verbose ){
         message("Retrieving mappings from ", map.file, ".")
     }
     # Read file content
@@ -127,6 +140,10 @@ setMethod("importMapping", signature = c(map.file = "character"),
     values <- lapply(items, FUN = function(x) x[-1])
     # Add names to list
     names(values) <- keys
+    # Flip names and values of Woltka mapping file
+    if( x == "Woltka" ){
+        values <- .process_woltka(values)
+    }
     return(values)
 }
 
@@ -142,8 +159,13 @@ setMethod("importMapping", signature = c(map.file = "character"),
         stop("'to' should be defined and be one of ",
             paste(map.db$to, collapse = ", "), ".", call. = FALSE)
     }
-    map.file <- paste0(
-        map.db$repo, map.db$prefix, from, map.db$sep, to, map.db$suffix
-    )
+    map.file <- map.db$path(map.db$repo, from, to)
     return(map.file)
+}
+
+.process_woltka <- function(woltka.map){
+    names(woltka.map) <- paste0("UniRef90_", names(woltka.map))
+    linkmap <- as.linkmap(woltka.map)
+    woltka.map <- split(linkmap$x, linkmap$y)
+    return(woltka.map)
 }
