@@ -13,7 +13,10 @@ setGeneric("importModules", signature = "module.file",
 #' @rdname mapModules
 #' @export
 setGeneric("mapModules", signature = "modules",
-    function(modules, map, remove.empty = TRUE, uniprot = FALSE, verbose = TRUE)
+    function(
+        modules, map, type = "oto", mode = "uniref", remove.empty = TRUE,
+        verbose = TRUE
+    )
     standardGeneric("mapModules"))
 
 #' @rdname getModules

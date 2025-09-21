@@ -10,6 +10,14 @@
 #'
 #' @param map \code{Named character list}. Named list of vectors, where each
 #'   vector is a mapping key and its elements are the mapped values.
+#' 
+#' @param type \code{Character scalar}. Specifies the type of modules to expect
+#'   as input. It can be one of \code{c("oto", "andor")}.
+#'   (Default: \code{"oto"}).
+#' 
+#' @param mode \code{Character scalar}. Specifies the type of modules to return
+#'   as output. It can be one of \code{c("uniref", "taxonomy")}.
+#'   (Default: \code{"uniref"}).
 #'
 #' @param remove.empty \code{Logical scalar}. Should modules with no matching
 #'   taxa be removed. (Default: \code{TRUE}).
@@ -18,11 +26,15 @@
 #'   printed in the console. (Default: \code{TRUE}).
 #' 
 #' @details
-#' Additional details
+#' The input modules of \code{mapModules} can be either one-to-one mapped or
+#' and/or relationships, depending on whether \code{type} is \code{"oto"} or
+#' \code{"andor"}. The output modules of \code{mapModules} can be either uniref
+#' or taxonomies, depending on whether \code{mode} is \code{"uniref"} or
+#' \code{"taxonomy"}.
 #' 
 #' @return
 #' \code{mapModules} returns a named list of vectors, where each vector is a
-#' module and its elements are the taxa members of that module.
+#' module and its elements are the members of that module.
 #'
 #' @examples
 #' # Import GBM
@@ -31,8 +43,11 @@
 #' # Import ko-to-uniref90 mapping
 #' map <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
 #' 
+#' # Map modules to UniRef90
+#' uniref.modules <- mapModules(gbm[seq(3)], map)
+#' 
 #' # Map modules to taxa
-#' sigs <- mapModules(gbm[seq(3)], map)
+#' tax.modules <- mapModules(gbm[seq(3)], map, mode = "taxonomy")
 #' 
 #' @name mapModules
 NULL
@@ -41,7 +56,10 @@ NULL
 #' @export
 #' @importFrom BiocParallel bplapply
 setMethod("mapModules", signature = c(modules = "list"),
-    function(modules, map, remove.empty = TRUE, uniprot = FALSE, verbose = TRUE){
+    function(
+        modules, map, type = "oto", mode = "uniref", remove.empty = TRUE,
+        verbose = TRUE
+    ){
         # Check arguments
         if( !is.vector(modules) ){
             stop("'modules' must be a character vector or list of character ",
@@ -52,6 +70,9 @@ setMethod("mapModules", signature = c(modules = "list"),
             stop("'map' must be a character vector or list of character ",
                 "vectors, where each vector corresponds to a mapping.",
                 call. = FALSE)
+        }
+        if( !mode %in% c("uniref", "taxonomy") ){
+            stop("'mode' must be either uniref or taxonomy.", call. = FALSE)
         }
         if( !is.logical(remove.empty) ){
             stop("'remove.empty' should be TRUE or FALSE.", call. = FALSE)
@@ -68,12 +89,17 @@ setMethod("mapModules", signature = c(modules = "list"),
             message("Mapping ", length(modules), " modules to ",
                 map.size, " values.")
         }
-        if( uniprot ){
-            # Query taxonomy from UniRef90
+        if( mode == "taxonomy" ){
+            # Query taxonomy from uniref
             map <- bplapply(map, .querySPARQL)
         }
-        # Store taxa in modules list
-        sig.list <- .andor_mapping(modules, map)
+        # Select mapper based on module type
+        mapper <- switch(type,
+            oto = .oto_mapping,
+            andor = .andor_mapping
+        )
+        # Map modules and store in modules list
+        sig.list <- mapper(modules, map)
         # Remove empty modules
         if( remove.empty ){
             sig.list <- Filter(function(sig) length(sig) > 0, sig.list)

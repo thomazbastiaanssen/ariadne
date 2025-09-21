@@ -1,0 +1,68 @@
+
+
+```{r}
+library(ariadne)
+library(curatedMetagenomicData)
+```
+
+## Functional module analysis at gene level
+
+```{r}
+# Load gene family experiment
+genes <- curatedMetagenomicData("IjazUZ_2017.gene_families", dryrun = FALSE)
+
+# Extract experiment
+genes <- genes[[1]]
+
+# Add uniref ids to rowData
+rowData(genes)$UniRef90 <- rownames(genes)
+```
+
+```{r}
+# Print experiment
+genes
+```
+
+```{r}
+gmm <- importModules("GMM")
+```
+
+```{r}
+ko.uniref90 <- importMapping("ChocoPhlAn", "ko", "uniref90")
+```
+
+```{r}
+# Map KOs of GMMs to UniRef90
+modules <- mapModules(gmm[seq(10)], ko.uniref90, type = "andor")
+```
+
+
+```{r}
+genes <- addModules(genes, modules, group = "UniRef90")
+```
+
+## Functional module analysis at taxon level
+
+```{r}
+# Load relative abundance experiment
+tse <- curatedMetagenomicData("IjazUZ_2017.relative_abundance", dryrun = FALSE)
+
+# Extract experiment
+tse <- tse[[1]]
+```
+
+
+```{r}
+modules <- mapModules(
+    gmm[seq(10)],
+    ko.uniref90,
+    type = "andor",
+    mode = "taxonomy"
+)
+```
+
+```{r}
+tse <- addModules(tse, modules)
+```
+
+## Comparison

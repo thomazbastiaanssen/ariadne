@@ -5,9 +5,23 @@
 \alias{mapModules,list-method}
 \title{Map modules to taxa}
 \usage{
-mapModules(modules, map, remove.empty = TRUE, uniprot = FALSE, verbose = TRUE)
+mapModules(
+  modules,
+  map,
+  type = "oto",
+  mode = "uniref",
+  remove.empty = TRUE,
+  verbose = TRUE
+)
 
-\S4method{mapModules}{list}(modules, map, remove.empty = TRUE, uniprot = FALSE, verbose = TRUE)
+\S4method{mapModules}{list}(
+  modules,
+  map,
+  type = "oto",
+  mode = "uniref",
+  remove.empty = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{modules}{\code{Named character list}. Named list of vectors, where each
@@ -15,6 +29,14 @@ vector is a module and its elements are the module members.}
 
 \item{map}{\code{Named character list}. Named list of vectors, where each
 vector is a mapping key and its elements are the mapped values.}
+
+\item{type}{\code{Character scalar}. Specifies the type of modules to expect
+as input. It can be one of \code{c("oto", "andor")}.
+(Default: \code{"oto"}).}
+
+\item{mode}{\code{Character scalar}. Specifies the type of modules to return
+as output. It can be one of \code{c("uniref", "taxonomy")}.
+(Default: \code{"uniref"}).}
 
 \item{remove.empty}{\code{Logical scalar}. Should modules with no matching
 taxa be removed. (Default: \code{TRUE}).}
@@ -24,7 +46,7 @@ printed in the console. (Default: \code{TRUE}).}
 }
 \value{
 \code{mapModules} returns a named list of vectors, where each vector is a
-module and its elements are the taxa members of that module.
+module and its elements are the members of that module.
 }
 \description{
 \code{mapModules} returns a list of modules containing the taxa that are
@@ -33,7 +55,11 @@ SPARQL. Membership is based on whether a taxon meets the criteria specified
 by a module.
 }
 \details{
-Additional details
+The input modules of \code{mapModules} can be either one-to-one mapped or
+and/or relationships, depending on whether \code{type} is \code{"oto"} or
+\code{"andor"}. The output modules of \code{mapModules} can be either uniref
+or taxonomies, depending on whether \code{mode} is \code{"uniref"} or
+\code{"taxonomy"}.
 }
 \examples{
 # Import GBM
@@ -42,7 +68,10 @@ gbm <- importModules("GBM")
 # Import ko-to-uniref90 mapping
 map <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
 
+# Map modules to UniRef90
+uniref.modules <- mapModules(gbm[seq(3)], map)
+
 # Map modules to taxa
-sigs <- mapModules(gbm[seq(3)], map)
+tax.modules <- mapModules(gbm[seq(3)], map, mode = "taxonomy")
 
 }

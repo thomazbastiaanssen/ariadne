@@ -8,17 +8,18 @@ test_that("mapModules", {
         "'map' did not match any element in 'modules'."
     )
     
-    expect_no_error(
-        sig.list1 <- mapModules(head(gbm), eggnog.uniref90, uniprot = TRUE)
+    expect_error(
+        mapModules(gbm, eggnog.uniref90, mode = "wrong"),
+        "'mode' must be either uniref or taxonomy."
     )
     
-    expect_no_error(
-        sig.list2 <- mapModules(
-            head(gbm),
-            eggnog.uniref90,
-            uniprot = TRUE,
-            remove.empty = FALSE
-        )
+    sig.list1 <- mapModules(head(gbm), eggnog.uniref90, mode = "taxonomy")
+    
+    sig.list2 <- mapModules(
+        head(gbm),
+        eggnog.uniref90,
+        mode = "taxonomy",
+        remove.empty = FALSE
     )
     
     expect_length(sig.list1, 2)
