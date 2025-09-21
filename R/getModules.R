@@ -76,7 +76,7 @@ NULL
 
 #' @rdname getModules
 #' @export
-#' @importFrom SummarizedExperiment rowData colData
+#' @importFrom SummarizedExperiment rowData colData rowData<- colData<-
 setMethod("addModules", signature = c(x = "SummarizedExperiment"),
     function(x, modules, by = 1L, group = "taxonomy", exact.tax.level = FALSE){
         # Make modules table
@@ -102,6 +102,7 @@ setMethod("addModules", signature = c(x = "SummarizedExperiment"),
 #' @importFrom SummarizedExperiment rowData rowData<-
 #' @importFrom mia taxonomyRanks
 #' @importFrom stringr str_escape str_remove
+#' @importFrom methods is
 setMethod("getModules", signature = c(x = "SummarizedExperiment"),
     function(x, modules, by = 1L, group = "taxonomy", exact.tax.level = FALSE){
         # Check modules

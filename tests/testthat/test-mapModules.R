@@ -9,13 +9,14 @@ test_that("mapModules", {
     )
     
     expect_no_error(
-        sig.list1 <- mapModules(head(gbm), eggnog.uniref90)
+        sig.list1 <- mapModules(head(gbm), eggnog.uniref90, uniprot = TRUE)
     )
     
     expect_no_error(
         sig.list2 <- mapModules(
             head(gbm),
             eggnog.uniref90,
+            uniprot = TRUE,
             remove.empty = FALSE
         )
     )

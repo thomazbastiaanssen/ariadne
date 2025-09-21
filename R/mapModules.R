@@ -112,8 +112,8 @@ setMethod("mapModules", signature = c(modules = "list"),
             # Bind taxa to scientific names and ranks
             ?taxId uniprot:scientificName ?sciName; uniprot:rank ?rank.
             # Process name to prefix__taxon format
-            bind(lcase(substr(strafter(str(?rank), 'Rank_'), 1, 1)) as ?prefix)
-            bind(concat(?prefix, '__', ?sciName) as ?name)
+            BIND(lcase(substr(strafter(str(?rank), 'Rank_'), 1, 1)) as ?prefix)
+            BIND(concat(?prefix, '__', ?sciName) as ?name)
             }
         }
         "
@@ -123,7 +123,7 @@ setMethod("mapModules", signature = c(modules = "list"),
     qres <- graph$query(query)
     # Convert name bindings to vector
     tax.vec <- vapply(qres$bindings, function(binding)
-        binding[["name"]], character(1))
+        binding[["name"]], character(1L))
     return(tax.vec)
 }
 
@@ -131,8 +131,8 @@ setMethod("mapModules", signature = c(modules = "list"),
 .oto_mapping <- function(modules, values){
     # Store taxa in modules list
     sig.list <- bplapply(modules, function(module){
-        keep <- names(tax.list) %in% module
-        module <- unname(unlist(tax.list[keep]))
+        keep <- names(values) %in% module
+        module <- unname(unlist(values[keep]))
         return(module)
     })
     return(sig.list)
@@ -146,8 +146,8 @@ setMethod("mapModules", signature = c(modules = "list"),
     # Store taxa in modules list
     sig.list <- bplapply(modules, function(module) {
         members <- vapply(tax, function(tax.item) {
-            all(vapply(module, function(comp) any(comp %in% tax.item), logical(1)))
-        }, logical(1))
+            all(vapply(module, function(comp) any(comp %in% tax.item), logical(1L)))
+        }, logical(1L))
         names(tax)[members]
     })
     return(sig.list)

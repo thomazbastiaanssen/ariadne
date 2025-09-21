@@ -19,6 +19,11 @@ test_that("getModules", {
     expect_length(modules, nrow(tse))
     
     expect_error(
+        getModules(tse, butyrate, by = "wrong"),
+        "'by' must be one of 1, 2, features and samples."
+    )
+    
+    expect_error(
         getModules(tse, butyrate, by = 2L),
         "'group' does not match any variables in the side information."
     )
@@ -28,7 +33,7 @@ test_that("getModules", {
     
     expect_error(
         getModules(tse, modules, exact.tax.level = "wrong"),
-        "'modules' must be a character vector or list of character vectors, where each vector corresponds to a module."
+        "'exact.tax.level' must be TRUE or FALSE."
     )
     
     mod.table <- getModules(tse, modules, exact.tax.level = TRUE)
