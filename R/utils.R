@@ -30,7 +30,7 @@ setMethod("as.linkmap", signature = c(values = "list"),
         }
         # Create linkMap
         linkmap <- data.frame(
-            x = rep(keys, vapply(values, length, 1)),
+            x = rep(keys, lengths(values)),
             y = unlist(values, recursive = TRUE, use.names = FALSE)
         )
         # Assign custom colnames

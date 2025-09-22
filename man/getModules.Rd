@@ -84,7 +84,7 @@ col.modules <- list(A = c("Cohort_1", "Cohort_3"),
                     B = c("Cohort_2"),
                     c("Cohort_1", "Cohort_2", "Cohort_3"))
 
-Find column modules based on cohort variable
+# Find column modules based on cohort variable
 mod.table <- getModules(tse, col.modules, by = 2L, group = "cohort")
 
 }

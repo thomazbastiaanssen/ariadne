@@ -1,4 +1,4 @@
-Package: ariadne
+Package: minotaur
 Version: 0.0.3
 Authors@R: 
     c(person(given = "Giulio", family = "Benedetti", role = c("aut", "cre"),
@@ -10,17 +10,17 @@ Authors@R:
     person(given = "Leo", family = "Lahti", role = c("aut"),
           email = "leo.lahti@iki.fi",
           comment = c(ORCID = "0000-0001-5537-637X")))
-Title: On-demand annotation and mapping for module analysis
+Title: Module INtegration by On-demand Translation of Annotations using R
 Description:
-    ariadne aims to provide a rapid and robust approach to incorporate taxonomic
-    and functional module analyses into your bioinformatic workflow. Despite
-    the presence of specialised bioinformatic tools, on-demand functional
-    annotation of taxonomic features directly in R has remained challenging. To
-    make this simple, ariadne offers tools to rapidly annotate features with
-    taxonomic or functional modules based on online resources (BugSigDB,
-    ChocoPhlAn, Web of Life and UniProt). In addition, we provide tools to
-    incorporate, analyse and visualise module information into popular
-    standardised containers, such as TreeSummarizedExperiment.
+    minotaur provides a rapid and robust approach to incorporate taxonomic and
+    functional module analyses into your bioinformatic workflow. Despite the
+    presence of specialised bioinformatic tools, on-demand functional annotation
+    of taxonomic features directly in R has remained challenging. To make this
+    simple, ariadne offers tools to rapidly annotate features with taxonomic or
+    functional modules based on online resources (BugSigDB, ChocoPhlAn, Web of
+    Life and UniProt). In addition, we provide tools to incorporate, analyse and
+    visualise module information into popular standardised containers, such as
+    TreeSummarizedExperiment.
 biocViews:
     Software, DataImport, Metabolomics, Metagenomics, Microbiome, Annotation,
     Pathways, Visualization
@@ -43,8 +43,8 @@ Suggests:
     remotes,
     rmarkdown,
     testthat (>= 3.0.0)
-URL: https://github.com/thomazbastiaanssen/ariadne
-BugReports: https://github.com/thomazbastiaanssen/ariadne/issues
+URL: https://github.com/thomazbastiaanssen/minotaur
+BugReports: https://github.com/thomazbastiaanssen/minotaur/issues
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 VignetteBuilder: knitr

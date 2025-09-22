@@ -13,12 +13,18 @@ test_that("mapModules", {
         "'mode' must be either uniref or taxonomy."
     )
     
-    sig.list1 <- mapModules(head(gbm), eggnog.uniref90, mode = "taxonomy")
+    sig.list1 <- mapModules(
+        head(gbm),
+        eggnog.uniref90,
+        mode = "taxonomy",
+        type = "andor",
+        remove.empty = TRUE)
     
     sig.list2 <- mapModules(
         head(gbm),
         eggnog.uniref90,
         mode = "taxonomy",
+        type = "andor",
         remove.empty = FALSE
     )
     

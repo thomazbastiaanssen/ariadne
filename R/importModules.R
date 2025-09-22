@@ -46,26 +46,26 @@ setMethod("importModules", signature = c(module.file = "character"),
         module.file <- .getCache(ModuleDatabases[[module.file]])
     }
     # Read the file content
-    lines <- readLines(module.file)
+    line.content <- readLines(module.file)
     # GBM is missing /// at the end
-    if( lines[length(lines)] != "///" ){
-        lines <- append(lines, "///")
+    if( line.content[length(line.content)] != "///" ){
+        line.content <- append(line.content, "///")
     }
     
     keys <- c()
     modules <- list()
     module <- c()
     
-    for (line in lines){
+    for (line in line.content){
       
         if( line == "///" ){
         
             modules <- append(modules, list(module))
             module <- c()
         
-        }else if( substr(line, 1, 1) == "M" ){
+        }else if( startsWith(line, "M") ){
         
-            key <- paste0(gsub("\t", " (", line), ")")
+            key <- paste0(gsub("\t", " (", line, fixed = TRUE), ")")
             keys <- append(keys, key)
         
         }else{
@@ -74,7 +74,7 @@ setMethod("importModules", signature = c(module.file = "character"),
     }
     
     for( i in seq_along(modules) ){
-        module.comp <- strsplit(modules[[i]], "\t")
+        module.comp <- strsplit(modules[[i]], "\t", fixed = TRUE)
         modules[[i]] <- lapply(module.comp, strsplit, split = ",")
     }
     

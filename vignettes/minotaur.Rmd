@@ -1,5 +1,5 @@
 ---
-title: "# ariadne: on-demand annotation and module analysis"
+title: "# minotaur: module integration by on-demand translation of annotations using R"
 author: 
   - name: Giulio Benedetti
     affiliation: University of Turku
@@ -16,9 +16,9 @@ output:
         code_folding: show
 # bibliography: ../inst/REFERENCES.bib
 date: "`r doc_date()`"
-package: "`r pkg_ver('ariadne')`"
+package: "`r pkg_ver('minotaur')`"
 vignette: >
-  %\VignetteIndexEntry{ariadne}
+  %\VignetteIndexEntry{minotaur}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -51,13 +51,13 @@ information into popular standardised containers, such as TreeSummarizedExperime
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
-BiocManager::install("ariadne")
+BiocManager::install("minotaur")
 ```
 
 Here, the terms "module" and "signature" are used in place of each other.
 
 ```{r}
-library(ariadne)
+library(minotaur)
 library(mia)
 
 # Import dataset
@@ -74,12 +74,12 @@ library(bugsigdbr)
 bsdb <- importBugSigDB()
 
 # Retrieve microbial signatures
-bsdb.sigs <- getSignatures(bsdb, tax.id.type = "metaphlan")
+bsdb.mods <- getSignatures(bsdb, tax.id.type = "metaphlan")
 ```
 
 ```{r}
 # Add module membership to rowData
-tse <- addModules(tse, bsdb.sigs)
+tse <- addModules(tse, bsdb.mods)
 ```
 
 ## Retrieve functional modules
@@ -89,59 +89,167 @@ tse <- addModules(tse, bsdb.sigs)
 gbm <- importModules("GBM")
 
 # Import ko-to-uniref90 mapping
-ko.uniref90 <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
+ko.uniref90 <- importMapping(
+    "ChocoPhlAn",
+    from = c("eggnog", "ko"),
+    to = "uniref90"
+)
 ```
 
 ```{r}
 # Map modules to taxa
-gbm.sigs <- mapModules(gbm, ko.uniref90)
+gbm.mods <- mapModules(
+    gbm,
+    ko.uniref90,
+    type = "andor",
+    mode = "taxonomy",
+    remove.empty = TRUE
+)
 ```
 
 ```{r}
 # Add module membership to rowData
-tse <- addModules(tse, gbm.sigs)
+tse <- addModules(
+    tse,
+    gbm.mods,
+    by = 1L,
+    group = "taxonomy"
+)
 ```
 
 ## Module analysis
 
 ```{r}
 # Collect all module names
-all.sigs <- c(names(bsdb.sigs), names(gbm.sigs))
+all.mods <- c(names(bsdb.mods), names(gbm.mods))
 
 # Agglomerate features by every module
-tse.mod <- agglomerateByModule(tse, by = 1L, group = all.sigs)
+altExp(tse, "modules") <- agglomerateByModule(tse, by = 1L, group = names(gbm.mods))
+
+# Find top 5 modules by average count
+top.mods <- getTop(
+    altExp(tse, "modules"),
+    assay.type = "counts"
+)
 ```
 
 ```{r include=FALSE}
 # Add arg to agglomerateByModule to remove.empty
-keep <- rowSums(assay(tse.mod)) > 0
-tse.mod <- tse.mod[keep, ]
+# keep <- rowSums(assay(tse.mod)) > 0
+# tse.mod <- tse.mod[keep, ]
 ```
 
 Make some plots
 
 ```{r}
+library(reshape2)
 
+mods <- as.matrix(rowData(tse)[ , names(gbm.mods)])
+
+df <- melt(
+    mods,
+    varnames = c("Element", "Community"),
+    value.name = "Membership"
+)
+
+df <- df[df$Membership == TRUE, ]  # Keep only TRUE values
+
+graph <- graph_from_data_frame(df, directed = FALSE)
+V(graph)$type <- ifelse(V(graph)$name %in% rownames(mods), TRUE, FALSE)
+
+plotRowGraph(graph, tse, layout = "bipartite")
+```
+
+```{r}
+tse <- swapAltExp(
+    tse,
+    name = "modules",
+    saved = "features",
+    withColData = FALSE
+)
 ```
 
 
+```{r}
+plotAbundance(
+    tse[top.mods, ],
+    assay.type = "counts",
+    as.relative = TRUE,
+    col.var = "patient_status",
+    order.col.by = "patient_status",
+    add.legend = FALSE
+)
+```
+
+
+```{r}
+plotAbundanceDensity(
+    tse,
+    layout = "density",
+    n = 5,
+    assay.type = "counts",
+    colour.by = "patient_status"
+)
+```
+
+```{r}
+mse <- meltSE(tse, assay.type = "counts", add.col = TRUE)
+
+ggplot(mse, aes(x = SampleID, y = FeatureID, fill = counts)) +
+    geom_tile() +
+    #facet_wrap(. ~ patient_status) +
+    scale_fill_gradient2(low = "white", high = "red") +
+    labs(x = "Samples") +
+    theme(axis.text = element_blank(),
+          axis.title.y = element_blank(),
+          axis.ticks.x = element_blank())
+```
+
+```{r}
+Heatmap(assay(tse))
+```
+
 ## Microbe-set enrichment analysis
+
+```{r}
+tse <- transformAssay(tse, method = "relabundance")
+```
+
+
+```{r}
+library(rstatix)
+
+df <- meltSE(tse, assay.type = "counts", add.col = TRUE)
+
+df |>
+  group_by(FeatureID) |>
+  t_test(counts ~ patient_status) |>
+  filter(!is.na(p)) |>
+  adjust_pvalue(method = "fdr") |>
+  filter(p < 0.05) |>
+  select(FeatureID, p, p.adj)
+```
+
+```{r}
+my.list
+```
+
 
 # Resources
 
 ## Citation
 
-We hope that miaDash will be useful for your research. Please use the following
+We hope that minotaur will be useful for your research. Please use the following
 information to cite the package and the overall approach. Thank you!
 
 ```{r citation}
 ## Citation info
-citation("ariadne")
+citation("minotaur")
 ```
 
 ## Background Knowledge
 
-ariadne originates from the joint effort of the R/Bioconductor community. It is
+minotaur originates from the joint effort of the R/Bioconductor community. It is
 mainly based on the following software:
 
 - [R](https://www.r-project.org/), statistical programming language [@core2025r]

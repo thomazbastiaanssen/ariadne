@@ -1,6 +1,6 @@
 test_that("getModules", {
     
-    data("butyrate", package = "ariadne")
+    data("butyrate", package = "minotaur")
     tax.before <- nrow(butyrate)
     
     butyrate <- getFullTaxonomyLabels(butyrate)
@@ -40,7 +40,7 @@ test_that("getModules", {
     
     col.modules <- list(A = c("Cohort_1", "Cohort_3"),
                         B = c("Cohort_2"),
-                        c("Cohort_1", "Cohort_2", "Cohort_3"))
+                        C = c("Cohort_1", "Cohort_2", "Cohort_3"))
     
     expect_error(
         getModules(tse, col.modules, by = 2L),

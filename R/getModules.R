@@ -69,7 +69,7 @@
 #'                     B = c("Cohort_2"),
 #'                     c("Cohort_1", "Cohort_2", "Cohort_3"))
 #' 
-#' Find column modules based on cohort variable
+#' # Find column modules based on cohort variable
 #' mod.table <- getModules(tse, col.modules, by = 2L, group = "cohort")
 #' 
 NULL
@@ -149,14 +149,12 @@ setMethod("getModules", signature = c(x = "SummarizedExperiment"),
                 call. = FALSE)
         }
         # Collapse group variables to single strings
-        group <- apply(x[ , group, drop = FALSE], 1L, function(row)
-            paste(row, collapse = "|")
-        )
-        # Collapse signatures to single strings
+        group <- apply(x[ , group, drop = FALSE], 1L, paste, collapse = ".")
+        # Collapse modules to single strings
         modules <- vapply(modules, function(mod){
             mod |>
                 str_escape() |>
-                paste0(collapse = "|")
+                paste(collapse = "|")
             },
             character(1L)
         )
@@ -183,6 +181,7 @@ setMethod("getModules", signature = c(x = "SummarizedExperiment"),
     for( i in seq_along(modules) ){
         mod.table[ , i] <- str_detect(group, modules[[i]])
     }
+    rownames(mod.table) <- names(group)
     # Add module names to table
     colnames(mod.table) <- names(modules)
     return(mod.table)
@@ -197,7 +196,7 @@ getFullTaxonomyLabels <- function(x){
     # Add taxrank prefixes to taxcols of rowData
     tax <- .add_prefix_to_taxtable(x)
     # Collapse taxcols to taxstring in metaphlan format
-    tax <- apply(tax, 1L, function(row) paste(row, collapse = "|"))
+    tax <- apply(tax, 1L, paste, collapse = "|")
     # Remove empty taxranks
     tax <- gsub("(?:\\|[a-z]__)+$", "", tax)
     return(tax)

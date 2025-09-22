@@ -131,9 +131,9 @@ setMethod("importMapping", signature = c(map.file = "character"),
         message("Retrieving mappings from ", map.file, ".")
     }
     # Read file content
-    lines <- readLines(map.file)
+    line.content <- readLines(map.file)
     # Split elements in each line by tab
-    items <- strsplit(x = lines, split = "\t")
+    items <- strsplit(x = line.content, split = "\t")
     # Extract keys
     keys <- vapply(items, FUN = function(x) x[1], FUN.VALUE = "")
     # Extract values
@@ -153,11 +153,11 @@ setMethod("importMapping", signature = c(map.file = "character"),
     map.db <- MappingDatabases[[map.file]]
     if( !is.null(from) && !from %in% map.db$from ){
         stop("'from' should be defined and be one of ",
-            paste(map.db$from, collapse = ", "), ".", call. = FALSE)
+            toString(map.db$from), ".", call. = FALSE)
     }
     if( !is.null(to) && !to %in% map.db$to ){
         stop("'to' should be defined and be one of ",
-            paste(map.db$to, collapse = ", "), ".", call. = FALSE)
+            toString(map.db$to), ".", call. = FALSE)
     }
     map.file <- map.db$path(map.db$repo, from, to)
     return(map.file)

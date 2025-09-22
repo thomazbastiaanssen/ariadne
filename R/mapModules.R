@@ -52,14 +52,11 @@
 #' @name mapModules
 NULL
 
-#' @rdname mapModules
 #' @export
+#' @rdname mapModules
 #' @importFrom BiocParallel bplapply
 setMethod("mapModules", signature = c(modules = "list"),
-    function(
-        modules, map, type = "oto", mode = "uniref", remove.empty = TRUE,
-        verbose = TRUE
-    ){
+    function(modules, map, mode = "single", remove.empty = TRUE, verbose = TRUE){
         # Check arguments
         if( !is.vector(modules) ){
             stop("'modules' must be a character vector or list of character ",
@@ -71,35 +68,24 @@ setMethod("mapModules", signature = c(modules = "list"),
                 "vectors, where each vector corresponds to a mapping.",
                 call. = FALSE)
         }
-        if( !mode %in% c("uniref", "taxonomy") ){
-            stop("'mode' must be either uniref or taxonomy.", call. = FALSE)
+        if( !mode %in% c("single", "andor") ){
+            stop("'mode' must be either single or andor", call. = FALSE)
         }
         if( !is.logical(remove.empty) ){
             stop("'remove.empty' should be TRUE or FALSE.", call. = FALSE)
         }
         # Keep only relevant bindings
-        keep <- names(map) %in% unique(unlist(modules, use.names = FALSE))
-        map <- map[keep]
+        keep <- names(map[[1]]) %in% unique(unlist(modules, use.names = FALSE))
+        map[[1]] <- map[[1]][keep]
         # Check matched uniref ids
-        map.size <- length(unlist(map))
-        if( map.size == 0){
-            stop("'map' did not match any element in 'modules'.", call. = FALSE)
-        }
-        if( verbose ){
-            message("Mapping ", length(modules), " modules to ",
-                map.size, " values.")
-        }
-        if( mode == "taxonomy" ){
-            # Query taxonomy from uniref
-            map <- bplapply(map, .querySPARQL)
-        }
-        # Select mapper based on module type
-        mapper <- switch(type,
-            oto = .oto_mapping,
+        map <- Reduce(.single_mapping, map)
+        # Select mapping method based on module type
+        map.method <- switch(mode,
+            single = .single_mapping,
             andor = .andor_mapping
         )
         # Map modules and store in modules list
-        sig.list <- mapper(modules, map)
+        sig.list <- map.method(modules, map)
         # Remove empty modules
         if( remove.empty ){
             sig.list <- Filter(function(sig) length(sig) > 0, sig.list)
@@ -108,73 +94,30 @@ setMethod("mapModules", signature = c(modules = "list"),
     }
 )
 
-# Query taxonomies from uniref ids from UniProt using SPARQL
-.querySPARQL <- function(module, graph = rdflib$Graph()){
-    # Collapse UniRef90 ids into long string
-    uniref.ids <- paste0("uniref:", module, collapse = " ")
-    # Define first part of query
-    query_part1 <- "
-        PREFIX uniprot: <http://purl.uniprot.org/core/>
-        PREFIX uniref: <http://purl.uniprot.org/uniref/>
-        # Outer query to get final names
-        SELECT ?name
-        WHERE {
-            SERVICE <https://sparql.uniprot.org/> {
-            {   # Inner query to get distinct taxa
-                SELECT DISTINCT ?taxId
-                WHERE {
-                    # List UniRef90 ids
-                    VALUES ?unirefId {
-        "
-    # Define second part of query
-    query_part2 <- "
-                    }
-                    # Bind UniRef90 ids to cluster members
-                    ?unirefId uniprot:member ?member.
-                    # Bind cluster members to taxa
-                    ?member uniprot:organism ?taxId.
-                }
-            }
-            # Bind taxa to scientific names and ranks
-            ?taxId uniprot:scientificName ?sciName; uniprot:rank ?rank.
-            # Process name to prefix__taxon format
-            BIND(lcase(substr(strafter(str(?rank), 'Rank_'), 1, 1)) as ?prefix)
-            BIND(concat(?prefix, '__', ?sciName) as ?name)
-            }
-        }
-        "
-    # Build query
-    query <- paste0(query_part1, "\t\t\t", uniref.ids, query_part2)
-    # Execute query
-    qres <- graph$query(query)
-    # Convert name bindings to vector
-    tax.vec <- vapply(qres$bindings, function(binding)
-        binding[["name"]], character(1L))
-    return(tax.vec)
-}
-
 # Perform one-to-one mapping
-.oto_mapping <- function(modules, values){
+.single_mapping <- function(x, y){
+    # Filter y keys that match x values
+    y <- y[names(y) %in% unique(unlist(x, use.names = FALSE))]
+    if( length(y) == 0 ){
+        stop("Items in 'x' did not match any item in 'y'.", call. = FALSE)
+    }
     # Store taxa in modules list
-    sig.list <- bplapply(modules, function(module){
-        keep <- names(values) %in% module
-        module <- unname(unlist(values[keep]))
-        return(module)
-    })
-    return(sig.list)
+    z <- bplapply(x, function(values)
+        unlist(y[names(y) %in% values], use.names = FALSE))
+    return(z)
 }
 
 # Perform and/or mapping (reaction pathway modules)
-.andor_mapping <- function(modules, values){
+.andor_mapping <- function(x, y){
     # Find functions for each taxon
-    linkmap <- as.linkmap(values)
+    linkmap <- as.linkmap(y)
     tax <- split(linkmap$x, linkmap$y)
     # Store taxa in modules list
-    sig.list <- bplapply(modules, function(module) {
+    z <- bplapply(x, function(module) {
         members <- vapply(tax, function(tax.item) {
             all(vapply(module, function(comp) any(comp %in% tax.item), logical(1L)))
         }, logical(1L))
         names(tax)[members]
     })
-    return(sig.list)
+    return(z)
 }

@@ -5,23 +5,9 @@
 \alias{mapModules,list-method}
 \title{Map modules to taxa}
 \usage{
-mapModules(
-  modules,
-  map,
-  type = "oto",
-  mode = "uniref",
-  remove.empty = TRUE,
-  verbose = TRUE
-)
+mapModules(modules, map, mode = "single", remove.empty = TRUE, verbose = TRUE)
 
-\S4method{mapModules}{list}(
-  modules,
-  map,
-  type = "oto",
-  mode = "uniref",
-  remove.empty = TRUE,
-  verbose = TRUE
-)
+\S4method{mapModules}{list}(modules, map, mode = "single", remove.empty = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{modules}{\code{Named character list}. Named list of vectors, where each
@@ -29,10 +15,6 @@ vector is a module and its elements are the module members.}
 
 \item{map}{\code{Named character list}. Named list of vectors, where each
 vector is a mapping key and its elements are the mapped values.}
-
-\item{type}{\code{Character scalar}. Specifies the type of modules to expect
-as input. It can be one of \code{c("oto", "andor")}.
-(Default: \code{"oto"}).}
 
 \item{mode}{\code{Character scalar}. Specifies the type of modules to return
 as output. It can be one of \code{c("uniref", "taxonomy")}.
@@ -43,6 +25,10 @@ taxa be removed. (Default: \code{TRUE}).}
 
 \item{verbose}{\code{Logical scalar}. Should information on execution be
 printed in the console. (Default: \code{TRUE}).}
+
+\item{type}{\code{Character scalar}. Specifies the type of modules to expect
+as input. It can be one of \code{c("oto", "andor")}.
+(Default: \code{"oto"}).}
 }
 \value{
 \code{mapModules} returns a named list of vectors, where each vector is a
