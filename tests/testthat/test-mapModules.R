@@ -5,26 +5,25 @@ test_that("mapModules", {
     
     expect_error(
         mapModules(eggnog.uniref90, gbm),
-        "'map' did not match any element in 'modules'."
+        "Items in 'x' did not match any item in 'y'."
     )
     
     expect_error(
         mapModules(gbm, eggnog.uniref90, mode = "wrong"),
-        "'mode' must be either uniref or taxonomy."
+        "'mode' must be either single or andor."
     )
     
     sig.list1 <- mapModules(
         head(gbm),
         eggnog.uniref90,
-        mode = "taxonomy",
-        type = "andor",
-        remove.empty = TRUE)
+        mode = "andor",
+        remove.empty = TRUE
+    )
     
     sig.list2 <- mapModules(
         head(gbm),
         eggnog.uniref90,
-        mode = "taxonomy",
-        type = "andor",
+        mode = "andor",
         remove.empty = FALSE
     )
     

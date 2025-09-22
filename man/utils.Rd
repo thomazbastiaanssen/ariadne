@@ -4,11 +4,14 @@
 \alias{as.linkmap}
 \alias{utils}
 \alias{as.linkmap,list-method}
+\alias{processGeneFamilies}
 \title{Utility functions}
 \usage{
 as.linkmap(values, keys = NULL, col.names = NULL)
 
 \S4method{as.linkmap}{list}(values, keys = NULL, col.names = NULL)
+
+processGeneFamilies(se)
 }
 \arguments{
 \item{values}{\code{Character list}. List of vectors where each vector

@@ -101,10 +101,11 @@ ko.uniref90 <- importMapping(
 gbm.mods <- mapModules(
     gbm,
     ko.uniref90,
-    type = "andor",
-    mode = "taxonomy",
+    mode = "andor",
     remove.empty = TRUE
 )
+
+gbm.mods <- queryTaxonomy(gbm.mods, remove.empty = TRUE)
 ```
 
 ```{r}
@@ -140,25 +141,6 @@ top.mods <- getTop(
 ```
 
 Make some plots
-
-```{r}
-library(reshape2)
-
-mods <- as.matrix(rowData(tse)[ , names(gbm.mods)])
-
-df <- melt(
-    mods,
-    varnames = c("Element", "Community"),
-    value.name = "Membership"
-)
-
-df <- df[df$Membership == TRUE, ]  # Keep only TRUE values
-
-graph <- graph_from_data_frame(df, directed = FALSE)
-V(graph)$type <- ifelse(V(graph)$name %in% rownames(mods), TRUE, FALSE)
-
-plotRowGraph(graph, tse, layout = "bipartite")
-```
 
 ```{r}
 tse <- swapAltExp(

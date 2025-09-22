@@ -40,3 +40,32 @@ setMethod("as.linkmap", signature = c(values = "list"),
         return(linkmap)
     }
 )
+
+#' @export
+#' @rdname utils
+#' @importFrom stringr fixed str_detect str_split
+#' @importFrom SummarizedExperiment rowData colData rowData<- colData<-
+#'   assayNames
+#' @importFrom TreeSummarizedExperiment TreeSummarizedExperiment
+processGeneFamilies <- function(se){
+    # Select rows with non-null taxa
+    se <- se[str_detect(rownames(se), fixed("|")), ]
+    se <- se[str_detect(rownames(se), "unclassified", negate = TRUE), ]
+    # Split gene and taxonomy
+    gene.linkmap <- as.data.frame(
+        str_split(rownames(se), fixed("|"), n = 2, simplify = TRUE)
+    )
+    names(gene.linkmap) <- c("GeneID", "Taxon")
+    # Split genus and species
+    tax.linkmap <- as.data.frame(
+        str_split(gene.linkmap$Taxon, fixed("."), n = 2, simplify = TRUE),
+    )
+    names(tax.linkmap) <- c("Genus", "Species")
+    # Convert SE to TreeSE
+    tse <- TreeSummarizedExperiment(
+        assays = assays(se),
+        rowData = cbind(rowData(se), gene.linkmap, tax.linkmap),
+        colData = colData(se)
+    )
+    return(tse)
+}

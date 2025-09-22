@@ -16,19 +16,15 @@ vector is a module and its elements are the module members.}
 \item{map}{\code{Named character list}. Named list of vectors, where each
 vector is a mapping key and its elements are the mapped values.}
 
-\item{mode}{\code{Character scalar}. Specifies the type of modules to return
-as output. It can be one of \code{c("uniref", "taxonomy")}.
-(Default: \code{"uniref"}).}
+\item{mode}{\code{Character scalar}. Specifies the type of modules to expect
+as input. It can be one of \code{c("single", "andor")}.
+(Default: \code{"single"}).}
 
 \item{remove.empty}{\code{Logical scalar}. Should modules with no matching
 taxa be removed. (Default: \code{TRUE}).}
 
 \item{verbose}{\code{Logical scalar}. Should information on execution be
 printed in the console. (Default: \code{TRUE}).}
-
-\item{type}{\code{Character scalar}. Specifies the type of modules to expect
-as input. It can be one of \code{c("oto", "andor")}.
-(Default: \code{"oto"}).}
 }
 \value{
 \code{mapModules} returns a named list of vectors, where each vector is a
@@ -41,11 +37,9 @@ SPARQL. Membership is based on whether a taxon meets the criteria specified
 by a module.
 }
 \details{
-The input modules of \code{mapModules} can be either one-to-one mapped or
-and/or relationships, depending on whether \code{type} is \code{"oto"} or
-\code{"andor"}. The output modules of \code{mapModules} can be either uniref
-or taxonomies, depending on whether \code{mode} is \code{"uniref"} or
-\code{"taxonomy"}.
+The input modules of \code{mapModules} can be either single elements or
+and/or relationships, depending on whether \code{mode} is \code{"single"} or
+\code{"andor"}.
 }
 \examples{
 # Import GBM

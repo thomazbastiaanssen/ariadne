@@ -1,0 +1,17 @@
+destination: docs
+reference:
+- title: Main functions
+- contents:
+  - importMapping
+  - importModules
+  - mapModules
+  - queryTaxonomy
+  - getModules
+  - addModules
+- title: Other
+- contents:
+  - getFullTaxonomyLabels
+  - processGeneFamilies
+  - as.linkmap
+  - minotaur-package
+  - butyrate

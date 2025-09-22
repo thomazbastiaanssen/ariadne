@@ -1,4 +1,33 @@
+---
+title: "Comparison"
+author: 
+  - name: Giulio Benedetti
+    affiliation: University of Turku
+    email: giulio.benedetti@utu.fi
+output:
+    BiocStyle::html_document:
+        fig_height: 7
+        fig_width: 10
+        toc: true
+        toc_float: true
+        toc_depth: 2
+        number_sections: true
+        self_contained: true
+        code_folding: show
+date: "`r doc_date()`"
+package: "`r pkg_ver('minotaur')`"
+vignette: >
+    %\VignetteIndexEntry{minotaur}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+---
 
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
 
 ```{r}
 library(minotaur)
@@ -18,34 +47,6 @@ genes <- curatedMetagenomicData(
 
 # Extract experiment
 genes <- genes[[1]]
-```
-
-
-```{r}
-processGeneFamilies <- function(se){
-    
-    se <- se[str_detect(rownames(se), fixed("|")), ]
-    se <- se[str_detect(rownames(se), "unclassified", negate = TRUE), ]
-    
-    splitted <- strsplit(rownames(se), "|", fixed = TRUE)
-    gene.linkmap <- data.frame(do.call(rbind, splitted))
-    names(gene.linkmap) <- c("GeneID", "Taxon")
-    
-    gene.linkmap <- gene.linkmap[gene.linkmap$Taxon != "unclassified", ]
-    
-    splitted <- strsplit(gene.linkmap$Taxon, ".", fixed = TRUE)
-    tax.linkmap <- data.frame(do.call(rbind, splitted))
-    names(tax.linkmap) <- c("Genus", "Species")
-    
-    tse <- TreeSummarizedExperiment(se)
-    
-    rowData(tse) <- cbind(rowData(se), gene.linkmap, tax.linkmap)
-    
-    colData(tse) <- colData(se)
-    assayNames(tse) <- assayNames(se)
-    
-    return(tse)
-}
 ```
 
 ```{r}
@@ -94,11 +95,32 @@ genes <- addModules(
 ```
 
 ```{r}
-altExp(genes, "modules") <- agglomerateByModule(genes, by = 1L, group = names(gmm))
+altExp(genes, "modules") <- agglomerateByModule(
+    genes,
+    by = 1L,
+    group = names(modules)
+)
+
+top.mods <- altExp(genes, "modules") |>
+    getTop(assay.type = "gene_families")
 ```
 
 ```{r}
-plotAbundance(genes, assay.type = "gene_families")
+genes <- swapAltExp(
+    genes,
+    name = "modules",
+    saved = "features",
+    withColData = FALSE
+)
+```
+
+```{r}
+plotAbundance(
+    genes[top.mods, ],
+    assay.type = "gene_families",
+    as.relative = TRUE,
+    order.col.by = "disease"
+)
 ```
 
 
@@ -116,10 +138,10 @@ tse <- curatedMetagenomicData(
 # Extract experiment
 tse <- tse[[1]]
 ```
+
 ```{r}
 tse
 ```
-
 
 ```{r}
 gmm <- importModules("GMM")
@@ -131,12 +153,17 @@ ko.uniref90 <- importMapping("ChocoPhlAn", "ko", "uniref90")
 
 ```{r}
 modules <- mapModules(
-    gmm[seq(30)],
+    gmm,
     ko.uniref90,
-    type = "andor",
-    mode = "taxonomy"
+    mode = "andor",
+    remove.empty = TRUE
 )
 ```
+
+```{r}
+modules <- queryTaxonomy(modules, remove.empty = TRUE)
+```
+
 
 ```{r}
 tse <- addModules(tse, modules)
@@ -144,7 +171,11 @@ tse <- addModules(tse, modules)
 
 
 ```{r}
-altExp(tse, "modules") <- agglomerateByModule(tse, by = 1L, group = names(gmm)[seq(30)])
+altExp(tse, "modules") <- agglomerateByModule(
+    tse,
+    by = 1L,
+    group = names(modules)
+)
 
 top.mods <- altExp(tse, "modules") |>
     getTop(assay.type = "relative_abundance")
@@ -159,15 +190,13 @@ tse <- swapAltExp(
 )
 ```
 
-
 ```{r}
-plotAbundance(
-    tse[top.mods, ],
+plotAbundanceDensity(
+    tse,
+    layout = "density",
+    n = 5,
     assay.type = "relative_abundance",
-    as.relative = TRUE,
-    col.var = "disease",
-    order.col.by = "disease"
-)
+    colour.by = "disease")
 ```
 
 ```{r}
@@ -180,12 +209,5 @@ ggplot(mse, aes(x = SampleID, y = FeatureID, fill = relative_abundance)) +
 
 ```
 
-```{r}
-plotAbundanceDensity(
-    tse,
-    layout = "density",
-    n = 5,
-    assay.type = "relative_abundance",
-    colour.by = "disease")
-```
+
 
