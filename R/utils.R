@@ -44,8 +44,7 @@ setMethod("as.linkmap", signature = c(values = "list"),
 #' @export
 #' @rdname utils
 #' @importFrom stringr fixed str_detect str_split
-#' @importFrom SummarizedExperiment rowData colData rowData<- colData<-
-#'   assayNames
+#' @importFrom SummarizedExperiment rowData colData rowData<- colData<- assays
 #' @importFrom TreeSummarizedExperiment TreeSummarizedExperiment
 processGeneFamilies <- function(se){
     # Select rows with non-null taxa

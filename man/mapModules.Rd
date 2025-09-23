@@ -49,9 +49,6 @@ gbm <- importModules("GBM")
 map <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
 
 # Map modules to UniRef90
-uniref.modules <- mapModules(gbm[seq(3)], map)
-
-# Map modules to taxa
-tax.modules <- mapModules(gbm[seq(3)], map, mode = "taxonomy")
+uniref.modules <- mapModules(gbm[seq(3)], map, mode = "andor")
 
 }

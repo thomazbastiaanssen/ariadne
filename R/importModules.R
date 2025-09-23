@@ -16,6 +16,17 @@
 #' @param verbose \code{Logical scalar}. Should information on execution be
 #'   printed in the console. (Default: \code{TRUE}).
 #' 
+#' @examples
+#' 
+#' # Import GMM modules
+#' modules1 <- importModules("GMM")
+#' 
+#' # Import and merge multiple module files
+#' modules2 <- importModules(c("GMM", "GBM"))
+#' 
+#' # Import local module file
+#' # modules2 <- importModules("path/to/file")
+#' 
 #' @name importModules
 NULL
 
