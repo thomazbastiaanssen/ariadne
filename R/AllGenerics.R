@@ -13,14 +13,9 @@ setGeneric("importModules", signature = "module.file",
 #' @rdname mapModules
 #' @export
 setGeneric("mapModules", signature = "modules",
-    function(modules, map, mode = "single", remove.empty = TRUE, verbose = TRUE)
+    function(modules, map, mode = "single", uniprot = FALSE,
+        remove.empty = TRUE, verbose = TRUE)
     standardGeneric("mapModules"))
-
-#' @rdname queryTaxonomy
-#' @export
-setGeneric("queryTaxonomy", signature = "map",
-    function(map, remove.empty = TRUE, verbose = TRUE)
-    standardGeneric("queryTaxonomy"))
 
 #' @rdname getModules
 #' @export

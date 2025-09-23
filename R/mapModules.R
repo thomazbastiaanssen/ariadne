@@ -15,6 +15,9 @@
 #'   as input. It can be one of \code{c("single", "andor")}.
 #'   (Default: \code{"single"}).
 #' 
+#' @param uniprot \code{Logical scalar}. Should a SPARQL query to UniProt be
+#'   made to map UniRef ids to taxa (Default: \code{TRUE}).
+#' 
 #' @param remove.empty \code{Logical scalar}. Should modules with no matching
 #'   taxa be removed. (Default: \code{TRUE}).
 #' 
@@ -47,7 +50,8 @@ NULL
 #' @rdname mapModules
 #' @importFrom BiocParallel bplapply
 setMethod("mapModules", signature = c(modules = "list"),
-    function(modules, map, mode = "single", remove.empty = TRUE, verbose = TRUE){
+    function(modules, map, mode = "single", uniprot = FALSE,
+        remove.empty = TRUE, verbose = TRUE){
         # Check arguments
         if( !is.vector(modules) ){
             stop("'modules' must be a character vector or list of character ",
@@ -62,16 +66,27 @@ setMethod("mapModules", signature = c(modules = "list"),
         if( !mode %in% c("single", "andor") ){
             stop("'mode' must be either single or andor.", call. = FALSE)
         }
+        if( !is.logical(uniprot) ){
+            stop("'uniprot' should be TRUE or FALSE.", call. = FALSE)
+        }
         if( !is.logical(remove.empty) ){
             stop("'remove.empty' should be TRUE or FALSE.", call. = FALSE)
         }
         # If a sequence of mappings is provided
         if( all(is.list(unlist(map, use.names = FALSE, recursive = FALSE))) ){
+            print("hi")
             # Keep only relevant bindings
             keep <- names(map[[1]]) %in% unlist(modules, use.names = FALSE)
             map[[1]] <- map[[1]][keep]
             # Perform mapping recursively
             map <- Reduce(.single_mapping, map)
+        }
+        # Query taxonomy from UniProt
+        if( uniprot ){
+            map <- bplapply(map, .querySPARQL)
+        }
+        if( uniprot && verbose ){
+            message(length(unlist(map)), " taxa queried from UniProt.")
         }
         # Select mapping method based on module type
         map.method <- switch(mode,
@@ -122,19 +137,47 @@ setMethod("mapModules", signature = c(modules = "list"),
     return(z)
 }
 
-# .andor2regex <- function(modules){
-#     modules <- lapply(gbm, function(module){
-#         module <- vapply(module, function(item){
-#             paste(vapply(item, function(comp){
-#                 if (length(comp) > 1L) comp <- sprintf("(?=.*?%s)", comp)
-#                 comp <- paste(comp, collapse = "")
-#                 return(comp)
-#             }, character(1L)),
-#             collapse = "|")
-#         },
-#         character(1L))
-#         module <- paste(sprintf("(?=.*?%s)", module), collapse = "")
-#         return(module)
-#     })
-#     return(modules)
-# }
+# Query taxonomies based on uniref ids from UniProt using SPARQL
+.querySPARQL <- function(x, graph = rdflib$Graph()){
+    # Collapse UniRef90 ids into long string
+    uniref.ids <- paste0("uniref:", x, collapse = " ")
+    # Define first part of query
+    query_part1 <- "
+        PREFIX uniprot: <http://purl.uniprot.org/core/>
+        PREFIX uniref: <http://purl.uniprot.org/uniref/>
+        # Outer query to get final names
+        SELECT ?name
+        WHERE {
+            SERVICE <https://sparql.uniprot.org/> {
+            {   # Inner query to get distinct taxa
+                SELECT DISTINCT ?taxId
+                WHERE {
+                    # List UniRef90 ids
+                    VALUES ?unirefId {
+        "
+    # Define second part of query
+    query_part2 <- "
+                    }
+                    # Bind UniRef90 ids to cluster members
+                    ?unirefId uniprot:member ?member.
+                    # Bind cluster members to taxa
+                    ?member uniprot:organism ?taxId.
+                }
+            }
+            # Bind taxa to scientific names and ranks
+            ?taxId uniprot:scientificName ?sciName; uniprot:rank ?rank.
+            # Process name to prefix__taxon format
+            BIND(lcase(substr(strafter(str(?rank), 'Rank_'), 1, 1)) as ?prefix)
+            BIND(concat(?prefix, '__', ?sciName) as ?name)
+            }
+        }
+        "
+    # Build query
+    query <- paste0(query_part1, "\t\t\t", uniref.ids, query_part2)
+    # Execute query
+    qres <- graph$query(query)
+    # Convert name bindings to vector
+    tax.vec <- vapply(qres$bindings, function(binding)
+        binding[["name"]], character(1L))
+    return(tax.vec)
+}

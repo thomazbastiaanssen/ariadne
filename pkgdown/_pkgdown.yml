@@ -5,7 +5,6 @@ reference:
   - importMapping
   - importModules
   - mapModules
-  - queryTaxonomy
   - getModules
   - addModules
 - title: Other
@@ -13,5 +12,4 @@ reference:
   - getFullTaxonomyLabels
   - processGeneFamilies
   - as.linkmap
-  - ariadne-package
   - butyrate

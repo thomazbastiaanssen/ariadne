@@ -5,9 +5,23 @@
 \alias{mapModules,list-method}
 \title{Map modules to taxa}
 \usage{
-mapModules(modules, map, mode = "single", remove.empty = TRUE, verbose = TRUE)
+mapModules(
+  modules,
+  map,
+  mode = "single",
+  uniprot = FALSE,
+  remove.empty = TRUE,
+  verbose = TRUE
+)
 
-\S4method{mapModules}{list}(modules, map, mode = "single", remove.empty = TRUE, verbose = TRUE)
+\S4method{mapModules}{list}(
+  modules,
+  map,
+  mode = "single",
+  uniprot = FALSE,
+  remove.empty = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{modules}{\code{Named character list}. Named list of vectors, where each
@@ -19,6 +33,9 @@ vector is a mapping key and its elements are the mapped values.}
 \item{mode}{\code{Character scalar}. Specifies the type of modules to expect
 as input. It can be one of \code{c("single", "andor")}.
 (Default: \code{"single"}).}
+
+\item{uniprot}{\code{Logical scalar}. Should a SPARQL query to UniProt be
+made to map UniRef ids to taxa (Default: \code{TRUE}).}
 
 \item{remove.empty}{\code{Logical scalar}. Should modules with no matching
 taxa be removed. (Default: \code{TRUE}).}

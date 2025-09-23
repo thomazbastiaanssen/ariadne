@@ -4,6 +4,14 @@
 #' in other packages dealing with annotation mappings. \code{as.linkmap}
 #' converts a list of named vectors to a linkmap data.frame.
 #' 
+#' @param tse A
+#'   \code{\link[TreeSummarizedExperiment:SummarizedExperiment-constructor]{TreeSummarizedExperiment}}
+#'   object.
+#' 
+#' @param se A
+#'   \code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment}}
+#'   object.
+#' 
 #' @param values \code{Character list}. List of vectors where each vector
 #'   represents one type of values.
 #' 
@@ -21,8 +29,8 @@
 #' @name utils
 NULL
 
-#' @rdname utils
 #' @export
+#' @rdname utils
 setMethod("as.linkmap", signature = c(values = "list"),
     function(values, keys = NULL, col.names = NULL){
         if( is.null(keys) ){
@@ -40,6 +48,20 @@ setMethod("as.linkmap", signature = c(values = "list"),
         return(linkmap)
     }
 )
+
+# Reduce taxcols of rowData to taxstring in metaphlan format
+#' @export
+#' @rdname utils
+#' @importFrom SummarizedExperiment rowData
+getFullTaxonomyLabels <- function(tse){
+    # Add taxrank prefixes to taxcols of rowData
+    tax <- .add_prefix_to_taxtable(tse)
+    # Collapse taxcols to taxstring in metaphlan format
+    tax <- apply(tax, 1L, paste, collapse = "|")
+    # Remove empty taxranks
+    tax <- gsub("(?:\\|[a-z]__)+$", "", tax)
+    return(tax)
+}
 
 #' @export
 #' @rdname utils

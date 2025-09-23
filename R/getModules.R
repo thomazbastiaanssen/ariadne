@@ -189,19 +189,6 @@ setMethod("getModules", signature = c(x = "SummarizedExperiment"),
 
 ### HELPER FUNCTIONS ###
 
-# Reduce taxcols of rowData to taxstring in metaphlan format
-#' @export
-#' @importFrom SummarizedExperiment rowData
-getFullTaxonomyLabels <- function(x){
-    # Add taxrank prefixes to taxcols of rowData
-    tax <- .add_prefix_to_taxtable(x)
-    # Collapse taxcols to taxstring in metaphlan format
-    tax <- apply(tax, 1L, paste, collapse = "|")
-    # Remove empty taxranks
-    tax <- gsub("(?:\\|[a-z]__)+$", "", tax)
-    return(tax)
-}
-
 # Add taxrank prefixes to taxonomy table
 .add_prefix_to_taxtable <- function(tax){
     # Retrieve taxrank prefixes

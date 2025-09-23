@@ -17,6 +17,7 @@ test_that("mapModules", {
         head(gbm),
         eggnog.uniref90,
         mode = "andor",
+        uniprot = TRUE,
         remove.empty = TRUE
     )
     
@@ -24,10 +25,10 @@ test_that("mapModules", {
         head(gbm),
         eggnog.uniref90,
         mode = "andor",
+        uniprot = TRUE,
         remove.empty = FALSE
     )
     
-    # expect_length(sig.list1, 2)
-    # expect_length(sig.list2, 6)
-    
+    expect_length(sig.list1, 2)
+    expect_length(sig.list2, 6)
 })

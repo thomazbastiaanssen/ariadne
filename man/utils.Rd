@@ -4,12 +4,15 @@
 \alias{as.linkmap}
 \alias{utils}
 \alias{as.linkmap,list-method}
+\alias{getFullTaxonomyLabels}
 \alias{processGeneFamilies}
 \title{Utility functions}
 \usage{
 as.linkmap(values, keys = NULL, col.names = NULL)
 
 \S4method{as.linkmap}{list}(values, keys = NULL, col.names = NULL)
+
+getFullTaxonomyLabels(tse)
 
 processGeneFamilies(se)
 }
@@ -22,6 +25,14 @@ represents one type of values.}
 
 \item{col.names}{\code{Character vector}. A vector of two elements specifying
 the names of the columns in the output linkmap (Default: \code{NULL}).}
+
+\item{tse}{A
+\code{\link[TreeSummarizedExperiment:SummarizedExperiment-constructor]{TreeSummarizedExperiment}}
+object.}
+
+\item{se}{A
+\code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment}}
+object.}
 }
 \value{
 \code{as.linkmap} returns a linkmap \code{data.frame} where the first and
