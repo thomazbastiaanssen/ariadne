@@ -1,0 +1,15 @@
+destination: docs
+reference:
+- title: Main functions
+- contents:
+  - importMapping
+  - importModules
+  - mapModules
+  - getModules
+  - addModules
+- title: Other
+- contents:
+  - getFullTaxonomyLabels
+  - processGeneFamilies
+  - as.linkmap
+  - butyrate

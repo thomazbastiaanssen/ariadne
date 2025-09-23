@@ -10,19 +10,28 @@
 #'
 #' @param map \code{Named character list}. Named list of vectors, where each
 #'   vector is a mapping key and its elements are the mapped values.
-#'
+#' 
+#' @param mode \code{Character scalar}. Specifies the type of modules to expect
+#'   as input. It can be one of \code{c("single", "andor")}.
+#'   (Default: \code{"single"}).
+#' 
+#' @param uniprot \code{Logical scalar}. Should a SPARQL query to UniProt be
+#'   made to map UniRef ids to taxa (Default: \code{TRUE}).
+#' 
 #' @param remove.empty \code{Logical scalar}. Should modules with no matching
 #'   taxa be removed. (Default: \code{TRUE}).
 #' 
-#' @param message \code{Logical scalar}. Should information on execution be
+#' @param verbose \code{Logical scalar}. Should information on execution be
 #'   printed in the console. (Default: \code{TRUE}).
 #' 
 #' @details
-#' Additional details
+#' The input modules of \code{mapModules} can be either single elements or
+#' and/or relationships, depending on whether \code{mode} is \code{"single"} or
+#' \code{"andor"}.
 #' 
 #' @return
 #' \code{mapModules} returns a named list of vectors, where each vector is a
-#' module and its elements are the taxa members of that module.
+#' module and its elements are the members of that module.
 #'
 #' @examples
 #' # Import GBM
@@ -31,68 +40,114 @@
 #' # Import ko-to-uniref90 mapping
 #' map <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
 #' 
-#' # Map modules to taxa
-#' sigs <- mapModules(gbm[seq(3)], map)
+#' # Map modules to UniRef90
+#' modules <- mapModules(
+#'     head(gbm),
+#'     map,
+#'     mode = "andor",
+#'     uniprot = TRUE
+#' )
 #' 
 #' @name mapModules
 NULL
 
-#' @rdname mapModules
 #' @export
+#' @rdname mapModules
 #' @importFrom BiocParallel bplapply
 setMethod("mapModules", signature = c(modules = "list"),
-    function(modules, map, remove.empty = TRUE, message = TRUE){
+    function(modules, map, mode = "single", uniprot = FALSE,
+        remove.empty = TRUE, verbose = TRUE){
         # Check arguments
         if( !is.vector(modules) ){
-          stop("'modules' must be a character vector or list of character ",
-              "vectors, where each vector corresponds to a module.", call. = FALSE)
+            stop("'modules' must be a character vector or list of character ",
+                "vectors, where each vector corresponds to a module.",
+                call. = FALSE)
         }
         if( !is.vector(map) ){
-          stop("'map' must be a character vector or list of character ",
-              "vectors, where each vector corresponds to a mapping.", call. = FALSE)
+            stop("'map' must be a character vector or list of character ",
+                "vectors, where each vector corresponds to a mapping.",
+                call. = FALSE)
+        }
+        if( !mode %in% c("single", "andor") ){
+            stop("'mode' must be either single or andor.", call. = FALSE)
+        }
+        if( !is.logical(uniprot) ){
+            stop("'uniprot' should be TRUE or FALSE.", call. = FALSE)
         }
         if( !is.logical(remove.empty) ){
             stop("'remove.empty' should be TRUE or FALSE.", call. = FALSE)
         }
-        # Keep only relevant bindings
-        keep <- names(map) %in% unique(unlist(modules, use.names = FALSE))
-        map <- map[keep]
-        # Check matched uniref ids
-        uniref.length <- length(unlist(map))
-        if( uniref.length == 0){
-            stop("'map' did not match any element in 'modules'.", call. = FALSE)
+        # If sequence of mappings is provided
+        if( all(is.list(unlist(map, use.names = FALSE, recursive = FALSE))) ){
+            # Keep only relevant bindings
+            map[[1]] <- map[[1]][names(map[[1]]) %in% unlist(modules, use.names = FALSE)]
+            # Perform mapping recursively
+            map <- Reduce(.single_mapping, map)
+        }else{
+            # Keep only relevant bindings
+            map <- map[names(map) %in% unlist(modules, use.names = FALSE)]
         }
-        if( message ){
-            message("Mapping ", length(modules), " modules to ",
-                uniref.length, " uniref ids.")
+        if( uniprot ){
+            # Query taxonomy from UniProt
+            map <- bplapply(map, .querySPARQL)
         }
-        # Query taxonomy from UniRef90
-        tax.list <- bplapply(map, .querySPARQL)
-        # Find functions for each taxon
-        tax.linkmap <- as.linkmap(tax.list)
-        tax <- split(tax.linkmap$x, tax.linkmap$y)
-        if( message ){
-            message(length(tax), " tax ids were retrieved from UniProt.")
+        if( uniprot && verbose ){
+            message(length(unlist(map)), " taxa were queried from UniProt.")
         }
-        # Store taxa in modules list
-        sig.list <- bplapply(modules, function(module) {
-            members <- vapply(tax, function(tax.item) {
-                all(vapply(module, function(mod) any(mod %in% tax.item), logical(1)))
-            }, logical(1))
-            names(tax)[members]
-        })
+        # Select mapping method based on module type
+        map.method <- switch(mode,
+            single = .single_mapping,
+            andor = .andor_mapping
+        )
+        # Map modules and store in modules list
+        sig.list <- map.method(modules, map)
+        # Remove empty modules
         if( remove.empty ){
-            # Remove empty modules 
             sig.list <- Filter(function(sig) length(sig) > 0, sig.list)
+        }
+        if( verbose ){
+            message(length(unlist(sig.list)), " items were mapped to ",
+                length(sig.list), " modules.")
         }
         return(sig.list)
     }
 )
 
-# Query taxonomies from uniref ids from UniProt using SPARQL
-.querySPARQL <- function(module, graph = rdflib$Graph()){
+# Perform one-to-one mapping
+.single_mapping <- function(x, y){
+    # Filter y keys that match x values
+    y <- y[names(y) %in% unique(unlist(x, use.names = FALSE))]
+    if( length(y) == 0 ){
+        stop("Items in 'x' did not match any item in 'y'.", call. = FALSE)
+    }
+    # Store taxa in modules list
+    z <- bplapply(x, function(values)
+        unlist(y[names(y) %in% values], use.names = FALSE))
+    return(z)
+    print("hello")
+}
+
+# Perform and/or mapping (reaction pathway modules)
+.andor_mapping <- function(x, y){
+    # Filter y keys that match x values
+    y <- y[names(y) %in% unique(unlist(x, use.names = FALSE))]
+    # Find functions for each taxon
+    linkmap <- as.linkmap(y)
+    tax <- split(linkmap$x, linkmap$y)
+    # Store taxa in modules list
+    z <- lapply(x, function(module) {
+        members <- vapply(tax, function(tax.item) {
+            all(vapply(module, function(comp) any(comp %in% tax.item), logical(1L)))
+        }, logical(1L))
+        names(tax)[members]
+    })
+    return(z)
+}
+
+# Query taxonomies based on uniref ids from UniProt using SPARQL
+.querySPARQL <- function(x, graph = rdflib$Graph()){
     # Collapse UniRef90 ids into long string
-    uniref.ids <- paste0("uniref:", module, collapse = " ")
+    uniref.ids <- paste0("uniref:", x, collapse = " ")
     # Define first part of query
     query_part1 <- "
         PREFIX uniprot: <http://purl.uniprot.org/core/>
@@ -119,8 +174,8 @@ setMethod("mapModules", signature = c(modules = "list"),
             # Bind taxa to scientific names and ranks
             ?taxId uniprot:scientificName ?sciName; uniprot:rank ?rank.
             # Process name to prefix__taxon format
-            bind(lcase(substr(strafter(str(?rank), 'Rank_'), 1, 1)) as ?prefix)
-            bind(concat(?prefix, '__', ?sciName) as ?name)
+            BIND(lcase(substr(strafter(str(?rank), 'Rank_'), 1, 1)) as ?prefix)
+            BIND(concat(?prefix, '__', ?sciName) as ?name)
             }
         }
         "
@@ -130,6 +185,6 @@ setMethod("mapModules", signature = c(modules = "list"),
     qres <- graph$query(query)
     # Convert name bindings to vector
     tax.vec <- vapply(qres$bindings, function(binding)
-        binding[["name"]], character(1))
+        binding[["name"]], character(1L))
     return(tax.vec)
 }

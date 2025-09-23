@@ -1,0 +1,220 @@
+---
+title: "Comparison"
+author: 
+  - name: Giulio Benedetti
+    affiliation: University of Turku
+    email: giulio.benedetti@utu.fi
+output:
+    BiocStyle::html_document:
+        fig_height: 7
+        fig_width: 10
+        toc: true
+        toc_float: true
+        toc_depth: 2
+        number_sections: true
+        self_contained: true
+        code_folding: show
+date: "`r doc_date()`"
+package: "`r pkg_ver('ariadne')`"
+vignette: >
+    %\VignetteIndexEntry{ariadne}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r}
+library(ariadne)
+library(curatedMetagenomicData)
+library(mia)
+library(miaViz)
+```
+
+## Functional module analysis at gene level
+
+```{r}
+# Load gene family experiment
+genes <- curatedMetagenomicData(
+    "SankaranarayananK_2015.gene_families",
+    dryrun = FALSE
+)
+
+# Extract experiment
+genes <- genes[[1]]
+```
+
+```{r}
+# Process experiment
+genes <- processGeneFamilies(genes)
+
+# Print experiment
+genes
+```
+
+```{r}
+gmm <- importModules("GMM")
+# gmm <- gmm[1:30]
+```
+
+```{r}
+ko.uniref90 <- importMapping(
+    "ChocoPhlAn",
+    from = "ko",
+    to = "uniref90"
+)
+```
+
+
+```{r}
+rowData(genes)$Taxon <- gsub(".", "|", rowData(genes)$Taxon, fixed = TRUE)
+uniref90.tax <- split(rowData(genes)$Taxon, rowData(genes)$GeneID)
+```
+
+```{r}
+modules <- mapModules(
+    gmm,
+    list(ko.uniref90, uniref90.tax),
+    mode = "andor",
+    remove.empty = TRUE
+)
+```
+
+```{r}
+genes <- addModules(
+    genes,
+    modules,
+    by = 1L,
+    group = "taxonomy"
+)
+```
+
+```{r}
+altExp(genes, "modules") <- agglomerateByModule(
+    genes,
+    by = 1L,
+    group = names(modules)
+)
+
+top.mods <- altExp(genes, "modules") |>
+    getTop(assay.type = "gene_families")
+```
+
+```{r}
+genes <- swapAltExp(
+    genes,
+    name = "modules",
+    saved = "features",
+    withColData = FALSE
+)
+```
+
+```{r}
+plotAbundance(
+    genes[top.mods, ],
+    assay.type = "gene_families",
+    as.relative = TRUE,
+    order.col.by = "disease"
+)
+```
+
+```{r}
+plotAbundanceDensity(
+    genes,
+    assay.type = "gene_families",
+    n = 5,
+    layout = "density",
+    colour.by = "disease"
+)
+```
+
+
+## Functional module analysis at taxon level
+
+```{r}
+# Load relative abundance experiment
+tse <- curatedMetagenomicData(
+    pattern = "SankaranarayananK_2015.relative_abundance",
+    dryrun = FALSE,
+    counts = TRUE,
+    rownames = "short"
+)
+
+# Extract experiment
+tse <- tse[[1]]
+```
+
+```{r}
+tse
+```
+
+```{r}
+gmm <- importModules("GMM")
+```
+
+```{r}
+ko.uniref90 <- importMapping("ChocoPhlAn", "ko", "uniref90")
+```
+
+```{r}
+modules <- mapModules(
+    gmm,
+    ko.uniref90,
+    mode = "andor",
+    uniprot = TRUE,
+    remove.empty = TRUE
+)
+```
+
+```{r}
+tse <- addModules(tse, modules)
+```
+
+
+```{r}
+altExp(tse, "modules") <- agglomerateByModule(
+    tse,
+    by = 1L,
+    group = names(modules)
+)
+
+top.mods <- altExp(tse, "modules") |>
+    getTop(assay.type = "relative_abundance")
+```
+
+```{r}
+tse <- swapAltExp(
+    tse,
+    name = "modules",
+    saved = "features",
+    withColData = FALSE
+)
+```
+
+```{r}
+plotAbundanceDensity(
+    tse,
+    layout = "density",
+    n = 5,
+    assay.type = "relative_abundance",
+    colour.by = "disease")
+```
+
+```{r}
+library(ggplot2)
+mse <- meltSE(tse, assay.type = "relative_abundance", add.col = TRUE)
+
+ggplot(mse, aes(x = SampleID, y = FeatureID, fill = relative_abundance)) +
+  geom_tile() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+```
+
+
+

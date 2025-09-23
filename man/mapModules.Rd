@@ -5,9 +5,23 @@
 \alias{mapModules,list-method}
 \title{Map modules to taxa}
 \usage{
-mapModules(modules, map, remove.empty = TRUE, message = TRUE)
+mapModules(
+  modules,
+  map,
+  mode = "single",
+  uniprot = FALSE,
+  remove.empty = TRUE,
+  verbose = TRUE
+)
 
-\S4method{mapModules}{list}(modules, map, remove.empty = TRUE, message = TRUE)
+\S4method{mapModules}{list}(
+  modules,
+  map,
+  mode = "single",
+  uniprot = FALSE,
+  remove.empty = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{modules}{\code{Named character list}. Named list of vectors, where each
@@ -16,15 +30,22 @@ vector is a module and its elements are the module members.}
 \item{map}{\code{Named character list}. Named list of vectors, where each
 vector is a mapping key and its elements are the mapped values.}
 
+\item{mode}{\code{Character scalar}. Specifies the type of modules to expect
+as input. It can be one of \code{c("single", "andor")}.
+(Default: \code{"single"}).}
+
+\item{uniprot}{\code{Logical scalar}. Should a SPARQL query to UniProt be
+made to map UniRef ids to taxa (Default: \code{TRUE}).}
+
 \item{remove.empty}{\code{Logical scalar}. Should modules with no matching
 taxa be removed. (Default: \code{TRUE}).}
 
-\item{message}{\code{Logical scalar}. Should information on execution be
+\item{verbose}{\code{Logical scalar}. Should information on execution be
 printed in the console. (Default: \code{TRUE}).}
 }
 \value{
 \code{mapModules} returns a named list of vectors, where each vector is a
-module and its elements are the taxa members of that module.
+module and its elements are the members of that module.
 }
 \description{
 \code{mapModules} returns a list of modules containing the taxa that are
@@ -33,7 +54,9 @@ SPARQL. Membership is based on whether a taxon meets the criteria specified
 by a module.
 }
 \details{
-Additional details
+The input modules of \code{mapModules} can be either single elements or
+and/or relationships, depending on whether \code{mode} is \code{"single"} or
+\code{"andor"}.
 }
 \examples{
 # Import GBM
@@ -42,7 +65,12 @@ gbm <- importModules("GBM")
 # Import ko-to-uniref90 mapping
 map <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
 
-# Map modules to taxa
-sigs <- mapModules(gbm[seq(3)], map)
+# Map modules to UniRef90
+modules <- mapModules(
+    head(gbm),
+    map,
+    mode = "andor",
+    uniprot = TRUE
+)
 
 }

@@ -22,7 +22,7 @@ test_that("importMapping", {
             from = c("eggnog", "ko"),
             to = c("uniref90", "uniref90", "uniref90")
         ),
-        "'map.files', 'from' and 'to' must have compatible lengths."
+        "'map.file', 'from' and 'to' must have compatible lengths."
     )
     
     expect_no_error(

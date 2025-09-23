@@ -5,22 +5,30 @@ test_that("mapModules", {
     
     expect_error(
         mapModules(eggnog.uniref90, gbm),
-        "'map' did not match any element in 'modules'."
+        "Items in 'x' did not match any item in 'y'."
     )
     
-    expect_no_error(
-        sig.list1 <- mapModules(head(gbm), eggnog.uniref90)
+    expect_error(
+        mapModules(gbm, eggnog.uniref90, mode = "wrong"),
+        "'mode' must be either single or andor."
     )
     
-    expect_no_error(
-        sig.list2 <- mapModules(
-            head(gbm),
-            eggnog.uniref90,
-            remove.empty = FALSE
-        )
+    sig.list1 <- mapModules(
+        head(gbm),
+        eggnog.uniref90,
+        mode = "andor",
+        uniprot = TRUE,
+        remove.empty = TRUE
+    )
+    
+    sig.list2 <- mapModules(
+        head(gbm),
+        eggnog.uniref90,
+        mode = "andor",
+        uniprot = TRUE,
+        remove.empty = FALSE
     )
     
     expect_length(sig.list1, 2)
     expect_length(sig.list2, 6)
-    
 })

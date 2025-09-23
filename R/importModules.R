@@ -6,11 +6,26 @@
 #'   module files or one or more of the available databases
 #'   (\code{c("GBM", "GMM")}).
 #' 
+#' @param mode \code{Character scalar}. Specifies the type of modules to expect
+#'   as input. It can be one of \code{c("single", "andor")}.
+#'   (Default: \code{"single"}).
+#' 
 #' @param merge \code{Logical scalar}. Should multiple mapping files be merged.
 #'   (Default: \code{TRUE}).
 #' 
-#' @param message \code{Logical scalar}. Should information on execution be
+#' @param verbose \code{Logical scalar}. Should information on execution be
 #'   printed in the console. (Default: \code{TRUE}).
+#' 
+#' @examples
+#' 
+#' # Import GMM modules
+#' modules1 <- importModules("GMM")
+#' 
+#' # Import and merge multiple module files
+#' modules2 <- importModules(c("GMM", "GBM"))
+#' 
+#' # Import local module file
+#' # modules2 <- importModules("path/to/file")
 #' 
 #' @name importModules
 NULL
@@ -23,14 +38,14 @@ ModuleDatabases <- list(
 #' @rdname importModules
 #' @export
 setMethod("importModules", signature = c(module.file = "character"),
-    function(module.file, merge = TRUE, message = TRUE){
+    function(module.file, mode = "single", merge = TRUE, verbose = TRUE){
         if( !is.logical(merge) ){
             stop("'merge' must be TRUE or FALSE.", call. = FALSE)
         }
-        if( !is.logical(message) ){
-            stop("'message' must be TRUE or FALSE.", call. = FALSE)
+        if( !is.logical(verbose) ){
+            stop("'verbose' must be TRUE or FALSE.", call. = FALSE)
         }
-        modules <- lapply(module.file, .import_modules, message = message)
+        modules <- lapply(module.file, .import_modules, verbose = verbose)
         # Merge mapping files
         if( merge ){
             modules <- unlist(modules, recursive = FALSE)
@@ -39,33 +54,33 @@ setMethod("importModules", signature = c(module.file = "character"),
     }
 )
 
-.import_modules <- function(module.file, message){
+.import_modules <- function(module.file, verbose){
     # Whether to use package or custom modules
     if( module.file %in% names(ModuleDatabases) ){
         # Cache database
         module.file <- .getCache(ModuleDatabases[[module.file]])
     }
     # Read the file content
-    lines <- readLines(module.file)
+    line.content <- readLines(module.file)
     # GBM is missing /// at the end
-    if( lines[length(lines)] != "///" ){
-        lines <- append(lines, "///")
+    if( line.content[length(line.content)] != "///" ){
+        line.content <- append(line.content, "///")
     }
     
     keys <- c()
     modules <- list()
     module <- c()
     
-    for (line in lines){
+    for (line in line.content){
       
         if( line == "///" ){
         
             modules <- append(modules, list(module))
             module <- c()
         
-        }else if( substr(line, 1, 1) == "M" ){
+        }else if( startsWith(line, "M") ){
         
-            key <- paste0(gsub("\t", " (", line), ")")
+            key <- paste0(gsub("\t", " (", line, fixed = TRUE), ")")
             keys <- append(keys, key)
         
         }else{
@@ -74,7 +89,7 @@ setMethod("importModules", signature = c(module.file = "character"),
     }
     
     for( i in seq_along(modules) ){
-        module.comp <- strsplit(modules[[i]], "\t")
+        module.comp <- strsplit(modules[[i]], "\t", fixed = TRUE)
         modules[[i]] <- lapply(module.comp, strsplit, split = ",")
     }
     

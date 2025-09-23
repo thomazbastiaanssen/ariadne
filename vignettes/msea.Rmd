@@ -1,0 +1,42 @@
+---
+title: "MSEA"
+author: 
+  - name: Giulio Benedetti
+    affiliation: University of Turku
+    email: giulio.benedetti@utu.fi
+output:
+    BiocStyle::html_document:
+        fig_height: 7
+        fig_width: 10
+        toc: true
+        toc_float: true
+        toc_depth: 2
+        number_sections: true
+        self_contained: true
+        code_folding: show
+date: "`r doc_date()`"
+package: "`r pkg_ver('ariadne')`"
+vignette: >
+    %\VignetteIndexEntry{ariadne}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+---
+
+# RESTful APIs or resources for taxonomic module databases
+
+- [BugSigDB](https://waldronlab.io/bugsigdbr/articles/bugsigdbr.html)
+  (bugsigdbr)
+
+## Health & Disease
+- [GMRepoV2](https://github.com/evolgeniusteam/GMrepoProgrammableAccess/blob/master/programmable-access/R.md)
+  (programmable access)
+- [mBodyMap](https://github.com/whchenlab/mBodymap/blob/main/programmable-access/R.md)
+  (programmable access)
+  
+## Gut Microbe-Microbial Metabolite
+- [gutMGene](https://bio-computing.hrbmu.edu.cn/gutmgene/#/Resource)
+  (literature-based associations, blocked)
+- [MiMeDB](https://mimedb.org/downloads) (pathways)
+
+
+

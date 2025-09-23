@@ -12,9 +12,9 @@
         bfc, rnames = url, exact = TRUE, download = TRUE, rtype = "web"
     )
     
-    update <- bfcneedsupdate(bfc, names(rpath))
+    to.update <- bfcneedsupdate(bfc, names(rpath))
     
-    if (update){
+    if( to.update ){
         bfcdownload(bfc, names(rpath), ask = FALSE)
     }
 
