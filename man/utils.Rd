@@ -27,7 +27,7 @@ represents one type of values.}
 the names of the columns in the output linkmap (Default: \code{NULL}).}
 
 \item{tse}{A
-\code{\link[TreeSummarizedExperiment:SummarizedExperiment-constructor]{TreeSummarizedExperiment}}
+\code{\link[TreeSummarizedExperiment:TreeSummarizedExperiment-constructor]{TreeSummarizedExperiment}}
 object.}
 
 \item{se}{A

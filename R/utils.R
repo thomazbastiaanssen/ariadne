@@ -5,7 +5,7 @@
 #' converts a list of named vectors to a linkmap data.frame.
 #' 
 #' @param tse A
-#'   \code{\link[TreeSummarizedExperiment:SummarizedExperiment-constructor]{TreeSummarizedExperiment}}
+#'   \code{\link[TreeSummarizedExperiment:TreeSummarizedExperiment-constructor]{TreeSummarizedExperiment}}
 #'   object.
 #' 
 #' @param se A
