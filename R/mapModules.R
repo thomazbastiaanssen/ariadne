@@ -41,7 +41,12 @@
 #' map <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
 #' 
 #' # Map modules to UniRef90
-#' uniref.modules <- mapModules(gbm[seq(3)], map, mode = "andor")
+#' modules <- mapModules(
+#'     head(gbm),
+#'     map,
+#'     mode = "andor",
+#'     uniprot = TRUE
+#' )
 #' 
 #' @name mapModules
 NULL
@@ -72,21 +77,22 @@ setMethod("mapModules", signature = c(modules = "list"),
         if( !is.logical(remove.empty) ){
             stop("'remove.empty' should be TRUE or FALSE.", call. = FALSE)
         }
-        # If a sequence of mappings is provided
+        # If sequence of mappings is provided
         if( all(is.list(unlist(map, use.names = FALSE, recursive = FALSE))) ){
-            print("hi")
             # Keep only relevant bindings
-            keep <- names(map[[1]]) %in% unlist(modules, use.names = FALSE)
-            map[[1]] <- map[[1]][keep]
+            map[[1]] <- map[[1]][names(map[[1]]) %in% unlist(modules, use.names = FALSE)]
             # Perform mapping recursively
             map <- Reduce(.single_mapping, map)
+        }else{
+            # Keep only relevant bindings
+            map <- map[names(map) %in% unlist(modules, use.names = FALSE)]
         }
-        # Query taxonomy from UniProt
         if( uniprot ){
+            # Query taxonomy from UniProt
             map <- bplapply(map, .querySPARQL)
         }
         if( uniprot && verbose ){
-            message(length(unlist(map)), " taxa queried from UniProt.")
+            message(length(unlist(map)), " taxa were queried from UniProt.")
         }
         # Select mapping method based on module type
         map.method <- switch(mode,
@@ -118,6 +124,7 @@ setMethod("mapModules", signature = c(modules = "list"),
     z <- bplapply(x, function(values)
         unlist(y[names(y) %in% values], use.names = FALSE))
     return(z)
+    print("hello")
 }
 
 # Perform and/or mapping (reaction pathway modules)

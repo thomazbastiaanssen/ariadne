@@ -59,7 +59,7 @@ genes
 
 ```{r}
 gmm <- importModules("GMM")
-gmm <- gmm[1:30]
+# gmm <- gmm[1:30]
 ```
 
 ```{r}
@@ -123,6 +123,16 @@ plotAbundance(
 )
 ```
 
+```{r}
+plotAbundanceDensity(
+    genes,
+    assay.type = "gene_families",
+    n = 5,
+    layout = "density",
+    colour.by = "disease"
+)
+```
+
 
 ## Functional module analysis at taxon level
 
@@ -156,14 +166,10 @@ modules <- mapModules(
     gmm,
     ko.uniref90,
     mode = "andor",
+    uniprot = TRUE,
     remove.empty = TRUE
 )
 ```
-
-```{r}
-modules <- queryTaxonomy(modules, remove.empty = TRUE)
-```
-
 
 ```{r}
 tse <- addModules(tse, modules)
@@ -200,6 +206,7 @@ plotAbundanceDensity(
 ```
 
 ```{r}
+library(ggplot2)
 mse <- meltSE(tse, assay.type = "relative_abundance", add.col = TRUE)
 
 ggplot(mse, aes(x = SampleID, y = FeatureID, fill = relative_abundance)) +

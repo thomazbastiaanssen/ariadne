@@ -66,6 +66,11 @@ gbm <- importModules("GBM")
 map <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
 
 # Map modules to UniRef90
-uniref.modules <- mapModules(gbm[seq(3)], map, mode = "andor")
+modules <- mapModules(
+    head(gbm),
+    map,
+    mode = "andor",
+    uniprot = TRUE
+)
 
 }
