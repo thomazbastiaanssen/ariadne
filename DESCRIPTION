@@ -39,7 +39,9 @@ Imports:
     TreeSummarizedExperiment
 Suggests:
     BiocStyle,
+    curatedMetagenomicData,
     knitr,
+    miaViz,
     remotes,
     rmarkdown,
     testthat (>= 3.0.0)

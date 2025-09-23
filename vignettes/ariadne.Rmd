@@ -59,6 +59,7 @@ Here, the terms "module" and "signature" are used in place of each other.
 ```{r}
 library(ariadne)
 library(mia)
+library(miaViz)
 
 # Import dataset
 data("Tengeler2020", package = "mia")

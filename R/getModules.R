@@ -55,7 +55,7 @@
 #' mod.table <- getModules(tse, butyrate)
 #' 
 #' # Generate & store modules table
-#' tse <- addModules(tse, modules)
+#' tse <- addModules(tse, butyrate)
 #'
 #' # Make example list of two modules
 #' modules <- list(A = c("g__Bacteroides", "f__Enterobacteriaceae"),
