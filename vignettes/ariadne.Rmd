@@ -1,5 +1,5 @@
 ---
-title: "# minotaur: module integration by on-demand translation of annotations using R"
+title: "# ariadne: module integration by on-demand translation of annotations using R"
 author: 
   - name: Giulio Benedetti
     affiliation: University of Turku
@@ -16,9 +16,9 @@ output:
         code_folding: show
 # bibliography: ../inst/REFERENCES.bib
 date: "`r doc_date()`"
-package: "`r pkg_ver('minotaur')`"
+package: "`r pkg_ver('ariadne')`"
 vignette: >
-  %\VignetteIndexEntry{minotaur}
+  %\VignetteIndexEntry{ariadne}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -32,7 +32,7 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-ariadne aims to provide a rapid and robust approach to incorporate taxonomic
+ariadne provides a rapid and robust approach to incorporate taxonomic
 and functional module analyses into your bioinformatic workflow. Despite the
 presence of specialised bioinformatic tools, on-demand functional annotation of
 taxonomic features directly in R has remained challenging. To make this simple,
@@ -51,13 +51,13 @@ information into popular standardised containers, such as TreeSummarizedExperime
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
-BiocManager::install("minotaur")
+BiocManager::install("ariadne")
 ```
 
 Here, the terms "module" and "signature" are used in place of each other.
 
 ```{r}
-library(minotaur)
+library(ariadne)
 library(mia)
 
 # Import dataset
@@ -221,17 +221,17 @@ my.list
 
 ## Citation
 
-We hope that minotaur will be useful for your research. Please use the following
+We hope that ariadne will be useful for your research. Please use the following
 information to cite the package and the overall approach. Thank you!
 
 ```{r citation}
 ## Citation info
-citation("minotaur")
+citation("ariadne")
 ```
 
 ## Background Knowledge
 
-minotaur originates from the joint effort of the R/Bioconductor community. It is
+ariadne originates from the joint effort of the R/Bioconductor community. It is
 mainly based on the following software:
 
 - [R](https://www.r-project.org/), statistical programming language [@core2025r]

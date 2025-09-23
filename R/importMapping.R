@@ -83,13 +83,13 @@ MappingDatabases <- list(
 #' @rdname importMapping
 #' @export
 setMethod("importMapping", signature = c(map.file = "character"),
-    function(map.file, from = NULL, to = NULL, merge = TRUE, verbose = TRUE){
+    function(map.file, from = NA, to = NA, merge = TRUE, verbose = TRUE){
         # Find number of mapping files
         input.lengths <- lengths(list(map.file, from, to))
         max.length <- max(input.lengths)
         # Check arguments
         if( !all(input.lengths %in% c(1, max.length)) ){
-            stop("'map.files', 'from' and 'to' must have compatible lengths.",
+            stop("'map.file', 'from' and 'to' must have compatible lengths.",
                 call. = FALSE)
         }
         if( !is.logical(merge) ){
@@ -108,7 +108,7 @@ setMethod("importMapping", signature = c(map.file = "character"),
         # Merge mapping files
         if( merge ){
             # Find unique keys
-            keys <- unique(unlist(lapply(map, names)))
+            keys <- unique(unlist(lapply(map, names), use.names = FALSE))
             # Merge values by unique keys
             map <- do.call(mapply, c(FUN = c, lapply(map, `[`, keys)))
             # Use keys as names
@@ -123,19 +123,19 @@ setMethod("importMapping", signature = c(map.file = "character"),
     # Whether to use package or custom mapping
     if( x %in% names(MappingDatabases) ){
         # Construct path to database
-        map.file <- .getPath(x, from, to)
+        x <- .getPath(x, from, to)
         # Cache database
-        map.file <- .getCache(map.file)
+        x <- .getCache(x)
     }
     if( verbose ){
-        message("Retrieving mappings from ", map.file, ".")
+        message("Retrieving mappings from ", x, ".")
     }
     # Read file content
-    line.content <- readLines(map.file)
+    line.content <- readLines(x)
     # Split elements in each line by tab
-    items <- strsplit(x = line.content, split = "\t")
+    items <- strsplit(line.content, "\t", fixed = TRUE)
     # Extract keys
-    keys <- vapply(items, FUN = function(x) x[1], FUN.VALUE = "")
+    keys <- vapply(items, FUN = function(x) x[1], FUN.VALUE = character(1L))
     # Extract values
     values <- lapply(items, FUN = function(x) x[-1])
     # Add names to list

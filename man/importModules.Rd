@@ -5,14 +5,18 @@
 \alias{importModules,character-method}
 \title{Import modules from a file or a database}
 \usage{
-importModules(module.file, merge = TRUE, verbose = TRUE)
+importModules(module.file, mode = "single", merge = TRUE, verbose = TRUE)
 
-\S4method{importModules}{character}(module.file, merge = TRUE, verbose = TRUE)
+\S4method{importModules}{character}(module.file, mode = "single", merge = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{module.file}{\code{Character vector}. One or more paths to custom
 module files or one or more of the available databases
 (\code{c("GBM", "GMM")}).}
+
+\item{mode}{\code{Character scalar}. Specifies the type of modules to expect
+as input. It can be one of \code{c("single", "andor")}.
+(Default: \code{"single"}).}
 
 \item{merge}{\code{Logical scalar}. Should multiple mapping files be merged.
 (Default: \code{TRUE}).}

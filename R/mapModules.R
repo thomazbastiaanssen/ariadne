@@ -116,7 +116,7 @@ setMethod("mapModules", signature = c(modules = "list"),
     linkmap <- as.linkmap(y)
     tax <- split(linkmap$x, linkmap$y)
     # Store taxa in modules list
-    z <- bplapply(x, function(module) {
+    z <- lapply(x, function(module) {
         members <- vapply(tax, function(tax.item) {
             all(vapply(module, function(comp) any(comp %in% tax.item), logical(1L)))
         }, logical(1L))
@@ -124,3 +124,20 @@ setMethod("mapModules", signature = c(modules = "list"),
     })
     return(z)
 }
+
+# .andor2regex <- function(modules){
+#     modules <- lapply(gbm, function(module){
+#         module <- vapply(module, function(item){
+#             paste(vapply(item, function(comp){
+#                 if (length(comp) > 1L) comp <- sprintf("(?=.*?%s)", comp)
+#                 comp <- paste(comp, collapse = "")
+#                 return(comp)
+#             }, character(1L)),
+#             collapse = "|")
+#         },
+#         character(1L))
+#         module <- paste(sprintf("(?=.*?%s)", module), collapse = "")
+#         return(module)
+#     })
+#     return(modules)
+# }

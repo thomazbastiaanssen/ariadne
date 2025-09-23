@@ -1,6 +1,6 @@
 test_that("getModules", {
     
-    data("butyrate", package = "minotaur")
+    data("butyrate", package = "ariadne")
     tax.before <- nrow(butyrate)
     
     butyrate <- getFullTaxonomyLabels(butyrate)

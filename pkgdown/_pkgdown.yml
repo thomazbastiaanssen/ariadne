@@ -13,5 +13,5 @@ reference:
   - getFullTaxonomyLabels
   - processGeneFamilies
   - as.linkmap
-  - minotaur-package
+  - ariadne-package
   - butyrate

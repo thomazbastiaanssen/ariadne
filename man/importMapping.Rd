@@ -7,7 +7,7 @@
 \usage{
 importMapping(map.file, from = NULL, to = NULL, merge = TRUE, verbose = TRUE)
 
-\S4method{importMapping}{character}(map.file, from = NULL, to = NULL, merge = TRUE, verbose = TRUE)
+\S4method{importMapping}{character}(map.file, from = NA, to = NA, merge = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{map.file}{\code{Character vector}. One or more paths to custom mapping

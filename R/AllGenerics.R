@@ -7,7 +7,7 @@ setGeneric("importMapping", signature = "map.file",
 #' @rdname importModules
 #' @export
 setGeneric("importModules", signature = "module.file",
-    function(module.file, merge = TRUE, verbose = TRUE)
+    function(module.file, mode = "single", merge = TRUE, verbose = TRUE)
     standardGeneric("importModules"))
 
 #' @rdname mapModules

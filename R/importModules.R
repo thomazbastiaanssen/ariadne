@@ -6,6 +6,10 @@
 #'   module files or one or more of the available databases
 #'   (\code{c("GBM", "GMM")}).
 #' 
+#' @param mode \code{Character scalar}. Specifies the type of modules to expect
+#'   as input. It can be one of \code{c("single", "andor")}.
+#'   (Default: \code{"single"}).
+#' 
 #' @param merge \code{Logical scalar}. Should multiple mapping files be merged.
 #'   (Default: \code{TRUE}).
 #' 
@@ -23,7 +27,7 @@ ModuleDatabases <- list(
 #' @rdname importModules
 #' @export
 setMethod("importModules", signature = c(module.file = "character"),
-    function(module.file, merge = TRUE, verbose = TRUE){
+    function(module.file, mode = "single", merge = TRUE, verbose = TRUE){
         if( !is.logical(merge) ){
             stop("'merge' must be TRUE or FALSE.", call. = FALSE)
         }
