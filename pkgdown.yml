@@ -1,0 +1,8 @@
+pandoc: '3.8'
+pkgdown: 2.1.3
+pkgdown_sha: ~
+articles:
+  ariadne: ariadne.html
+  comparison: comparison.html
+  msea: msea.html
+last_built: 2025-09-23T16:51Z
