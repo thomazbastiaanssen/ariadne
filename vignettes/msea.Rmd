@@ -15,9 +15,9 @@ output:
         self_contained: true
         code_folding: show
 date: "`r doc_date()`"
-package: "`r pkg_ver('minotaur')`"
+package: "`r pkg_ver('ariadne')`"
 vignette: >
-    %\VignetteIndexEntry{minotaur}
+    %\VignetteIndexEntry{ariadne}
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8}
 ---
