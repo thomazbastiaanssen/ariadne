@@ -80,43 +80,43 @@ MappingDatabases <- list(
     )
 )
 
-#' @rdname importMapping
 #' @export
-setMethod("importMapping", signature = c(map.file = "character"),
-    function(map.file, from = NA, to = NA, merge = TRUE, verbose = TRUE){
-        # Find number of mapping files
-        input.lengths <- lengths(list(map.file, from, to))
-        max.length <- max(input.lengths)
-        # Check arguments
-        if( !all(input.lengths %in% c(1, max.length)) ){
-            stop("'map.file', 'from' and 'to' must have compatible lengths.",
-                call. = FALSE)
-        }
-        if( !is.logical(merge) ){
-            stop("'merge' must be TRUE or FALSE.", call. = FALSE)
-        }
-        if( !is.logical(verbose) ){
-            stop("'verbose' must be TRUE or FALSE.", call. = FALSE)
-        }
-        # Import each mapping file
-        map <- mapply(
-            .import_mapping,
-            x = map.file, from = from, to = to,
-            MoreArgs = list(verbose = verbose),
-            SIMPLIFY = FALSE, USE.NAMES = FALSE
-        )
-        # Merge mapping files
-        if( merge ){
-            # Find unique keys
-            keys <- unique(unlist(lapply(map, names), use.names = FALSE))
-            # Merge values by unique keys
-            map <- do.call(mapply, c(FUN = c, lapply(map, `[`, keys)))
-            # Use keys as names
-            names(map) <- keys
-        }
-        return(map)
+#' @rdname importMapping
+S7::method(importMapping, S7::class_character) <- function(
+    map.file, from = NA, to = NA, merge = TRUE, verbose = TRUE){
+    
+    # Find number of mapping files
+    input.lengths <- lengths(list(map.file, from, to))
+    max.length <- max(input.lengths)
+    # Check arguments
+    if( !all(input.lengths %in% c(1, max.length)) ){
+        stop("'map.file', 'from' and 'to' must have compatible lengths.",
+            call. = FALSE)
     }
-)
+    if( !is.logical(merge) ){
+        stop("'merge' must be TRUE or FALSE.", call. = FALSE)
+    }
+    if( !is.logical(verbose) ){
+        stop("'verbose' must be TRUE or FALSE.", call. = FALSE)
+    }
+    # Import each mapping file
+    map <- mapply(
+        .import_mapping,
+        x = map.file, from = from, to = to,
+        MoreArgs = list(verbose = verbose),
+        SIMPLIFY = FALSE, USE.NAMES = FALSE
+    )
+    # Merge mapping files
+    if( merge ){
+        # Find unique keys
+        keys <- unique(unlist(lapply(map, names), use.names = FALSE))
+        # Merge values by unique keys
+        map <- do.call(mapply, c(FUN = c, lapply(map, `[`, keys)))
+        # Use keys as names
+        names(map) <- keys
+    }
+    return(map)
+}
 
 # Import single mapping file
 .import_mapping <- function(x, from, to, verbose){

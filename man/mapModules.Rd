@@ -2,26 +2,9 @@
 % Please edit documentation in R/AllGenerics.R, R/mapModules.R
 \name{mapModules}
 \alias{mapModules}
-\alias{mapModules,list-method}
 \title{Map modules to taxa}
 \usage{
-mapModules(
-  modules,
-  map,
-  mode = "single",
-  uniprot = FALSE,
-  remove.empty = TRUE,
-  verbose = TRUE
-)
-
-\S4method{mapModules}{list}(
-  modules,
-  map,
-  mode = "single",
-  uniprot = FALSE,
-  remove.empty = TRUE,
-  verbose = TRUE
-)
+mapModules(modules, ...)
 }
 \arguments{
 \item{modules}{\code{Named character list}. Named list of vectors, where each

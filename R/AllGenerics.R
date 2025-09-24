@@ -1,36 +1,20 @@
+
+#' @export
 #' @rdname importMapping
-#' @export
-setGeneric("importMapping", signature = "map.file",
-    function(map.file, from = NULL, to = NULL, merge = TRUE, verbose = TRUE)
-    standardGeneric("importMapping"))
+importMapping <- S7::new_generic("importMapping", "map.file")
 
+#' @export
 #' @rdname importModules
-#' @export
-setGeneric("importModules", signature = "module.file",
-    function(module.file, mode = "single", merge = TRUE, verbose = TRUE)
-    standardGeneric("importModules"))
+importModules <- S7::new_generic("importModules", "module.file")
 
+#' @export
 #' @rdname mapModules
-#' @export
-setGeneric("mapModules", signature = "modules",
-    function(modules, map, mode = "single", uniprot = FALSE,
-        remove.empty = TRUE, verbose = TRUE)
-    standardGeneric("mapModules"))
+mapModules <- S7::new_generic("mapModules", "modules")
 
+#' @export
 #' @rdname getModules
-#' @export
-setGeneric("getModules", signature = "x",
-    function(x, modules, by = 1L, group = "taxonomy", exact.tax.level = FALSE)
-    standardGeneric("getModules"))
+getModules <- S7::new_generic("getModules", "x")
 
+#' @export
 #' @rdname getModules
-#' @export
-setGeneric("addModules", signature = "x",
-    function(x, modules, by = 1L, group = "taxonomy", exact.tax.level = FALSE)
-    standardGeneric("addModules"))
-
-#' @rdname utils
-#' @export
-setGeneric("as.linkmap", signature = "values",
-    function(values, keys = NULL, col.names = NULL)
-    standardGeneric("as.linkmap"))
+addModules <- S7::new_generic("addModules", "x")

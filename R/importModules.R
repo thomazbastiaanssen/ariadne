@@ -35,24 +35,24 @@ ModuleDatabases <- list(
     GBM = "https://github.com/omixer/omixer-rpmR/raw/refs/heads/main/inst/extdata/GBMs.v1.0.txt"
 )
 
-#' @rdname importModules
 #' @export
-setMethod("importModules", signature = c(module.file = "character"),
-    function(module.file, mode = "single", merge = TRUE, verbose = TRUE){
-        if( !is.logical(merge) ){
-            stop("'merge' must be TRUE or FALSE.", call. = FALSE)
-        }
-        if( !is.logical(verbose) ){
-            stop("'verbose' must be TRUE or FALSE.", call. = FALSE)
-        }
-        modules <- lapply(module.file, .import_modules, verbose = verbose)
-        # Merge mapping files
-        if( merge ){
-            modules <- unlist(modules, recursive = FALSE)
-        }
-        return(modules)
+#' @rdname importModules
+S7::method(importModules, S7::class_character) <- function(
+    module.file, mode = "single", merge = TRUE, verbose = TRUE){
+    
+    if( !is.logical(merge) ){
+        stop("'merge' must be TRUE or FALSE.", call. = FALSE)
     }
-)
+    if( !is.logical(verbose) ){
+        stop("'verbose' must be TRUE or FALSE.", call. = FALSE)
+    }
+    modules <- lapply(module.file, .import_modules, verbose = verbose)
+    # Merge mapping files
+    if( merge ){
+        modules <- unlist(modules, recursive = FALSE)
+    }
+    return(modules)
+}
 
 .import_modules <- function(module.file, verbose){
     # Whether to use package or custom modules

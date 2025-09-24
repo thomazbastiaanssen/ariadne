@@ -2,12 +2,9 @@
 % Please edit documentation in R/AllGenerics.R, R/importMapping.R
 \name{importMapping}
 \alias{importMapping}
-\alias{importMapping,character-method}
 \title{Import mappings from a file or a database}
 \usage{
-importMapping(map.file, from = NULL, to = NULL, merge = TRUE, verbose = TRUE)
-
-\S4method{importMapping}{character}(map.file, from = NA, to = NA, merge = TRUE, verbose = TRUE)
+importMapping(map.file, ...)
 }
 \arguments{
 \item{map.file}{\code{Character vector}. One or more paths to custom mapping

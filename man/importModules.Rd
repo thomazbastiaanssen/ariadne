@@ -2,12 +2,9 @@
 % Please edit documentation in R/AllGenerics.R, R/importModules.R
 \name{importModules}
 \alias{importModules}
-\alias{importModules,character-method}
 \title{Import modules from a file or a database}
 \usage{
-importModules(module.file, mode = "single", merge = TRUE, verbose = TRUE)
-
-\S4method{importModules}{character}(module.file, mode = "single", merge = TRUE, verbose = TRUE)
+importModules(module.file, ...)
 }
 \arguments{
 \item{module.file}{\code{Character vector}. One or more paths to custom

@@ -37,8 +37,6 @@
 #' features/samples and modules, respectively. \code{addModules} returns an
 #' updated \code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment}}
 #' object with the modules table in the \code{rowData} or \code{colData}.
-#' 
-#' @name getModules
 #'
 #' @examples
 #' # Load butyrate module
@@ -72,101 +70,106 @@
 #' # Find column modules based on cohort variable
 #' mod.table <- getModules(tse, col.modules, by = 2L, group = "cohort")
 #' 
+#' @name getModules
+#' 
 NULL
 
-#' @rdname getModules
 #' @export
-#' @importFrom SummarizedExperiment rowData colData rowData<- colData<-
-setMethod("addModules", signature = c(x = "SummarizedExperiment"),
-    function(x, modules, by = 1L, group = "taxonomy", exact.tax.level = FALSE){
-        # Make modules table
-        modules <- getModules(
-            x,
-            modules,
-            by = by,
-            group = group,
-            exact.tax.level = exact.tax.level
-        )
-        # Bind modules table with side information
-        if( by %in% c(1L, "features") ){
-            rowData(x) <- cbind(rowData(x), modules)
-        }else if( by %in% c(2L, "samples") ){
-            colData(x) <- cbind(colData(x), modules)
-        }
-        return(x)
+#' @rdname getModules
+#' @importFrom SummarizedExperiment SummarizedExperiment rowData colData
+#'   rowData<- colData<-
+#' @importFrom methods getClass
+S7::method(addModules, getClass("SummarizedExperiment")) <- function(
+    x, modules, by = 1L, group = "taxonomy", exact.tax.level = FALSE){
+    
+    # Make modules table
+    modules <- getModules(
+        x,
+        modules,
+        by = by,
+        group = group,
+        exact.tax.level = exact.tax.level
+    )
+    # Bind modules table with side information
+    if( by %in% c(1L, "features") ){
+        rowData(x) <- cbind(rowData(x), modules)
+    }else if( by %in% c(2L, "samples") ){
+        colData(x) <- cbind(colData(x), modules)
     }
-)
+    return(x)
+}
+
 
 #' @export
 #' @rdname getModules
-#' @importFrom SummarizedExperiment rowData rowData<-
+#' @importFrom SummarizedExperiment SummarizedExperiment rowData rowData<-
 #' @importFrom mia taxonomyRanks
 #' @importFrom stringr str_escape str_remove
-#' @importFrom methods is
-setMethod("getModules", signature = c(x = "SummarizedExperiment"),
-    function(x, modules, by = 1L, group = "taxonomy", exact.tax.level = FALSE){
-        # Check modules
-        if( !is.vector(modules) ){
-            stop("'modules' must be a character vector or list of character ",
-                "vectors, where each vector corresponds to a module.",
-                call. = FALSE)
-        }
-        # Convert modules to list in case of only one module
-        if( !is(modules, "list") ){
-            modules <- list(module = modules)
-        }
-        # Check margin
-        if( !by %in% c(1L, 2L, "features", "samples") ){
-            stop("'by' must be one of 1, 2, features and samples.",
+#' @importFrom methods getClass is
+S7::method(getModules, getClass("SummarizedExperiment")) <- function(
+    x, modules, by = 1L, group = "taxonomy", exact.tax.level = FALSE){
+        
+    # Check modules
+    if( !is.vector(modules) ){
+        stop("'modules' must be a character vector or list of character ",
+            "vectors, where each vector corresponds to a module.",
             call. = FALSE)
-        }
-        # Check exact.tax.level
-        if( !is.logical(exact.tax.level) ){
-            stop("'exact.tax.level' must be TRUE or FALSE.", call. = FALSE)
-        }
-        if( exact.tax.level && group != "taxonomy" ){
-            warning("'exact.tax.label' is ignored when 'group' is not taxonomy.",
-                call. = FALSE)
-        }
-        # Check group
-        if( !is(x, "TreeSummarizedExperiment") && group == "taxonomy" ){
-            stop("'group' can be 'taxonomy' only when 'x' is a ",
-                "TreeSummarizedExperiment object.", call. = FALSE)
-        }
-        if( length(group) == 1L && group == "taxonomy" ){
-            # Retrieve available taxrank colnames
-            group <- taxonomyRanks(x)
-            # Add rank prefixes to taxrank cols
-            rowData(x)[ , group] <- .add_prefix_to_taxtable(rowData(x)[ , group])
-            # Extract deepest taxonomic rank
-            modules <- lapply(modules, str_remove, pattern = ".*\\|")
-        }
-        # Select side information
-        x <- switch(by, rowData(x), colData(x))
-        # Check group
-        if( !all(group %in% names(x)) ){
-            stop("'group' does not match any variables in the side information.",
-                call. = FALSE)
-        }
-        # Collapse group variables to single strings
-        group <- apply(x[ , group, drop = FALSE], 1L, paste, collapse = ".")
-        # Collapse modules to single strings
-        modules <- vapply(modules, function(mod){
-            mod |>
-                str_escape() |>
-                paste(collapse = "|")
-            },
-            character(1L)
-        )
-        # Reduce to deepest rank if exact.tax.level is on
-        if( exact.tax.level ){
-            group <- str_remove(group, ".*\\|")
-        }
-        # Make modules table
-        mod.table <- .make_modules_table(group, modules)
-        return(mod.table)
     }
-)
+    # Convert modules to list in case of only one module
+    if( !is(modules, "list") ){
+        modules <- list(module = modules)
+    }
+    # Check margin
+    if( !by %in% c(1L, 2L, "features", "samples") ){
+        stop("'by' must be one of 1, 2, features and samples.",
+        call. = FALSE)
+    }
+    # Check exact.tax.level
+    if( !is.logical(exact.tax.level) ){
+        stop("'exact.tax.level' must be TRUE or FALSE.", call. = FALSE)
+    }
+    if( exact.tax.level && group != "taxonomy" ){
+        warning("'exact.tax.label' is ignored when 'group' is not taxonomy.",
+            call. = FALSE)
+    }
+    # Check group
+    if( !is(x, "TreeSummarizedExperiment") && group == "taxonomy" ){
+        stop("'group' can be 'taxonomy' only when 'x' is a ",
+            "TreeSummarizedExperiment object.", call. = FALSE)
+    }
+    if( length(group) == 1L && group == "taxonomy" ){
+        # Retrieve available taxrank colnames
+        group <- taxonomyRanks(x)
+        # Add rank prefixes to taxrank cols
+        rowData(x)[ , group] <- .add_prefix_to_taxtable(rowData(x)[ , group])
+        # Extract deepest taxonomic rank
+        modules <- lapply(modules, str_remove, pattern = ".*\\|")
+    }
+    # Select side information
+    x <- switch(by, rowData(x), colData(x))
+    # Check group
+    if( !all(group %in% names(x)) ){
+        stop("'group' does not match any variables in the side information.",
+            call. = FALSE)
+    }
+    # Collapse group variables to single strings
+    group <- apply(x[ , group, drop = FALSE], 1L, paste, collapse = ".")
+    # Collapse modules to single strings
+    modules <- vapply(modules, function(mod){
+        mod |>
+            str_escape() |>
+            paste(collapse = "|")
+        },
+        character(1L)
+    )
+    # Reduce to deepest rank if exact.tax.level is on
+    if( exact.tax.level ){
+        group <- str_remove(group, ".*\\|")
+    }
+    # Make modules table
+    mod.table <- .make_modules_table(group, modules)
+    return(mod.table)
+}
 
 # Define function to construct modules table based on bugsigdb signatures
 #' @importFrom stringr str_detect
