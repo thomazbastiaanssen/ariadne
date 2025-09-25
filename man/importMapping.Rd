@@ -65,5 +65,4 @@ map3 <- importMapping(
 
 # Import local mapping file
 # map4 <- importMapping("path/to/file")
-
 }

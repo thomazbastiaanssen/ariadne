@@ -2,14 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{utils}
 \alias{utils}
-\alias{getFullTaxonomyLabels}
-\alias{processGeneFamilies}
 \title{Utility functions}
-\usage{
-getFullTaxonomyLabels(tse)
-
-processGeneFamilies(se)
-}
 \arguments{
 \item{tse}{A
 \code{\link[TreeSummarizedExperiment:TreeSummarizedExperiment-constructor]{TreeSummarizedExperiment}}

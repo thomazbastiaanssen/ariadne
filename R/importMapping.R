@@ -1,5 +1,9 @@
 #' Import mappings from a file or a database
 #' 
+#' @name importMapping
+#' @rdname importMapping
+#' 
+#' @description
 #' \code{importMapping} retrieves mapping information from a file or a database.
 #' 
 #' @param map.file \code{Character vector}. One or more paths to custom mapping
@@ -57,8 +61,6 @@
 #' 
 #' # Import local mapping file
 #' # map4 <- importMapping("path/to/file")
-#' 
-#' @name importMapping
 NULL
 
 MappingDatabases <- list(
@@ -80,8 +82,7 @@ MappingDatabases <- list(
     )
 )
 
-#' @export
-#' @rdname importMapping
+
 S7::method(importMapping, S7::class_character) <- function(
     map.file, from = NA, to = NA, merge = TRUE, verbose = TRUE){
     
@@ -163,9 +164,10 @@ S7::method(importMapping, S7::class_character) <- function(
     return(map.file)
 }
 
+#' @importFrom MultiFactor as.LinkMap
 .process_woltka <- function(woltka.map){
     names(woltka.map) <- paste0("UniRef90_", names(woltka.map))
-    linkmap <- as.linkmap(woltka.map)
+    linkmap <- as.LinkMap(woltka.map)
     woltka.map <- split(linkmap$x, linkmap$y)
     return(woltka.map)
 }

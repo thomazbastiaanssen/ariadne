@@ -1,5 +1,8 @@
 #' Utility functions
+#' @name utils
+#' @rdname utils
 #' 
+#' @description
 #' These utility functions are used throughout the package and may be relevant
 #' in other packages dealing with annotation mappings. \code{as.linkmap}
 #' converts a list of named vectors to a linkmap data.frame.
@@ -16,13 +19,9 @@
 #' \code{as.linkmap} returns a linkmap \code{data.frame} where the first and
 #' second columns contains \code{keys} and \code{values} and each row represents
 #' a unique combination of the two.
-#'
-#' @name utils
 NULL
 
 # Reduce taxcols of rowData to taxstring in metaphlan format
-#' @export
-#' @rdname utils
 #' @importFrom SummarizedExperiment rowData
 getFullTaxonomyLabels <- function(tse){
     # Add taxrank prefixes to taxcols of rowData
@@ -34,8 +33,7 @@ getFullTaxonomyLabels <- function(tse){
     return(tax)
 }
 
-#' @export
-#' @rdname utils
+
 #' @importFrom stringr fixed str_detect str_split
 #' @importFrom SummarizedExperiment rowData colData rowData<- colData<- assays
 #' @importFrom TreeSummarizedExperiment TreeSummarizedExperiment

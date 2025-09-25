@@ -55,5 +55,4 @@ modules <- mapModules(
     mode = "andor",
     uniprot = TRUE
 )
-
 }

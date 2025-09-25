@@ -1,5 +1,8 @@
 #' Add information on modules of features or samples
-#'
+#' @name getModules
+#' @rdname getModules
+#' 
+#' @description
 #' \code{getModules} and \code{addModules} generate a logical modules table from
 #' a list of of named vectors specifying which features or samples belong to
 #' each module.
@@ -69,13 +72,9 @@
 #' 
 #' # Find column modules based on cohort variable
 #' mod.table <- getModules(tse, col.modules, by = 2L, group = "cohort")
-#' 
-#' @name getModules
-#' 
 NULL
 
-#' @export
-#' @rdname getModules
+
 #' @importFrom SummarizedExperiment SummarizedExperiment rowData colData
 #'   rowData<- colData<-
 #' @importFrom methods getClass
@@ -100,8 +99,6 @@ S7::method(addModules, getClass("SummarizedExperiment")) <- function(
 }
 
 
-#' @export
-#' @rdname getModules
 #' @importFrom SummarizedExperiment SummarizedExperiment rowData rowData<-
 #' @importFrom mia taxonomyRanks
 #' @importFrom stringr str_escape str_remove

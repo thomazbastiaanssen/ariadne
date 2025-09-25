@@ -33,6 +33,7 @@ Imports:
     BiocParallel,
     methods,
     mia,
+    MultiFactor,
     reticulate,
     S7,
     stringr,
@@ -48,6 +49,8 @@ Suggests:
     remotes,
     rmarkdown,
     testthat (>= 3.0.0)
+Remotes:
+    github::Minotau-R/MultiFactor
 URL: https://github.com/thomazbastiaanssen/ariadne
 BugReports: https://github.com/thomazbastiaanssen/ariadne/issues
 Roxygen: list(markdown = TRUE)

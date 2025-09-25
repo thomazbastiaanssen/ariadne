@@ -1,5 +1,9 @@
 #' Import modules from a file or a database
 #' 
+#' @name importModules
+#' @rdname importModules
+#' 
+#' @description
 #' \code{importModules} retrieves modules information from a file or database.
 #' 
 #' @param module.file \code{Character vector}. One or more paths to custom
@@ -26,8 +30,6 @@
 #' 
 #' # Import local module file
 #' # modules2 <- importModules("path/to/file")
-#' 
-#' @name importModules
 NULL
 
 ModuleDatabases <- list(
@@ -35,8 +37,7 @@ ModuleDatabases <- list(
     GBM = "https://github.com/omixer/omixer-rpmR/raw/refs/heads/main/inst/extdata/GBMs.v1.0.txt"
 )
 
-#' @export
-#' @rdname importModules
+
 S7::method(importModules, S7::class_character) <- function(
     module.file, mode = "single", merge = TRUE, verbose = TRUE){
     

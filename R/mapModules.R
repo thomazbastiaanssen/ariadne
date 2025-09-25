@@ -1,5 +1,8 @@
 #' Map modules to taxa
+#' @name mapModules
+#' @rdname mapModules
 #' 
+#' @description
 #' \code{mapModules} returns a list of modules containing the taxa that are
 #' members of each module. Taxa are derived from uniref ids by querying UniProt
 #' SPARQL. Membership is based on whether a taxon meets the criteria specified
@@ -47,12 +50,9 @@
 #'     mode = "andor",
 #'     uniprot = TRUE
 #' )
-#' 
-#' @name mapModules
 NULL
 
-#' @export
-#' @rdname mapModules
+
 #' @importFrom BiocParallel bplapply
 S7::method(mapModules, S7::class_list) <- function(
     modules, map, mode = "single", uniprot = FALSE,
@@ -127,12 +127,13 @@ S7::method(mapModules, S7::class_list) <- function(
     print("hello")
 }
 
+#' @importFrom MultiFactor as.LinkMap
 # Perform and/or mapping (reaction pathway modules)
 .andor_mapping <- function(x, y){
     # Filter y keys that match x values
     y <- y[names(y) %in% unique(unlist(x, use.names = FALSE))]
     # Find functions for each taxon
-    linkmap <- as.linkmap(y)
+    linkmap <- as.LinkMap(y)
     tax <- split(linkmap$x, linkmap$y)
     # Store taxa in modules list
     z <- lapply(x, function(module) {

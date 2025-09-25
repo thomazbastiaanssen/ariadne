@@ -11,5 +11,4 @@ reference:
 - contents:
   - getFullTaxonomyLabels
   - processGeneFamilies
-  - as.linkmap
   - butyrate
