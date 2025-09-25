@@ -1,11 +1,11 @@
 #' Import mappings from a file or a database
-#' 
+#'
 #' @name importMapping
 #' @rdname importMapping
-#' 
+#'
 #' @description
 #' \code{importMapping} retrieves mapping information from a file or a database.
-#' 
+#'
 #' @param map.file \code{Character vector}. One or more paths to custom mapping
 #'   files or one or more names from the available databases
 #'   (\code{c("ChocoPhlAn", "Woltka")}).
@@ -16,15 +16,18 @@
 #' @param to \code{Character vector}. One or more strings specifying the
 #'   values to which mapping is performed. (Default: \code{NULL})
 #'
+#' @param formula \code{formula scalar}. Optional. Formula syntax specifying
+#'     `from` and `to`, e.g., `from ~ to`. (Default: \code{NULL})
+#'
 #' @param merge \code{Logical scalar}. Should multiple mapping files be merged.
 #'   (Default: \code{TRUE}).
-#' 
+#'
 #' @param verbose \code{Logical scalar}. Should information on execution be
 #'   printed in the console. (Default: \code{TRUE}).
-#' 
+#'
 #' @details
 #' Structure of \code{map.file}
-#' 
+#'
 #' Currently, the following databases are available:
 #' \itemize{
 #'   \item{\code{"ChocoPhlAn"}: x-to-uniref mapping files from bioBakery
@@ -40,7 +43,7 @@
 #'       \item{to: "uniref90"}
 #'     }}
 #' }
-#' 
+#'
 #' @return
 #' \code{importMapping} returns a named list of vectors, where each vector is a
 #' mapping key and its elements are the mapped values.
@@ -48,17 +51,17 @@
 #' @examples
 #' # Import eggnog-to-uniref90 mapping from ChocoPhlAn
 #' map1 <- importMapping("ChocoPhlAn", from = "eggnog", to = "uniref90")
-#' 
-#' # Import ko-to-uniref90 mapping from ChocoPhlAn
-#' map2 <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
-#' 
+#'
+#' # Import ko-to-uniref90 mapping from ChocoPhlAn using formula notation
+#' map2 <- importMapping("ChocoPhlAn", formula = ko ~ uniref90)
+#'
 #' # Import and merge ko- and eggnog-to-uniref90 mappings from ChocoPhlAn
 #' map3 <- importMapping(
 #'     "ChocoPhlAn",
 #'     from = c("eggnog", "ko"),
 #'     to = "uniref90"
 #' )
-#' 
+#'
 #' # Import local mapping file
 #' # map4 <- importMapping("path/to/file")
 NULL
@@ -84,8 +87,15 @@ MappingDatabases <- list(
 
 
 S7::method(importMapping, S7::class_character) <- function(
-    map.file, from = NA, to = NA, merge = TRUE, verbose = TRUE){
-    
+    map.file, from = NA, to = NA, formula = NULL, merge = TRUE, verbose = TRUE){
+
+    if(!is.null(formula)){
+        stopifnot("'from' and 'to' arguments cannot be used with 'formula'. " =
+                      all(is.na(c(from, to))))
+
+        from <- all.vars(formula)[1]
+        to <- all.vars(formula)[2]
+    }
     # Find number of mapping files
     input.lengths <- lengths(list(map.file, from, to))
     max.length <- max(input.lengths)

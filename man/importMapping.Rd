@@ -17,6 +17,9 @@ keys from which mapping is performed. (Default: \code{NULL})}
 \item{to}{\code{Character vector}. One or more strings specifying the
 values to which mapping is performed. (Default: \code{NULL})}
 
+\item{formula}{\code{formula scalar}. Optional. Formula syntax specifying
+\code{from} and \code{to}, e.g., \code{from ~ to}. (Default: \code{NULL})}
+
 \item{merge}{\code{Logical scalar}. Should multiple mapping files be merged.
 (Default: \code{TRUE}).}
 
@@ -53,8 +56,8 @@ Currently, the following databases are available:
 # Import eggnog-to-uniref90 mapping from ChocoPhlAn
 map1 <- importMapping("ChocoPhlAn", from = "eggnog", to = "uniref90")
 
-# Import ko-to-uniref90 mapping from ChocoPhlAn
-map2 <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
+# Import ko-to-uniref90 mapping from ChocoPhlAn using formula notation
+map2 <- importMapping("ChocoPhlAn", formula = ko ~ uniref90)
 
 # Import and merge ko- and eggnog-to-uniref90 mappings from ChocoPhlAn
 map3 <- importMapping(
