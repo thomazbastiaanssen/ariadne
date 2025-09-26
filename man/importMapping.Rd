@@ -11,14 +11,14 @@ importMapping(map.file, ...)
 files or one or more names from the available databases
 (\code{c("ChocoPhlAn", "Woltka")}).}
 
+\item{formula}{\code{formula scalar}. Formula specifying the source and
+target of mapping in the syntax \code{from ~ to}. (Default: \code{NULL})}
+
 \item{from}{\code{Character vector}. One or more strings specifying the
 keys from which mapping is performed. (Default: \code{NULL})}
 
 \item{to}{\code{Character vector}. One or more strings specifying the
 values to which mapping is performed. (Default: \code{NULL})}
-
-\item{formula}{\code{formula scalar}. Optional. Formula syntax specifying
-\code{from} and \code{to}, e.g., \code{from ~ to}. (Default: \code{NULL})}
 
 \item{merge}{\code{Logical scalar}. Should multiple mapping files be merged.
 (Default: \code{TRUE}).}
@@ -34,7 +34,8 @@ mapping key and its elements are the mapped values.
 \code{importMapping} retrieves mapping information from a file or a database.
 }
 \details{
-Structure of \code{map.file}
+Either \code{formula} or both \code{from} and \code{to} should be specified.
+In the latter, also vector inputs are allowed.
 
 Currently, the following databases are available:
 \itemize{
@@ -54,10 +55,10 @@ Currently, the following databases are available:
 }
 \examples{
 # Import eggnog-to-uniref90 mapping from ChocoPhlAn
-map1 <- importMapping("ChocoPhlAn", from = "eggnog", to = "uniref90")
+map1 <- importMapping("ChocoPhlAn", eggnog ~ uniref90)
 
-# Import ko-to-uniref90 mapping from ChocoPhlAn using formula notation
-map2 <- importMapping("ChocoPhlAn", formula = ko ~ uniref90)
+# Import ko-to-uniref90 mapping from ChocoPhlAn
+map2 <- importMapping("ChocoPhlAn", ko ~ uniref90)
 
 # Import and merge ko- and eggnog-to-uniref90 mappings from ChocoPhlAn
 map3 <- importMapping(

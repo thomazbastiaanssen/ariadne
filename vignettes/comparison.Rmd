@@ -63,11 +63,7 @@ gmm <- importModules("GMM")
 ```
 
 ```{r}
-ko.uniref90 <- importMapping(
-    "ChocoPhlAn",
-    from = "ko",
-    to = "uniref90"
-)
+ko.uniref90 <- importMapping("ChocoPhlAn", ko ~ uniref90)
 ```
 
 
@@ -158,7 +154,7 @@ gmm <- importModules("GMM")
 ```
 
 ```{r}
-ko.uniref90 <- importMapping("ChocoPhlAn", "ko", "uniref90")
+ko.uniref90 <- importMapping("ChocoPhlAn", ko ~ uniref90)
 ```
 
 ```{r}

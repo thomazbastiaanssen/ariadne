@@ -1,5 +1,5 @@
 ---
-title: "# ariadne: module integration by on-demand translation of annotations using R"
+title: "# ariadne: on-demand annotation and module analysis"
 author: 
   - name: Giulio Benedetti
     affiliation: University of Turku
@@ -32,7 +32,7 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-ariadne provides a rapid and robust approach to incorporate taxonomic
+ariadne aims to provide a rapid and robust approach to incorporate taxonomic
 and functional module analyses into your bioinformatic workflow. Despite the
 presence of specialised bioinformatic tools, on-demand functional annotation of
 taxonomic features directly in R has remained challenging. To make this simple,
@@ -59,7 +59,6 @@ Here, the terms "module" and "signature" are used in place of each other.
 ```{r}
 library(ariadne)
 library(mia)
-library(miaViz)
 
 # Import dataset
 data("Tengeler2020", package = "mia")
@@ -75,12 +74,12 @@ library(bugsigdbr)
 bsdb <- importBugSigDB()
 
 # Retrieve microbial signatures
-bsdb.mods <- getSignatures(bsdb, tax.id.type = "metaphlan")
+bsdb.sigs <- getSignatures(bsdb, tax.id.type = "metaphlan")
 ```
 
 ```{r}
 # Add module membership to rowData
-tse <- addModules(tse, bsdb.mods)
+tse <- addModules(tse, bsdb.sigs)
 ```
 
 ## Retrieve functional modules
@@ -90,140 +89,49 @@ tse <- addModules(tse, bsdb.mods)
 gbm <- importModules("GBM")
 
 # Import ko-to-uniref90 mapping
-ko.uniref90 <- importMapping(
-    "ChocoPhlAn",
-    from = c("eggnog", "ko"),
-    to = "uniref90"
-)
+ko.uniref90 <- importMapping("ChocoPhlAn", ko ~ uniref90)
 ```
 
 ```{r}
 # Map modules to taxa
-gbm.mods <- mapModules(
-    gbm,
-    ko.uniref90,
-    mode = "andor",
-    uniprot = TRUE,
-    remove.empty = TRUE
-)
+gbm.sigs <- mapModules(gbm, ko.uniref90)
 ```
 
 ```{r}
 # Add module membership to rowData
-tse <- addModules(
-    tse,
-    gbm.mods,
-    by = 1L,
-    group = "taxonomy"
-)
+tse <- addModules(tse, gbm.sigs)
 ```
 
 ## Module analysis
 
 ```{r}
 # Collect all module names
-all.mods <- c(names(bsdb.mods), names(gbm.mods))
+all.sigs <- c(names(bsdb.sigs), names(gbm.sigs))
 
 # Agglomerate features by every module
-altExp(tse, "modules") <- agglomerateByModule(tse, by = 1L, group = names(gbm.mods))
-
-# Find top 5 modules by average count
-top.mods <- getTop(
-    altExp(tse, "modules"),
-    assay.type = "counts"
-)
+tse.mod <- agglomerateByModule(tse, by = 1L, group = all.sigs)
 ```
 
 ```{r include=FALSE}
 # Add arg to agglomerateByModule to remove.empty
-# keep <- rowSums(assay(tse.mod)) > 0
-# tse.mod <- tse.mod[keep, ]
+keep <- rowSums(assay(tse.mod)) > 0
+tse.mod <- tse.mod[keep, ]
 ```
 
 Make some plots
 
 ```{r}
-tse <- swapAltExp(
-    tse,
-    name = "modules",
-    saved = "features",
-    withColData = FALSE
-)
+
 ```
 
-
-```{r}
-plotAbundance(
-    tse[top.mods, ],
-    assay.type = "counts",
-    as.relative = TRUE,
-    col.var = "patient_status",
-    order.col.by = "patient_status",
-    add.legend = FALSE
-)
-```
-
-
-```{r}
-plotAbundanceDensity(
-    tse,
-    layout = "density",
-    n = 5,
-    assay.type = "counts",
-    colour.by = "patient_status"
-)
-```
-
-```{r}
-library(ggplot2)
-
-mse <- meltSE(tse, assay.type = "counts", add.col = TRUE)
-
-ggplot(mse, aes(x = SampleID, y = FeatureID, fill = counts)) +
-    geom_tile() +
-    #facet_wrap(. ~ patient_status) +
-    scale_fill_gradient2(low = "white", high = "red") +
-    labs(x = "Samples") +
-    theme(axis.text = element_blank(),
-          axis.title.y = element_blank(),
-          axis.ticks.x = element_blank())
-```
-
-```{r}
-# Heatmap(assay(tse))
-```
 
 ## Microbe-set enrichment analysis
-
-```{r}
-tse <- transformAssay(tse, method = "relabundance")
-```
-
-
-```{r}
-# library(rstatix)
-
-# df <- meltSE(tse, assay.type = "counts", add.col = TRUE)
-
-# df |>
-#   group_by(FeatureID) |>
-#   t_test(counts ~ patient_status) |>
-#   filter(!is.na(p)) |>
-#   adjust_pvalue(method = "fdr") |>
-#   filter(p < 0.05) |>
-#   select(FeatureID, p, p.adj)
-```
-
-```{r}
-# my.list
-```
-
 
 # Resources
 
 ## Citation
 
-We hope that ariadne will be useful for your research. Please use the following
+We hope that miaDash will be useful for your research. Please use the following
 information to cite the package and the overall approach. Thank you!
 
 ```{r citation}

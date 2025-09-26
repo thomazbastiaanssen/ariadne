@@ -10,14 +10,14 @@
 #'   files or one or more names from the available databases
 #'   (\code{c("ChocoPhlAn", "Woltka")}).
 #'
+#' @param formula \code{formula scalar}. Formula specifying the source and
+#'   target of mapping in the syntax \code{from ~ to}. (Default: \code{NULL})
+#'
 #' @param from \code{Character vector}. One or more strings specifying the
 #'   keys from which mapping is performed. (Default: \code{NULL})
 #'
 #' @param to \code{Character vector}. One or more strings specifying the
 #'   values to which mapping is performed. (Default: \code{NULL})
-#'
-#' @param formula \code{formula scalar}. Optional. Formula syntax specifying
-#'     `from` and `to`, e.g., `from ~ to`. (Default: \code{NULL})
 #'
 #' @param merge \code{Logical scalar}. Should multiple mapping files be merged.
 #'   (Default: \code{TRUE}).
@@ -26,7 +26,8 @@
 #'   printed in the console. (Default: \code{TRUE}).
 #'
 #' @details
-#' Structure of \code{map.file}
+#' Either \code{formula} or both \code{from} and \code{to} should be specified.
+#' In the latter, also vector inputs are allowed.
 #'
 #' Currently, the following databases are available:
 #' \itemize{
@@ -50,10 +51,10 @@
 #'
 #' @examples
 #' # Import eggnog-to-uniref90 mapping from ChocoPhlAn
-#' map1 <- importMapping("ChocoPhlAn", from = "eggnog", to = "uniref90")
+#' map1 <- importMapping("ChocoPhlAn", eggnog ~ uniref90)
 #'
-#' # Import ko-to-uniref90 mapping from ChocoPhlAn using formula notation
-#' map2 <- importMapping("ChocoPhlAn", formula = ko ~ uniref90)
+#' # Import ko-to-uniref90 mapping from ChocoPhlAn
+#' map2 <- importMapping("ChocoPhlAn", ko ~ uniref90)
 #'
 #' # Import and merge ko- and eggnog-to-uniref90 mappings from ChocoPhlAn
 #' map3 <- importMapping(
@@ -87,12 +88,14 @@ MappingDatabases <- list(
 
 
 S7::method(importMapping, S7::class_character) <- function(
-    map.file, from = NA, to = NA, formula = NULL, merge = TRUE, verbose = TRUE){
-
-    if(!is.null(formula)){
+    map.file, formula = NULL, from = NA, to = NA, merge = TRUE, verbose = TRUE){
+    
+    # If formula is defined
+    if( !is.null(formula) ){
+        # Check that from and to are empty
         stopifnot("'from' and 'to' arguments cannot be used with 'formula'. " =
-                      all(is.na(c(from, to))))
-
+            all(is.na(c(from, to))))
+        # Replace from and to with formula elements
         from <- all.vars(formula)[1]
         to <- all.vars(formula)[2]
     }

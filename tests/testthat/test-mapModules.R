@@ -1,7 +1,7 @@
 test_that("mapModules", {
     
     gbm <- importModules("GBM")
-    eggnog.uniref90 <- importMapping("ChocoPhlAn", "eggnog", "uniref90")
+    eggnog.uniref90 <- importMapping("ChocoPhlAn", eggnog ~ uniref90)
     
     expect_error(
         mapModules(eggnog.uniref90, gbm),
