@@ -41,7 +41,7 @@
 #' gbm <- importModules("GBM")
 #' 
 #' # Import ko-to-uniref90 mapping
-#' map <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
+#' map <- importMapping("ChocoPhlAn", ko ~ uniref90)
 #' 
 #' # Map modules to UniRef90
 #' modules <- mapModules(
@@ -124,7 +124,6 @@ S7::method(mapModules, S7::class_list) <- function(
     z <- bplapply(x, function(values)
         unlist(y[names(y) %in% values], use.names = FALSE))
     return(z)
-    print("hello")
 }
 
 #' @importFrom MultiFactor as.LinkMap

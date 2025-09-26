@@ -46,7 +46,7 @@ and/or relationships, depending on whether \code{mode} is \code{"single"} or
 gbm <- importModules("GBM")
 
 # Import ko-to-uniref90 mapping
-map <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
+map <- importMapping("ChocoPhlAn", ko ~ uniref90)
 
 # Map modules to UniRef90
 modules <- mapModules(

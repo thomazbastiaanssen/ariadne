@@ -10,9 +10,12 @@ test_that("importMapping", {
         "'to' should be defined and be one of uniref50, uniref90."
     )
     
-    expect_no_error(
-        map <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
+    expect_error(
+        importMapping("ChocoPhlAn", from = "ko", formula = ko ~ uniref90),
+        "'from' and 'to' arguments cannot be used with 'formula'."
     )
+    
+    map <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
     
     expect_named(map)
   
