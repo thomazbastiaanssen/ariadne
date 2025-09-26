@@ -124,7 +124,6 @@ S7::method(mapModules, S7::class_list) <- function(
     z <- bplapply(x, function(values)
         unlist(y[names(y) %in% values], use.names = FALSE))
     return(z)
-    print("hello")
 }
 
 #' @importFrom MultiFactor as.LinkMap
