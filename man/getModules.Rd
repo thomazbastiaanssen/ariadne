@@ -3,17 +3,11 @@
 \name{getModules}
 \alias{getModules}
 \alias{addModules}
-\alias{addModules,SummarizedExperiment-method}
-\alias{getModules,SummarizedExperiment-method}
 \title{Add information on modules of features or samples}
 \usage{
-getModules(x, modules, by = 1L, group = "taxonomy", exact.tax.level = FALSE)
+getModules(x, ...)
 
-addModules(x, modules, by = 1L, group = "taxonomy", exact.tax.level = FALSE)
-
-\S4method{addModules}{SummarizedExperiment}(x, modules, by = 1L, group = "taxonomy", exact.tax.level = FALSE)
-
-\S4method{getModules}{SummarizedExperiment}(x, modules, by = 1L, group = "taxonomy", exact.tax.level = FALSE)
+addModules(x, ...)
 }
 \arguments{
 \item{x}{a
@@ -86,5 +80,4 @@ col.modules <- list(A = c("Cohort_1", "Cohort_3"),
 
 # Find column modules based on cohort variable
 mod.table <- getModules(tse, col.modules, by = 2L, group = "cohort")
-
 }

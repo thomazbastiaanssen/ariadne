@@ -1,5 +1,8 @@
 #' Map modules to taxa
+#' @name mapModules
+#' @rdname mapModules
 #' 
+#' @description
 #' \code{mapModules} returns a list of modules containing the taxa that are
 #' members of each module. Taxa are derived from uniref ids by querying UniProt
 #' SPARQL. Membership is based on whether a taxon meets the criteria specified
@@ -38,7 +41,7 @@
 #' gbm <- importModules("GBM")
 #' 
 #' # Import ko-to-uniref90 mapping
-#' map <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
+#' map <- importMapping("ChocoPhlAn", ko ~ uniref90)
 #' 
 #' # Map modules to UniRef90
 #' modules <- mapModules(
@@ -47,71 +50,68 @@
 #'     mode = "andor",
 #'     uniprot = TRUE
 #' )
-#' 
-#' @name mapModules
 NULL
 
-#' @export
-#' @rdname mapModules
+
 #' @importFrom BiocParallel bplapply
-setMethod("mapModules", signature = c(modules = "list"),
-    function(modules, map, mode = "single", uniprot = FALSE,
-        remove.empty = TRUE, verbose = TRUE){
-        # Check arguments
-        if( !is.vector(modules) ){
-            stop("'modules' must be a character vector or list of character ",
-                "vectors, where each vector corresponds to a module.",
-                call. = FALSE)
-        }
-        if( !is.vector(map) ){
-            stop("'map' must be a character vector or list of character ",
-                "vectors, where each vector corresponds to a mapping.",
-                call. = FALSE)
-        }
-        if( !mode %in% c("single", "andor") ){
-            stop("'mode' must be either single or andor.", call. = FALSE)
-        }
-        if( !is.logical(uniprot) ){
-            stop("'uniprot' should be TRUE or FALSE.", call. = FALSE)
-        }
-        if( !is.logical(remove.empty) ){
-            stop("'remove.empty' should be TRUE or FALSE.", call. = FALSE)
-        }
-        # If sequence of mappings is provided
-        if( all(is.list(unlist(map, use.names = FALSE, recursive = FALSE))) ){
-            # Keep only relevant bindings
-            map[[1]] <- map[[1]][names(map[[1]]) %in% unlist(modules, use.names = FALSE)]
-            # Perform mapping recursively
-            map <- Reduce(.single_mapping, map)
-        }else{
-            # Keep only relevant bindings
-            map <- map[names(map) %in% unlist(modules, use.names = FALSE)]
-        }
-        if( uniprot ){
-            # Query taxonomy from UniProt
-            map <- bplapply(map, .querySPARQL)
-        }
-        if( uniprot && verbose ){
-            message(length(unlist(map)), " taxa were queried from UniProt.")
-        }
-        # Select mapping method based on module type
-        map.method <- switch(mode,
-            single = .single_mapping,
-            andor = .andor_mapping
-        )
-        # Map modules and store in modules list
-        sig.list <- map.method(modules, map)
-        # Remove empty modules
-        if( remove.empty ){
-            sig.list <- Filter(function(sig) length(sig) > 0, sig.list)
-        }
-        if( verbose ){
-            message(length(unlist(sig.list)), " items were mapped to ",
-                length(sig.list), " modules.")
-        }
-        return(sig.list)
+S7::method(mapModules, S7::class_list) <- function(
+    modules, map, mode = "single", uniprot = FALSE,
+    remove.empty = TRUE, verbose = TRUE){
+    
+    # Check arguments
+    if( !is.vector(modules) ){
+        stop("'modules' must be a character vector or list of character ",
+            "vectors, where each vector corresponds to a module.",
+            call. = FALSE)
     }
-)
+    if( !is.vector(map) ){
+        stop("'map' must be a character vector or list of character ",
+            "vectors, where each vector corresponds to a mapping.",
+            call. = FALSE)
+    }
+    if( !mode %in% c("single", "andor") ){
+        stop("'mode' must be either single or andor.", call. = FALSE)
+    }
+    if( !is.logical(uniprot) ){
+        stop("'uniprot' should be TRUE or FALSE.", call. = FALSE)
+    }
+    if( !is.logical(remove.empty) ){
+        stop("'remove.empty' should be TRUE or FALSE.", call. = FALSE)
+    }
+    # If sequence of mappings is provided
+    if( all(is.list(unlist(map, use.names = FALSE, recursive = FALSE))) ){
+        # Keep only relevant bindings
+        map[[1]] <- map[[1]][names(map[[1]]) %in% unlist(modules, use.names = FALSE)]
+        # Perform mapping recursively
+        map <- Reduce(.single_mapping, map)
+    }else{
+        # Keep only relevant bindings
+        map <- map[names(map) %in% unlist(modules, use.names = FALSE)]
+    }
+    if( uniprot ){
+        # Query taxonomy from UniProt
+        map <- bplapply(map, .querySPARQL)
+    }
+    if( uniprot && verbose ){
+        message(length(unlist(map)), " taxa were queried from UniProt.")
+    }
+    # Select mapping method based on module type
+    map.method <- switch(mode,
+        single = .single_mapping,
+        andor = .andor_mapping
+    )
+    # Map modules and store in modules list
+    sig.list <- map.method(modules, map)
+    # Remove empty modules
+    if( remove.empty ){
+        sig.list <- Filter(function(sig) length(sig) > 0, sig.list)
+    }
+    if( verbose ){
+        message(length(unlist(sig.list)), " items were mapped to ",
+            length(sig.list), " modules.")
+    }
+    return(sig.list)
+}
 
 # Perform one-to-one mapping
 .single_mapping <- function(x, y){
@@ -124,15 +124,15 @@ setMethod("mapModules", signature = c(modules = "list"),
     z <- bplapply(x, function(values)
         unlist(y[names(y) %in% values], use.names = FALSE))
     return(z)
-    print("hello")
 }
 
+#' @importFrom MultiFactor as.LinkMap
 # Perform and/or mapping (reaction pathway modules)
 .andor_mapping <- function(x, y){
     # Filter y keys that match x values
     y <- y[names(y) %in% unique(unlist(x, use.names = FALSE))]
     # Find functions for each taxon
-    linkmap <- as.linkmap(y)
+    linkmap <- as.LinkMap(y)
     tax <- split(linkmap$x, linkmap$y)
     # Store taxa in modules list
     z <- lapply(x, function(module) {

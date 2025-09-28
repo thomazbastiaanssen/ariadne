@@ -1,5 +1,11 @@
+#' @import S7
+#' @rawNamespace if (getRversion() < "4.3.0") importFrom("S7", "@")
+NULL
+
 #' @importFrom reticulate py_require import
 .onLoad <- function(libname, pkgname){
+    # Register S7 methods
+    S7::methods_register()
     # Import Python dependencies
     reticulate::py_require("rdflib")
     rdflib <<- reticulate::import("rdflib")
