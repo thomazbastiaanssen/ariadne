@@ -1,10 +1,10 @@
 # ariadne: on-demand annotation and module analysis
 
-[![issues](https://img.shields.io/github/issues/thomazbastiaanssen/ariadne)](https://github.com/thomazbastiaanssen/ariadne/issues)
-[![pulls](https://img.shields.io/github/issues-pr/thomazbastiaanssen/ariadne)](https://github.com/thomazbastiaanssen/ariadne/pulls)
-[![R-CMD-check](https://github.com/thomazbastiaanssen/ariadne/workflows/build/badge.svg)](https://github.com/thomazbastiaanssen/ariadne/actions)
-[![codecov](https://codecov.io/gh/thomazbastiaanssen/ariadne/branch/devel/graph/badge.svg)](https://app.codecov.io/gh/thomazbastiaanssen/ariadne?branch=devel)
-[![codefactor](https://www.codefactor.io/repository/github/thomazbastiaanssen/ariadne/badge)](https://www.codefactor.io/repository/github/thomazbastiaanssen/ariadne)
+[![issues](https://img.shields.io/github/issues/Minotau-R/ariadne)](https://github.com/Minotau-R/ariadne/issues)
+[![pulls](https://img.shields.io/github/issues-pr/Minotau-R/ariadne)](https://github.com/Minotau-R/ariadne/pulls)
+[![R-CMD-check](https://github.com/Minotau-R/ariadne/workflows/build/badge.svg)](https://github.com/Minotau-R/ariadne/actions)
+[![codecov](https://codecov.io/gh/Minotau-R/ariadne/graph/badge.svg?token=8P7EK6T6WX)](https://codecov.io/gh/Minotau-R/ariadne)
+[![CodeFactor](https://www.codefactor.io/repository/github/minotau-r/ariadne/badge)](https://www.codefactor.io/repository/github/minotau-r/ariadne)
 
 The goal of ariadne is to make annotation and module analysis straightforward.
 
