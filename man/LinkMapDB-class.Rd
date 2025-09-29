@@ -28,7 +28,7 @@ behaviour.
 }}
 
 \examples{
-LinkMapDB(ariadne:::ChocoPhlAn[[1L]])
+LinkMapDB(ariadne:::ChocoPhlAn[[1L]], repo = "ChocoPhlAn")
 }
 \seealso{
 \code{\link[=MultiFactorDB]{MultiFactorDB()}}

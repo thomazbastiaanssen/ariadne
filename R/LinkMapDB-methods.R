@@ -9,9 +9,9 @@
 #' MF.db <- MultiFactorDB(ariadne:::ChocoPhlAn)
 #'
 #' # Extract one underlying LinkMapDB object
-#' LM.db <- MF.db[[5L]]
+#' LM.db <- MF.db[["ko2uniref90"]]
 #'
-#' LM <- as.LinkMap(LM.db)
+#' LM <- MultiFactor::as.LinkMap(LM.db)
 NULL
 
 #' @export

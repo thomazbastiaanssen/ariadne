@@ -28,32 +28,18 @@ MultiFactorDB <- S7::new_class(
     package = "ariadne",
     parent = MultiFactor::MultiFactor,
     properties  = list(
-        repo = S7::class_character,
         levels = S7::new_property(getter = function(self) lapply(self, levels)),
-        value = S7::class_list,
+        value = S7::new_property(
+            getter = function(self) lapply(self, \(x) x@value)
+            ),
         map = S7::new_property(
-            getter = function(self) MultiFactor:::.mapMultiFactor(self, mode = "counts")
+            getter = function(self) MultiFactor:::.mapMultiFactor(self, mode = "pattern")
         )
     ),
     constructor = function(x) {
-        # check input
-        if(is.data.frame(x)) {x <- MultiFactor::LinkMap(x)}
-        if(S7::S7_inherits(x, MultiFactor::LinkMap)) x <- list(x = x)
-        stopifnot(
-            "x must be a LinkMap or list of LinkMaps. " =
-                all(vapply(x, MultiFactor:::.check_input_df, FALSE))
-        )
-        x <- lapply(x, LinkMapDB)
-        if(is.null(names(x))) names(x) <- paste0("x_", seq_along(x))
-        # extract levels
-        x   <- MultiFactor:::.unify_levels(x)
-        value    <- lapply(x, \(x) x@value)
-
 
         S7::new_object(
-            .parent = x,
-            repo = "",
-            value   = value
+            .parent = MultiFactor::MultiFactor(x)
         )
     },
 
