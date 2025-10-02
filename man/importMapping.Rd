@@ -69,4 +69,13 @@ map3 <- importMapping(
 
 # Import local mapping file
 # map4 <- importMapping("path/to/file")
+
+# Import several files from an ariadne-indexed database:
+db <- ariadne("ChocoPhlAn")
+#  Subset
+db <- db["ko2uniref90"]
+
+# Which db-side files would be downloaded? Download them if not dry_run.
+db.local <- importMapping(db, dry_run = TRUE)
+
 }

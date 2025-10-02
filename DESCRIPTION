@@ -36,6 +36,7 @@ Imports:
     MultiFactor,
     reticulate,
     S7,
+    rlang,
     stringr,
     SummarizedExperiment,
     TreeSummarizedExperiment

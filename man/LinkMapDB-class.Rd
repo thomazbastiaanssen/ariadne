@@ -15,7 +15,8 @@ a \code{LinkMapDB} object.
 \description{
 \code{LinkMapDB}is an S7 class to interface, organize and manage sets of factors
 in a remote database. Methods for \code{LinkMapDB} aim to follow \code{factor}
-behaviour.
+behaviour. The user is not expected to interface with \code{LinkMapDB} objects
+directly.
 }
 \section{Slots}{
 
@@ -28,5 +29,5 @@ behaviour.
 }}
 
 \examples{
-LinkMapDB(ariadne:::ChocoPhlAn[[1L]], repo = "ChocoPhlAn")
+LinkMapDB
 }

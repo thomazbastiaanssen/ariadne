@@ -4,7 +4,8 @@
 #' @description
 #' `LinkMapDB`is an S7 class to interface, organize and manage sets of factors
 #' in a remote database. Methods for `LinkMapDB` aim to follow `factor`
-#' behaviour.
+#' behaviour. The user is not expected to interface with `LinkMapDB` objects
+#' directly.
 #'
 #' @slot levels `Named list` of character vectors depicting levels.
 #' @slot value `Character scalar` Repository information.
@@ -12,7 +13,7 @@
 #' @param x a `data.frame` with two named columns that can be coerced to factors
 #' @returns a `LinkMapDB` object.
 #' @examples
-#' LinkMapDB(ariadne:::ChocoPhlAn[[1L]], repo = "ChocoPhlAn")
+#' LinkMapDB
 #' @export
 #'
 LinkMapDB <- S7::new_class(

@@ -65,6 +65,15 @@
 #'
 #' # Import local mapping file
 #' # map4 <- importMapping("path/to/file")
+#'
+#' # Import several files from an ariadne-indexed database:
+#' db <- ariadne("ChocoPhlAn")
+#' #  Subset
+#' db <- db["ko2uniref90"]
+#'
+#' # Which db-side files would be downloaded? Download them if not dry_run.
+#' db.local <- importMapping(db, dry_run = TRUE)
+#'
 NULL
 
 MappingDatabases <- list(
@@ -132,6 +141,28 @@ S7::method(importMapping, S7::class_character) <- function(
     return(map)
 }
 
+
+#' @importFrom MultiFactor LinkMap MultiFactor as.LinkMap
+S7::method(importMapping, MultiFactor) <- function(map.file, dry_run = TRUE) {
+
+    lmdbs <- names(map.file)[vapply(
+        map.file, inherits, "ariadne::LinkMapDB", FUN.VALUE = FALSE
+    )]
+
+    if(length(lmdbs) == 0L) {
+        cat("This MultiFactor is up-to-date. No need to import anything. ")
+        return(invisible(map.file))
+    }
+    if(dry_run) {
+        cat("Disabling `dry_run` would download the following linkage files:\n")
+        cat(paste(lmdbs, collapse = ", "))
+    } else {
+        cat("Downloading the following linkage files:\n")
+        cat(paste(lmdbs, collapse = ", "))
+        MultiFactor::MultiFactor(lapply(map.file, as.LinkMap))
+    }
+}
+
 # Import single mapping file
 .import_mapping <- function(x, from, to, verbose){
     # Whether to use package or custom mapping
@@ -185,3 +216,18 @@ S7::method(importMapping, S7::class_character) <- function(
     woltka.map <- split(linkmap$x, linkmap$y)
     return(woltka.map)
 }
+
+
+# Read a df, make a MF-shaped list
+.reftableToDFList <- function(x) `names<-`(lapply(
+    seq_len(NROW(x)),
+    FUN = function(y) `names<-`(
+        data.frame(factor(), factor()), c(x[y, 1:2])
+    )),     paste(x[[1L]], x[[2L]], sep = "2")
+
+)
+
+# Read a MF-shaped list, make a df.
+.ListToReftable <- function(x) `colnames<-`(
+    as.data.frame(t(vapply(x, names, c("", "")))), c("from", "to")
+)
