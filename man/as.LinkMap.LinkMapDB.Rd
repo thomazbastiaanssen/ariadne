@@ -10,8 +10,8 @@ a \code{LinkMap} object
 Return a LinkMap with the properties advertised in the \code{LinkMapDB}.
 }
 \examples{
-# generate a MultiFactorDB
-MF.db <- MultiFactorDB(ariadne:::ChocoPhlAn)
+# generate a MultiFactor
+MF.db <- MultiFactor::MultiFactor(ariadne:::ChocoPhlAn)
 
 # Extract one underlying LinkMapDB object
 LM.db <- MF.db[["ko2uniref90"]]

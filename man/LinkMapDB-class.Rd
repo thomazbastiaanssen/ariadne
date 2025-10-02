@@ -4,7 +4,7 @@
 \alias{LinkMapDB}
 \title{LinkMapDB S7 container class}
 \usage{
-LinkMapDB(x, repo = c("ChocoPhlAn", "Woltka"))
+LinkMapDB(x, repo = c("ChocoPhlAn", "WoL", "other"))
 }
 \arguments{
 \item{x}{a \code{data.frame} with two named columns that can be coerced to factors}
@@ -29,7 +29,4 @@ behaviour.
 
 \examples{
 LinkMapDB(ariadne:::ChocoPhlAn[[1L]], repo = "ChocoPhlAn")
-}
-\seealso{
-\code{\link[=MultiFactorDB]{MultiFactorDB()}}
 }

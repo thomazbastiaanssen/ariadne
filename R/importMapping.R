@@ -86,10 +86,10 @@ MappingDatabases <- list(
     )
 )
 
-
+#' @importFrom MultiFactor LinkMap
 S7::method(importMapping, S7::class_character) <- function(
     map.file, formula = NULL, from = NA, to = NA, merge = TRUE, verbose = TRUE){
-    
+
     # If formula is defined
     if( !is.null(formula) ){
         # Check that from and to are empty
@@ -146,19 +146,20 @@ S7::method(importMapping, S7::class_character) <- function(
     }
     # Read file content
     line.content <- readLines(x)
+
+
     # Split elements in each line by tab
-    items <- strsplit(line.content, "\t", fixed = TRUE)
+    line.content <- strsplit(line.content, "\t", fixed = TRUE)
     # Extract keys
-    keys <- vapply(items, FUN = function(x) x[1], FUN.VALUE = character(1L))
+    keys <- vapply(line.content, FUN = function(x) x[1], FUN.VALUE = character(1L))
     # Extract values
-    values <- lapply(items, FUN = function(x) x[-1])
-    # Add names to list
-    names(values) <- keys
-    # Flip names and values of Woltka mapping file
-    if( x == "Woltka" ){
-        values <- .process_woltka(values)
-    }
-    return(values)
+    values <- lapply(line.content, FUN = function(x) x[-1])
+
+    x <- `names<-`(data.frame(
+        id.x = rep(keys, vapply(values, length, 1L)),
+        id.y = unlist(values, recursive = TRUE, use.names = FALSE)
+    ), c(to, from))
+    MultiFactor::LinkMap(x)
 }
 
 # Retrieve mapping file from database

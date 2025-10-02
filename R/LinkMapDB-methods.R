@@ -5,8 +5,8 @@
 #' @return a `LinkMap` object
 #' @importFrom MultiFactor as.LinkMap
 #' @examples
-#' # generate a MultiFactorDB
-#' MF.db <- MultiFactorDB(ariadne:::ChocoPhlAn)
+#' # generate a MultiFactor
+#' MF.db <- MultiFactor::MultiFactor(ariadne:::ChocoPhlAn)
 #'
 #' # Extract one underlying LinkMapDB object
 #' LM.db <- MF.db[["ko2uniref90"]]
@@ -16,7 +16,7 @@ NULL
 
 #' @export
 #'
-S7::`method<-`(MultiFactor::as.LinkMap, LinkMapDB, function(x) {
+S7::method(as.LinkMap, LinkMapDB) <- function(x) {
 
     outnames <- names(x)
     x <- .getCache(.urlLinkMapDB(x))
@@ -31,15 +31,14 @@ S7::`method<-`(MultiFactor::as.LinkMap, LinkMapDB, function(x) {
     # Extract values
     values <- lapply(line.content, FUN = function(x) x[-1])
 
-    x <- `names<-`(
-        data.frame(
-            id.x = rep(keys, vapply(values, length, 1L)),
-            id.y = unlist(values, recursive = TRUE, use.names = FALSE)
-        ), outnames
+    x <- data.frame(
+        id.x = rep(keys, lengths(values, use.names = FALSE)),
+        id.y = unlist(values, recursive = TRUE, use.names = FALSE)
     )
+    names(x) <- outnames
+
     MultiFactor::LinkMap(x)
 }
-)
 
 
 #' @param x LinkMapDB
