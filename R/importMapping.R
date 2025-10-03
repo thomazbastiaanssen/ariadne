@@ -6,28 +6,17 @@
 #' @description
 #' \code{importMapping} retrieves mapping information from a file or a database.
 #'
-#' @param map.file \code{Character vector}. One or more paths to custom mapping
+#' @param x \code{Character vector}. One or more paths to custom mapping
 #'   files or one or more names from the available databases
 #'   (\code{c("ChocoPhlAn", "Woltka")}).
 #'
-#' @param formula \code{formula scalar}. Formula specifying the source and
-#'   target of mapping in the syntax \code{from ~ to}. (Default: \code{NULL})
-#'
-#' @param from \code{Character vector}. One or more strings specifying the
-#'   keys from which mapping is performed. (Default: \code{NULL})
-#'
-#' @param to \code{Character vector}. One or more strings specifying the
-#'   values to which mapping is performed. (Default: \code{NULL})
-#'
-#' @param merge \code{Logical scalar}. Should multiple mapping files be merged.
-#'   (Default: \code{TRUE}).
-#'
+#' @param subset \code{formula scalar} or \code{Character vector}. Specifies the
+#'   'to' and 'from' of mapping in the syntax \code{from ~ to}, or equivalently
+#'   \code{c("from", "to")}. (Default: \code{NULL})
 #' @param verbose \code{Logical scalar}. Should information on execution be
 #'   printed in the console. (Default: \code{TRUE}).
 #'
 #' @details
-#' Either \code{formula} or both \code{from} and \code{to} should be specified.
-#' In the latter, also vector inputs are allowed.
 #'
 #' Currently, the following databases are available:
 #' \itemize{
@@ -95,63 +84,18 @@ MappingDatabases <- list(
     )
 )
 
-#' @importFrom MultiFactor LinkMap
-S7::method(importMapping, S7::class_character) <- function(
-    map.file, formula = NULL, from = NA, to = NA, merge = TRUE, verbose = TRUE){
-
-    # If formula is defined
-    if( !is.null(formula) ){
-        # Check that from and to are empty
-        stopifnot("'from' and 'to' arguments cannot be used with 'formula'. " =
-            all(is.na(c(from, to))))
-        # Replace from and to with formula elements
-        from <- all.vars(formula)[1]
-        to <- all.vars(formula)[2]
-    }
-    # Find number of mapping files
-    input.lengths <- lengths(list(map.file, from, to))
-    max.length <- max(input.lengths)
-    # Check arguments
-    if( !all(input.lengths %in% c(1, max.length)) ){
-        stop("'map.file', 'from' and 'to' must have compatible lengths.",
-            call. = FALSE)
-    }
-    if( !is.logical(merge) ){
-        stop("'merge' must be TRUE or FALSE.", call. = FALSE)
-    }
-    if( !is.logical(verbose) ){
-        stop("'verbose' must be TRUE or FALSE.", call. = FALSE)
-    }
-    # Import each mapping file
-    map <- mapply(
-        .import_mapping,
-        x = map.file, from = from, to = to,
-        MoreArgs = list(verbose = verbose),
-        SIMPLIFY = FALSE, USE.NAMES = FALSE
-    )
-    # Merge mapping files
-    if( merge ){
-        # Find unique keys
-        keys <- unique(unlist(lapply(map, names), use.names = FALSE))
-        # Merge values by unique keys
-        map <- do.call(mapply, c(FUN = c, lapply(map, `[`, keys)))
-        # Use keys as names
-        names(map) <- keys
-    }
-    return(map)
-}
-
 
 #' @importFrom MultiFactor LinkMap MultiFactor as.LinkMap
-S7::method(importMapping, MultiFactor) <- function(map.file, dry_run = TRUE) {
+S7::method(importMapping, MultiFactor) <-
+    function( x, subset = NULL, dry_run = TRUE ) {
 
-    lmdbs <- names(map.file)[vapply(
-        map.file, inherits, "ariadne::LinkMapDB", FUN.VALUE = FALSE
-    )]
+    x <- subset(x, subset)
+    lmdbs <-
+        names(x)[vapply( x, inherits, "ariadne::LinkMapDB", FUN.VALUE = FALSE )]
 
     if(length(lmdbs) == 0L) {
         cat("This MultiFactor is up-to-date. No need to import anything. ")
-        return(invisible(map.file))
+        return(invisible(x))
     }
     if(dry_run) {
         cat("Disabling `dry_run` would download the following linkage files:\n")
@@ -159,55 +103,42 @@ S7::method(importMapping, MultiFactor) <- function(map.file, dry_run = TRUE) {
     } else {
         cat("Downloading the following linkage files:\n")
         cat(paste(lmdbs, collapse = ", "))
-        MultiFactor::MultiFactor(lapply(map.file, as.LinkMap))
+        MultiFactor::MultiFactor(lapply(x, as.LinkMap))
     }
-}
+    }
 
+#' @importFrom MultiFactor LinkMap MultiFactor as.LinkMap
+S7::method(importMapping, S7::class_character) <-
+    function( x, subset = NULL, dry_run = TRUE ) {
+
+        importMapping(
+        ariadne(x),
+        subset, dry_run
+        )
+}
 # Import single mapping file
-.import_mapping <- function(x, from, to, verbose){
-    # Whether to use package or custom mapping
-    if( x %in% names(MappingDatabases) ){
-        # Construct path to database
-        x <- .getPath(x, from, to)
-        # Cache database
-        x <- .getCache(x)
-    }
+.import_mapping <- function(x, verbose = TRUE){
+    x <- .getCache(x)
     if( verbose ){
         message("Retrieving mappings from ", x, ".")
     }
+
     # Read file content
     line.content <- readLines(x)
-
 
     # Split elements in each line by tab
     line.content <- strsplit(line.content, "\t", fixed = TRUE)
     # Extract keys
-    keys <- vapply(line.content, FUN = function(x) x[1], FUN.VALUE = character(1L))
+    keys <- vapply(line.content, `[`, 1L, FUN.VALUE = character(1L))
     # Extract values
-    values <- lapply(line.content, FUN = function(x) x[-1])
+    values <- lapply(line.content, `[`, -1L)
 
-    x <- `names<-`(data.frame(
-        id.x = rep(keys, vapply(values, length, 1L)),
+    data.frame(
+        id.x = rep(keys, lengths(values, use.names = FALSE)),
         id.y = unlist(values, recursive = TRUE, use.names = FALSE)
-    ), c(to, from))
-    MultiFactor::LinkMap(x)
+    )
 }
 
-# Retrieve mapping file from database
-.getPath <- function(map.file, from, to){
-    # Retrieve database
-    map.db <- MappingDatabases[[map.file]]
-    if( !is.null(from) && !from %in% map.db$from ){
-        stop("'from' should be defined and be one of ",
-            toString(map.db$from), ".", call. = FALSE)
-    }
-    if( !is.null(to) && !to %in% map.db$to ){
-        stop("'to' should be defined and be one of ",
-            toString(map.db$to), ".", call. = FALSE)
-    }
-    map.file <- map.db$path(map.db$repo, from, to)
-    return(map.file)
-}
 
 #' @importFrom MultiFactor as.LinkMap
 .process_woltka <- function(woltka.map){
@@ -222,7 +153,9 @@ S7::method(importMapping, MultiFactor) <- function(map.file, dry_run = TRUE) {
 .reftableToDFList <- function(x) `names<-`(lapply(
     seq_len(NROW(x)),
     FUN = function(y) `names<-`(
-        data.frame(factor(), factor()), c(x[y, 1:2])
+        data.frame(factor("<LinkMapDB Placeholder>"),
+                   factor("<LinkMapDB Placeholder>")),
+        c(x[y, 1:2])
     )),     paste(x[[1L]], x[[2L]], sep = "2")
 
 )

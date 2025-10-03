@@ -21,9 +21,9 @@ LinkMapDB <- S7::new_class(
     package = "ariadne",
     parent = MultiFactor::LinkMap,
     properties  = list(
-        levels   = S7::new_property(getter = function(self) lapply(self, levels)),
-        value    = S7::class_character,
-        is_bool  = S7::class_logical
+        levels  = S7::new_property(getter = function(self) lapply(self, levels)),
+        value   = S7::class_character,
+        is_bool = S7::class_logical
     ),
     constructor = function(x, repo = c("ChocoPhlAn","WoL", "other")) {
         value <- match.arg(repo)

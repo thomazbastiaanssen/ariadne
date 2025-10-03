@@ -4,24 +4,16 @@
 \alias{importMapping}
 \title{Import mappings from a file or a database}
 \usage{
-importMapping(map.file, ...)
+importMapping(x, ...)
 }
 \arguments{
-\item{map.file}{\code{Character vector}. One or more paths to custom mapping
+\item{x}{\code{Character vector}. One or more paths to custom mapping
 files or one or more names from the available databases
 (\code{c("ChocoPhlAn", "Woltka")}).}
 
-\item{formula}{\code{formula scalar}. Formula specifying the source and
-target of mapping in the syntax \code{from ~ to}. (Default: \code{NULL})}
-
-\item{from}{\code{Character vector}. One or more strings specifying the
-keys from which mapping is performed. (Default: \code{NULL})}
-
-\item{to}{\code{Character vector}. One or more strings specifying the
-values to which mapping is performed. (Default: \code{NULL})}
-
-\item{merge}{\code{Logical scalar}. Should multiple mapping files be merged.
-(Default: \code{TRUE}).}
+\item{subset}{\code{formula scalar} or \code{Character vector}. Specifies the
+'to' and 'from' of mapping in the syntax \code{from ~ to}, or equivalently
+\code{c("from", "to")}. (Default: \code{NULL})}
 
 \item{verbose}{\code{Logical scalar}. Should information on execution be
 printed in the console. (Default: \code{TRUE}).}
@@ -34,9 +26,6 @@ mapping key and its elements are the mapped values.
 \code{importMapping} retrieves mapping information from a file or a database.
 }
 \details{
-Either \code{formula} or both \code{from} and \code{to} should be specified.
-In the latter, also vector inputs are allowed.
-
 Currently, the following databases are available:
 \itemize{
 \item{\code{"ChocoPhlAn"}: x-to-uniref mapping files from bioBakery

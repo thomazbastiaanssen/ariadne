@@ -1,7 +1,7 @@
 #' Add information on modules of features or samples
 #' @name getModules
 #' @rdname getModules
-#' 
+#'
 #' @description
 #' \code{getModules} and \code{addModules} generate a logical modules table from
 #' a list of of named vectors specifying which features or samples belong to
@@ -16,7 +16,7 @@
 #' @param by \code{Numeric scalar} or \code{Character scalar}. Determines if
 #'   modules are added row-wise (\code{c(1L, "features")}) or column-wise.
 #'   (\code{C(2L, "samples")}). (Default: \code{1L}).
-#' 
+#'
 #' @param group \code{Character vector}. One or more variable names from
 #'   \code{rowData} or \code{colData}, depending on \code{by}. If set to
 #'   \code{"taxonomy"}, modules are derived from the combined taxonomic ranks.
@@ -25,7 +25,7 @@
 #' @param exact.tax.level \code{Logical scalar}. Should only the deepest
 #'   taxonomic rank be used to determine whether a feature belongs to a module?
 #'   if \code{FALSE}, all ranks are considered. (Default: \code{FALSE}).
-#' 
+#'
 #' @details
 #' \code{getModules} and \code{addModules} allow to integrate information on
 #' microbial modules into \code{rowData(x)} from databases like BugSigDB or
@@ -34,7 +34,7 @@
 #' corresponds to a module. Each microbial signature should follow the metaphlan
 #' taxonomy format, e.g.,
 #' \code{"k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Corynebacteriales"}.
-#' 
+#'
 #' @return
 #' \code{getModules} returns a \code{matrix} where rows and columns represent
 #' features/samples and modules, respectively. \code{addModules} returns an
@@ -44,17 +44,17 @@
 #' @examples
 #' # Load butyrate module
 #' data("butyrate", package = "ariadne")
-#' 
+#'
 #' # Load dataset
 #' data("Tengeler2020", package = "mia")
 #' tse <- Tengeler2020
-#' 
+#'
 #' # Convert butyrate table to module list
 #' butyrate <- getFullTaxonomyLabels(butyrate)
-#' 
+#'
 #' # Generate modules table
 #' mod.table <- getModules(tse, butyrate)
-#' 
+#'
 #' # Generate & store modules table
 #' tse <- addModules(tse, butyrate)
 #'
@@ -64,12 +64,12 @@
 #'
 #' # Match modules with only the deepest taxonomic rank of tse
 #' mod.table <- getModules(tse, modules, exact.tax.level = TRUE)
-#' 
+#'
 #' # Make example list of three column modules
 #' col.modules <- list(A = c("Cohort_1", "Cohort_3"),
 #'                     B = c("Cohort_2"),
 #'                     c("Cohort_1", "Cohort_2", "Cohort_3"))
-#' 
+#'
 #' # Find column modules based on cohort variable
 #' mod.table <- getModules(tse, col.modules, by = 2L, group = "cohort")
 NULL
@@ -78,9 +78,9 @@ NULL
 #' @importFrom SummarizedExperiment SummarizedExperiment rowData colData
 #'   rowData<- colData<-
 #' @importFrom methods getClass
-S7::method(addModules, getClass("SummarizedExperiment")) <- function(
+S7::method(addModules, getClass("SummarizedExperiment", where = "SummarizedExperiment")) <- function(
     x, modules, by = 1L, group = "taxonomy", exact.tax.level = FALSE){
-    
+
     # Make modules table
     modules <- getModules(
         x,
@@ -103,9 +103,9 @@ S7::method(addModules, getClass("SummarizedExperiment")) <- function(
 #' @importFrom mia taxonomyRanks
 #' @importFrom stringr str_escape str_remove
 #' @importFrom methods getClass is
-S7::method(getModules, getClass("SummarizedExperiment")) <- function(
+S7::method(getModules, getClass("SummarizedExperiment", where = "SummarizedExperiment")) <- function(
     x, modules, by = 1L, group = "taxonomy", exact.tax.level = FALSE){
-        
+
     # Check modules
     if( !is.vector(modules) ){
         stop("'modules' must be a character vector or list of character ",

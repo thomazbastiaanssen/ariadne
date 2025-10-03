@@ -1,7 +1,7 @@
 #' Map modules to taxa
 #' @name mapModules
 #' @rdname mapModules
-#' 
+#'
 #' @description
 #' \code{mapModules} returns a list of modules containing the taxa that are
 #' members of each module. Taxa are derived from uniref ids by querying UniProt
@@ -13,25 +13,25 @@
 #'
 #' @param map \code{Named character list}. Named list of vectors, where each
 #'   vector is a mapping key and its elements are the mapped values.
-#' 
+#'
 #' @param mode \code{Character scalar}. Specifies the type of modules to expect
 #'   as input. It can be one of \code{c("single", "andor")}.
 #'   (Default: \code{"single"}).
-#' 
+#'
 #' @param uniprot \code{Logical scalar}. Should a SPARQL query to UniProt be
 #'   made to map UniRef ids to taxa (Default: \code{TRUE}).
-#' 
+#'
 #' @param remove.empty \code{Logical scalar}. Should modules with no matching
 #'   taxa be removed. (Default: \code{TRUE}).
-#' 
+#'
 #' @param verbose \code{Logical scalar}. Should information on execution be
 #'   printed in the console. (Default: \code{TRUE}).
-#' 
+#'
 #' @details
 #' The input modules of \code{mapModules} can be either single elements or
 #' and/or relationships, depending on whether \code{mode} is \code{"single"} or
 #' \code{"andor"}.
-#' 
+#'
 #' @return
 #' \code{mapModules} returns a named list of vectors, where each vector is a
 #' module and its elements are the members of that module.
@@ -39,14 +39,15 @@
 #' @examples
 #' # Import GBM
 #' gbm <- importModules("GBM")
-#' 
+#'
 #' # Import ko-to-uniref90 mapping
-#' map <- importMapping("ChocoPhlAn", ko ~ uniref90)
-#' 
+#' map <- importMapping(ChocoPhlAn, ko ~ uniref90, dry_run = FALSE)
+#'
+#'
+#' x <- c(gbm, map)
 #' # Map modules to UniRef90
 #' modules <- mapModules(
-#'     head(gbm),
-#'     map,
+#'     x,
 #'     mode = "andor",
 #'     uniprot = TRUE
 #' )
@@ -54,46 +55,26 @@ NULL
 
 
 #' @importFrom BiocParallel bplapply
-S7::method(mapModules, S7::class_list) <- function(
-    modules, map, mode = "single", uniprot = FALSE,
-    remove.empty = TRUE, verbose = TRUE){
-    
+S7::method(mapModules, MultiFactor) <- function(
+        x, mapping = module ~ uniref90, verbose = TRUE, dry_run = TRUE
+        ) {
+
     # Check arguments
-    if( !is.vector(modules) ){
-        stop("'modules' must be a character vector or list of character ",
-            "vectors, where each vector corresponds to a module.",
-            call. = FALSE)
-    }
-    if( !is.vector(map) ){
-        stop("'map' must be a character vector or list of character ",
-            "vectors, where each vector corresponds to a mapping.",
-            call. = FALSE)
-    }
-    if( !mode %in% c("single", "andor") ){
-        stop("'mode' must be either single or andor.", call. = FALSE)
-    }
     if( !is.logical(uniprot) ){
         stop("'uniprot' should be TRUE or FALSE.", call. = FALSE)
     }
-    if( !is.logical(remove.empty) ){
-        stop("'remove.empty' should be TRUE or FALSE.", call. = FALSE)
+    if( !is.logical(verbose) ){
+        stop("'verbose' should be TRUE or FALSE.", call. = FALSE)
     }
-    # If sequence of mappings is provided
-    if( all(is.list(unlist(map, use.names = FALSE, recursive = FALSE))) ){
-        # Keep only relevant bindings
-        map[[1]] <- map[[1]][names(map[[1]]) %in% unlist(modules, use.names = FALSE)]
-        # Perform mapping recursively
-        map <- Reduce(.single_mapping, map)
-    }else{
-        # Keep only relevant bindings
-        map <- map[names(map) %in% unlist(modules, use.names = FALSE)]
-    }
+    linkmap <- weave(x, mapping)
+    query   <- as.character(unique(linkmap[[2L]]))
+
     if( uniprot ){
         # Query taxonomy from UniProt
-        map <- bplapply(map, .querySPARQL)
+        query <- bplapply(query, .querySPARQL)
     }
     if( uniprot && verbose ){
-        message(length(unlist(map)), " taxa were queried from UniProt.")
+        message(length(unlist(query)), " taxa were queried from UniProt.")
     }
     # Select mapping method based on module type
     map.method <- switch(mode,
