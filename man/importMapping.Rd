@@ -64,7 +64,7 @@ db <- ariadne("ChocoPhlAn")
 #  Subset
 db <- db["ko2uniref90"]
 
-# Which db-side files would be downloaded? Download them if not dry_run.
-db.local <- importMapping(db, dry_run = TRUE)
+# Which db-side files would be downloaded? Download them if not dry.run.
+db.local <- importMapping(db, dry.run = TRUE)
 
 }

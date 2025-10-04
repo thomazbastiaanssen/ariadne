@@ -4,10 +4,10 @@
 \alias{importModules}
 \title{Import modules from a file or a database}
 \usage{
-importModules(module.file, ...)
+importModules(x, ...)
 }
 \arguments{
-\item{module.file}{\code{Character vector}. Path to custom database of module
+\item{x}{\code{Character vector}. Path to custom database of module
 files or one of the available databases
 (\code{c("GBM", "GMM")}).}
 

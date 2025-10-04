@@ -27,6 +27,10 @@ LinkMapDB <- S7::new_class(
     ),
     constructor = function(x, repo = c("ChocoPhlAn","WoL", "other")) {
         value <- match.arg(repo)
+
+        if(all(lengths(x, use.names = FALSE) == 0L )) {
+            x <- list2DF(lapply(x, .LinkMapDBMessage))
+        }
         S7::new_object(
             .parent = MultiFactor::LinkMap(x),
             value   = value,
@@ -35,3 +39,6 @@ LinkMapDB <- S7::new_class(
     }
 )
 
+
+.LinkMapDBMessage <- function(x)
+    factor("<LinkMapDB Placeholder. See 'importMapping()'>")

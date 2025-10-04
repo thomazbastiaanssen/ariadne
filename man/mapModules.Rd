@@ -4,7 +4,7 @@
 \alias{mapModules}
 \title{Map modules to taxa}
 \usage{
-mapModules(modules, ...)
+mapModules(x, ...)
 }
 \arguments{
 \item{modules}{\code{Named character list}. Named list of vectors, where each
@@ -46,12 +46,13 @@ and/or relationships, depending on whether \code{mode} is \code{"single"} or
 gbm <- importModules("GBM")
 
 # Import ko-to-uniref90 mapping
-map <- importMapping(ChocoPhlAn, ko ~ uniref90)
+map <- importMapping(ChocoPhlAn, ko ~ uniref90, dry.run = FALSE)
 
+
+x <- c(gbm, map)
 # Map modules to UniRef90
 modules <- mapModules(
-    head(gbm),
-    map,
+    x,
     mode = "andor",
     uniprot = TRUE
 )

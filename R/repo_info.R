@@ -1,6 +1,6 @@
-# # library(RCurl)
-# # library(XML)
-# # library(tidyverse)
+# library(RCurl)
+# library(XML)
+# library(tidyverse)
 #
 # # Web of Life
 # within_links <- paste0("https://ftp.microbio.me/pub/wol2/function/",
@@ -33,6 +33,7 @@
 # )
 #
 #
-# MultiFactor::MultiFactor(lapply(WoL, LinkMapDB, repo = "WoL"))
-# MultiFactor::MultiFactor(lapply(ChocoPhlAn, LinkMapDB, repo = "ChocoPhlAn"))
+# WoL <- MultiFactor::MultiFactor(lapply(WoL, LinkMapDB, repo = "WoL"))
+# ChocoPhlAn <- MultiFactor::MultiFactor(lapply(ChocoPhlAn, LinkMapDB, repo = "ChocoPhlAn"))
 #
+# save(WoL, ChocoPhlAn, file = "data/repo_layouts.rda")

@@ -41,7 +41,7 @@
 #' gbm <- importModules("GBM")
 #'
 #' # Import ko-to-uniref90 mapping
-#' map <- importMapping(ChocoPhlAn, ko ~ uniref90, dry_run = FALSE)
+#' map <- importMapping(ChocoPhlAn, ko ~ uniref90, dry.run = FALSE)
 #'
 #'
 #' x <- c(gbm, map)
@@ -56,7 +56,7 @@ NULL
 
 #' @importFrom BiocParallel bplapply
 S7::method(mapModules, MultiFactor) <- function(
-        x, mapping = module ~ uniref90, verbose = TRUE, dry_run = TRUE
+        x, mapping = module ~ uniref90, verbose = TRUE, dry.run = TRUE
         ) {
 
     # Check arguments

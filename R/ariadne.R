@@ -14,16 +14,16 @@
 #' @export
 #'
 ariadne <- function(repo) {
-    x <- c("ChocoPhlAn", "WoL")
+    repos <- c("ChocoPhlAn", "WoL")
     if(rlang::is_missing(repo)) {
         cat("Ariadne knows about the following relational databases:\n")
-        cat({paste(x, collapse = ", ")}, ".\n\n", sep = "")
+        cat({paste(repos, collapse = ", ")}, ".\n\n", sep = "")
         cat("Select them by name or index: `ariadne('WoL')` or `ariadne(1)`")
     }
     if(!rlang::is_missing(repo)) {
         x <- local({
             data("repo_layouts", package = "ariadne", envir = environment())
-            return(mget(x))
+            return(mget(repos))
         })[[repo]]
         MultiFactor::MultiFactor(lapply(x, LinkMapDB))
     }

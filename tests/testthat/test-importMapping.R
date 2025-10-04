@@ -11,7 +11,7 @@ test_that("importMapping", {
   )
 
     map <- importMapping("ChocoPhlAn", subset = c("ko", "uniref90"),
-                         dry_run = FALSE)
+                         dry.run = FALSE)
 
     expect_named(map)
 

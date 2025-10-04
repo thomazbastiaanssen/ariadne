@@ -6,7 +6,7 @@
 #' @importFrom MultiFactor as.LinkMap
 #' @examples
 #' # generate a MultiFactor
-#' MF.db <- MultiFactor::MultiFactor(ariadne:::ChocoPhlAn)
+#' MF.db <- MultiFactor::MultiFactor(ariadne("ChocoPhlAn"))
 #'
 #' # Extract one underlying LinkMapDB object
 #' LM.db <- MF.db[["ko2uniref90"]]

@@ -47,16 +47,16 @@ S7::method(importModules, S7::class_character) <- function(
     if(x %in% c("GBM", "GMM")) feature_id <- "ko"
     x <- .getCache(ModuleDatabases[[x]])
   }
-  modules <- .import_modules(x, br = "///", AND = ",", OR = "\t")
+  modules <- .import_modules(x, br, AND, OR)
 
   # Double gsub to set both module and feature names
   names(modules) <- gsub("module", module_id,
                          gsub("feature", feature_id, names(modules)))
 
   modules <- lapply(
-    modules, function(y) `names<-`(
-      y, gsub("module", module_id,
-              gsub("feature", feature_id, names(x))))
+    modules, function(linkmap) `names<-`(
+      linkmap, gsub("module", module_id,
+              gsub("feature", feature_id, names(linkmap))))
     )
   MultiFactor::MultiFactor(modules)
 }

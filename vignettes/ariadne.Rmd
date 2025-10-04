@@ -98,7 +98,7 @@ ChocoPhlAn <- ariadne("ChocoPhlAn")
 choco_selection <-  subset(ChocoPhlAn, ko ~ uniref90)
 
 # Import ko-to-uniref90 mapping
-ko.uniref90 <- importMapping( choco_selection,  dry_run = FALSE )
+ko.uniref90 <- importMapping( choco_selection,  dry.run = FALSE )
   
 ```
 

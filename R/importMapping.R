@@ -60,8 +60,8 @@
 #' #  Subset
 #' db <- db["ko2uniref90"]
 #'
-#' # Which db-side files would be downloaded? Download them if not dry_run.
-#' db.local <- importMapping(db, dry_run = TRUE)
+#' # Which db-side files would be downloaded? Download them if not dry.run.
+#' db.local <- importMapping(db, dry.run = TRUE)
 #'
 NULL
 
@@ -87,7 +87,7 @@ MappingDatabases <- list(
 
 #' @importFrom MultiFactor LinkMap MultiFactor as.LinkMap
 S7::method(importMapping, MultiFactor) <-
-    function( x, subset = NULL, dry_run = TRUE ) {
+    function( x, subset = NULL, dry.run = TRUE ) {
 
     x <- subset(x, subset)
     lmdbs <-
@@ -97,8 +97,8 @@ S7::method(importMapping, MultiFactor) <-
         cat("This MultiFactor is up-to-date. No need to import anything. ")
         return(invisible(x))
     }
-    if(dry_run) {
-        cat("Disabling `dry_run` would download the following linkage files:\n")
+    if(dry.run) {
+        cat("Disabling `dry.run` would download the following linkage files:\n")
         cat(paste(lmdbs, collapse = ", "))
     } else {
         cat("Downloading the following linkage files:\n")
@@ -109,11 +109,11 @@ S7::method(importMapping, MultiFactor) <-
 
 #' @importFrom MultiFactor LinkMap MultiFactor as.LinkMap
 S7::method(importMapping, S7::class_character) <-
-    function( x, subset = NULL, dry_run = TRUE ) {
+    function( x, subset = NULL, dry.run = TRUE ) {
 
         importMapping(
         ariadne(x),
-        subset, dry_run
+        subset, dry.run
         )
 }
 # Import single mapping file
@@ -153,8 +153,8 @@ S7::method(importMapping, S7::class_character) <-
 .reftableToDFList <- function(x) `names<-`(lapply(
     seq_len(NROW(x)),
     FUN = function(y) `names<-`(
-        data.frame(factor("<LinkMapDB Placeholder>"),
-                   factor("<LinkMapDB Placeholder>")),
+        data.frame(factor(),
+                   factor()),
         c(x[y, 1:2])
     )),     paste(x[[1L]], x[[2L]], sep = "2")
 
