@@ -48,7 +48,6 @@
 NULL
 
 
-#' @importFrom BiocParallel bplapply
 #' @importFrom Matrix crossprod
 #' @importFrom MultiFactor weave
 #' @noRd
@@ -98,7 +97,7 @@ S7::method(mapModules, MultiFactor) <- function(
     module_name <- names(map[[m2c_ind]])[[1L]]
     x_name <- names(map[[c2f_ind]])[[2L]]
 
-    mod2x <- as.matrix(MultiFactor::weave(map, .by = c(x_name, module_name)))
+    mod2x <- MultiFactor::weave(map, .by = c(x_name, module_name), out.format = "matrix")
 
     if( method == "sum" ) {
         sum_table <- Matrix::crossprod(mod2x, x) * module_present
@@ -139,40 +138,6 @@ S7::method(mapModules, MultiFactor) <- function(
         sparse = TRUE
     )
 }
-
-
-# Perform one-to-one mapping
-.single_mapping <- function(x, y){
-    # Filter y keys that match x values
-    y <- y[names(y) %in% unique(unlist(x, use.names = FALSE))]
-    if( length(y) == 0 ){
-        stop("Items in 'x' did not match any item in 'y'.", call. = FALSE)
-    }
-    # Store taxa in modules list
-    z <- bplapply(x, function(values)
-        unlist(y[names(y) %in% values], use.names = FALSE))
-    return(z)
-}
-
-#' @importFrom MultiFactor as.LinkMap
-# Perform and/or mapping (reaction pathway modules)
-.andor_mapping <- function(x, y){
-    # Filter y keys that match x values
-    y <- y[names(y) %in% unique(unlist(x, use.names = FALSE))]
-    # Find functions for each taxon
-    linkmap <- as.LinkMap(y)
-    tax <- split(linkmap$x, linkmap$y)
-    # Store taxa in modules list
-    z <- lapply(x, function(module) {
-        members <- vapply(tax, function(tax.item) {
-            all(vapply(module, function(comp) any(comp %in% tax.item), logical(1L)))
-        }, logical(1L))
-        names(tax)[members]
-    })
-    return(z)
-}
-
-
 
 # Query taxonomies based on uniref ids from UniProt using SPARQL
 # x = Character vector of uniref IDs
