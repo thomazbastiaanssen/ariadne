@@ -9,7 +9,7 @@ importModules <- S7::new_generic("importModules", "x")
 
 #' @export
 #' @rdname mapModules
-mapModules <- S7::new_generic("mapModules", "x")
+mapModules <- S7::new_generic("mapModules", "map")
 
 #' @export
 #' @rdname getModules

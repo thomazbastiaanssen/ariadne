@@ -8,91 +8,138 @@
 #' SPARQL. Membership is based on whether a taxon meets the criteria specified
 #' by a module.
 #'
-#' @param modules \code{Named character list}. Named list of vectors, where each
-#'   vector is a module and its elements are the module members.
+#' @param map \code{MultiFactor}. Typically produced by `importModules()`.
 #'
-#' @param map \code{Named character list}. Named list of vectors, where each
-#'   vector is a mapping key and its elements are the mapped values.
+#' @param x \code{matrix}, or object that can be coerced to `matrix`, such as a
+#'     `data.frame`, with features as rows and samples as columns.
 #'
-#' @param mode \code{Character scalar}. Specifies the type of modules to expect
-#'   as input. It can be one of \code{c("single", "andor")}.
-#'   (Default: \code{"single"}).
-#'
-#' @param uniprot \code{Logical scalar}. Should a SPARQL query to UniProt be
-#'   made to map UniRef ids to taxa (Default: \code{TRUE}).
-#'
-#' @param remove.empty \code{Logical scalar}. Should modules with no matching
-#'   taxa be removed. (Default: \code{TRUE}).
-#'
+#' @param coverage.threshold \code{Numeric scalar}. Minimum proportion of
+#'     components (i.e., reaction steps) required to be considered present.
+#'     bounded between 0-1. (Default: 0.8)
+#' @param method \code{Character vector}.
 #' @param verbose \code{Logical scalar}. Should information on execution be
-#'   printed in the console. (Default: \code{TRUE}).
+#'     printed in the console. (Default: \code{TRUE}).
 #'
-#' @details
-#' The input modules of \code{mapModules} can be either single elements or
-#' and/or relationships, depending on whether \code{mode} is \code{"single"} or
-#' \code{"andor"}.
-#'
-#' @return
-#' \code{mapModules} returns a named list of vectors, where each vector is a
-#' module and its elements are the members of that module.
+#' @returns \code{mapModules} returns a numeric matrix with modules as rows and
+#'     samples as columns, with content depending on desired `mode` argument.
 #'
 #' @examples
 #' # Import GBM
-#' gbm <- importModules("GBM")
+#' map <- importModules("GBM")
 #'
-#' # Import ko-to-uniref90 mapping
-#' map <- importMapping(ChocoPhlAn, ko ~ uniref90, dry.run = FALSE)
-#'
-#'
-#' x <- c(gbm, map)
-#' # Map modules to UniRef90
-#' modules <- mapModules(
-#'     x,
-#'     mode = "andor",
-#'     uniprot = TRUE
+#' # sparse feature table with 20 random samples
+#' x_present <- replicate(20,
+#'     sample(
+#'     c(TRUE, FALSE), size = nlevels(map$ko_complex2ko[[2L]]), replace = TRUE
+#'     ),
+#'     simplify = TRUE
 #' )
+#' x <- x_present * matrix(
+#'     rnorm(n = prod(dim(x_present))),
+#'     nrow = NROW(x_present), ncol = 20
+#' )^2
+#'
+#' # Map modules to feature table
+#' mapModules(map, x, method = "coverage")
+#' mapModules(map, x, method = "sum")
+#' mapModules(map, x, method = "count")
+#' mapModules(map, x, method = "presence")
+#'
 NULL
 
 
 #' @importFrom BiocParallel bplapply
+#' @importFrom Matrix crossprod
+#' @importFrom MultiFactor weave
+#' @noRd
 S7::method(mapModules, MultiFactor) <- function(
-        x, mapping = module ~ uniref90, verbose = TRUE, dry.run = TRUE
+        map, x, method = c("sum", "count", "coverage", "presence"),
+        verbose = TRUE, coverage.threshold = 0.8
         ) {
 
     # Check arguments
-    if( !is.logical(uniprot) ){
-        stop("'uniprot' should be TRUE or FALSE.", call. = FALSE)
-    }
     if( !is.logical(verbose) ){
         stop("'verbose' should be TRUE or FALSE.", call. = FALSE)
     }
-    linkmap <- weave(x, mapping)
-    query   <- as.character(unique(linkmap[[2L]]))
+    if(coverage.threshold <= 0L | coverage.threshold > 1L ) {
+        stop("'coverage.threshold' should be between 0-1.", call. = FALSE)
+    }
+    if(!inherits(x, "matrix")) {
+        x <- as.matrix(x)
+    }
 
-    if( uniprot ){
-        # Query taxonomy from UniProt
-        query <- bplapply(query, .querySPARQL)
-    }
-    if( uniprot && verbose ){
-        message(length(unlist(query)), " taxa were queried from UniProt.")
-    }
-    # Select mapping method based on module type
-    map.method <- switch(mode,
-        single = .single_mapping,
-        andor = .andor_mapping
-    )
-    # Map modules and store in modules list
-    sig.list <- map.method(modules, map)
-    # Remove empty modules
-    if( remove.empty ){
-        sig.list <- Filter(function(sig) length(sig) > 0, sig.list)
-    }
+    method <- match.arg(arg = method, c("sum", "count", "coverage", "presence"))
+
+    c2f_ind <- grep("_complex2", names(map))
+    c2c_ind <- grep("^component2.*_complex$", names(map))
+    m2c_ind <- grep("_component$", names(map))
+
+    # Check for presence of all complex components
+    complex2x   <- .map_AND_complex(map[[c2f_ind]], x)
+    c2c         <- as.matrix(map[[c2c_ind]], terms = c(2L, 1L))
+    component2x <- Matrix::crossprod(c2c, complex2x, boolArith = TRUE)
+    # Assess module coverage
+    module_coverage <- .map_coverage(map[[m2c_ind]], component2x)
+
     if( verbose ){
-        message(length(unlist(sig.list)), " items were mapped to ",
-            length(sig.list), " modules.")
+        message(NROW(x), " features were mapped to ",
+                NROW(module_coverage), " modules.")
     }
-    return(sig.list)
+    if( method == "coverage" ) {
+        rownames(module_coverage) <- levels(map[[m2c_ind]][[1L]])
+        return(module_coverage)
+    }
+    module_present <- module_coverage >= coverage.threshold
+    if( method == "presence" ) {
+        rownames(module_present) <- levels(map[[m2c_ind]][[1L]])
+        return(module_present)
+    }
+
+    module_name <- names(map[[m2c_ind]])[[1L]]
+    x_name <- names(map[[c2f_ind]])[[2L]]
+
+    mod2x <- as.matrix(MultiFactor::weave(map, .by = c(x_name, module_name)))
+
+    if( method == "sum" ) {
+        sum_table <- Matrix::crossprod(mod2x, x) * module_present
+
+        rownames(sum_table) <- levels(map[[m2c_ind]][[1L]])
+        return(sum_table)
+    }
+
+    if( method == "count" ) {
+        count_table <- Matrix::crossprod(mod2x, x != 0L) * module_present
+
+        rownames(count_table) <- levels(map[[m2c_ind]][[1L]])
+        return(count_table)
+    }
+
 }
+
+# x = module limkmap, with complex on the left (1L), features on the right (2L).
+# y = feature table
+# return = bool matrix indicating full complex presence, row, per sample, col.
+#
+.map_AND_complex <- function(x, y) {
+    x_mat <- as.matrix(x, terms = c(2L, 1L))
+    Matrix::Matrix(
+        Matrix::crossprod(x_mat, y!=0L) >= Matrix::colSums(x_mat),
+        sparse = TRUE
+    )
+}
+
+# x = module linkmap, with module on the left (1L), component on the right (2L).
+# y = feature table
+# return = numeric matrix indicating module coverage as prop, row, per sample, col.
+#
+.map_coverage <- function(x, y) {
+    x_mat <- as.matrix(x, terms = c(2L, 1L))
+    Matrix::Matrix(
+        Matrix::crossprod(x_mat, y!=0L) / Matrix::colSums(x_mat),
+        sparse = TRUE
+    )
+}
+
 
 # Perform one-to-one mapping
 .single_mapping <- function(x, y){
@@ -125,7 +172,10 @@ S7::method(mapModules, MultiFactor) <- function(
     return(z)
 }
 
+
+
 # Query taxonomies based on uniref ids from UniProt using SPARQL
+# x = Character vector of uniref IDs
 .querySPARQL <- function(x, graph = rdflib$Graph()){
     # Collapse UniRef90 ids into long string
     uniref.ids <- paste0("uniref:", x, collapse = " ")

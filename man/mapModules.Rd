@@ -4,31 +4,26 @@
 \alias{mapModules}
 \title{Map modules to taxa}
 \usage{
-mapModules(x, ...)
+mapModules(map, ...)
 }
 \arguments{
-\item{modules}{\code{Named character list}. Named list of vectors, where each
-vector is a module and its elements are the module members.}
+\item{map}{\code{MultiFactor}. Typically produced by \code{importModules()}.}
 
-\item{map}{\code{Named character list}. Named list of vectors, where each
-vector is a mapping key and its elements are the mapped values.}
+\item{x}{\code{matrix}, or object that can be coerced to \code{matrix}, such as a
+\code{data.frame}, with features as rows and samples as columns.}
 
-\item{mode}{\code{Character scalar}. Specifies the type of modules to expect
-as input. It can be one of \code{c("single", "andor")}.
-(Default: \code{"single"}).}
+\item{coverage.threshold}{\code{Numeric scalar}. Minimum proportion of
+components (i.e., reaction steps) required to be considered present.
+bounded between 0-1. (Default: 0.8)}
 
-\item{uniprot}{\code{Logical scalar}. Should a SPARQL query to UniProt be
-made to map UniRef ids to taxa (Default: \code{TRUE}).}
-
-\item{remove.empty}{\code{Logical scalar}. Should modules with no matching
-taxa be removed. (Default: \code{TRUE}).}
+\item{method}{\code{Character vector}.}
 
 \item{verbose}{\code{Logical scalar}. Should information on execution be
 printed in the console. (Default: \code{TRUE}).}
 }
 \value{
-\code{mapModules} returns a named list of vectors, where each vector is a
-module and its elements are the members of that module.
+\code{mapModules} returns a numeric matrix with modules as rows and
+samples as columns, with content depending on desired \code{mode} argument.
 }
 \description{
 \code{mapModules} returns a list of modules containing the taxa that are
@@ -36,24 +31,26 @@ members of each module. Taxa are derived from uniref ids by querying UniProt
 SPARQL. Membership is based on whether a taxon meets the criteria specified
 by a module.
 }
-\details{
-The input modules of \code{mapModules} can be either single elements or
-and/or relationships, depending on whether \code{mode} is \code{"single"} or
-\code{"andor"}.
-}
 \examples{
 # Import GBM
-gbm <- importModules("GBM")
+map <- importModules("GBM")
 
-# Import ko-to-uniref90 mapping
-map <- importMapping(ChocoPhlAn, ko ~ uniref90, dry.run = FALSE)
-
-
-x <- c(gbm, map)
-# Map modules to UniRef90
-modules <- mapModules(
-    x,
-    mode = "andor",
-    uniprot = TRUE
+# sparse feature table with 20 random samples
+x_present <- replicate(20,
+    sample(
+    c(TRUE, FALSE), size = nlevels(map$ko_complex2ko[[2L]]), replace = TRUE
+    ),
+    simplify = TRUE
 )
+x <- x_present * matrix(
+    rnorm(n = prod(dim(x_present))),
+    nrow = NROW(x_present), ncol = 20
+)^2
+
+# Map modules to feature table
+mapModules(map, x, method = "coverage")
+mapModules(map, x, method = "sum")
+mapModules(map, x, method = "count")
+mapModules(map, x, method = "presence")
+
 }
