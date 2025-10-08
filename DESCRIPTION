@@ -27,7 +27,7 @@ biocViews:
 License: Artistic-2.0
 Encoding: UTF-8
 Depends:
-    R (>= 4.0)
+    R (>= 4.1)
 Imports:
     BiocFileCache,
     BiocParallel,
@@ -37,6 +37,7 @@ Imports:
     reticulate,
     S7,
     rlang,
+    Matrix,
     stringr,
     SummarizedExperiment,
     TreeSummarizedExperiment

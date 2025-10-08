@@ -9,14 +9,24 @@ mapModules(map, ...)
 \arguments{
 \item{map}{\code{MultiFactor}. Typically produced by \code{importModules()}.}
 
-\item{x}{\code{matrix}, or object that can be coerced to \code{matrix}, such as a
-\code{data.frame}, with features as rows and samples as columns.}
+\item{x}{\code{matrix}. Feature table that can be coerced to \code{matrix}, such
+as a \code{data.frame}, with features as rows and samples as columns.}
+
+\item{x.type}{\code{Character scalar}. Type of ID in \code{row.names(x)}.
+(Default: \code{"uniref90"}).}
+
+\item{x.stratfied}{\code{Logical or character scalar}. If \code{x} is NOT a
+stratified table; \code{FALSE} (Default). Otherwise, if \code{x} is stratified
+by rows, provide the field separator character.
+For example: \code{feature|subtype} requires \code{x.stratified = "|"}.}
+
+\item{method}{\code{Character vector}. Define what output parameter should
+be computed. One of \code{c("sum", "count", "coverage", "presence")}.
+(Default: \code{"sum"}).}
 
 \item{coverage.threshold}{\code{Numeric scalar}. Minimum proportion of
 components (i.e., reaction steps) required to be considered present.
 bounded between 0-1. (Default: 0.8)}
-
-\item{method}{\code{Character vector}.}
 
 \item{verbose}{\code{Logical scalar}. Should information on execution be
 printed in the console. (Default: \code{TRUE}).}
@@ -48,9 +58,9 @@ x <- x_present * matrix(
 )^2
 
 # Map modules to feature table
-mapModules(map, x, method = "coverage")
-mapModules(map, x, method = "sum")
-mapModules(map, x, method = "count")
-mapModules(map, x, method = "presence")
+mapModules(map, x, x.type = "ko", method = "coverage")
+mapModules(map, x, x.type = "ko", method = "sum")
+mapModules(map, x, x.type = "ko", method = "count")
+mapModules(map, x, x.type = "ko", method = "presence")
 
 }
