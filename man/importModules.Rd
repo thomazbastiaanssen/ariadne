@@ -4,19 +4,16 @@
 \alias{importModules}
 \title{Import modules from a file or a database}
 \usage{
-importModules(module.file, ...)
+importModules(x, ...)
 }
 \arguments{
-\item{module.file}{\code{Character vector}. One or more paths to custom
-module files or one or more of the available databases
+\item{x}{\code{Character vector}. Path to custom database of module
+files or one of the available databases
 (\code{c("GBM", "GMM")}).}
 
-\item{mode}{\code{Character scalar}. Specifies the type of modules to expect
-as input. It can be one of \code{c("single", "andor")}.
-(Default: \code{"single"}).}
-
-\item{merge}{\code{Logical scalar}. Should multiple mapping files be merged.
-(Default: \code{TRUE}).}
+\item{br, AND, OR}{\code{Character scalar}. Used when parsing custom files.
+Which characters should be interpreted as the end of a module as well as AND
+and OR declarations. (Defaults: \code{'///',',','\t'}.}
 
 \item{verbose}{\code{Logical scalar}. Should information on execution be
 printed in the console. (Default: \code{TRUE}).}
@@ -28,9 +25,6 @@ printed in the console. (Default: \code{TRUE}).}
 
 # Import GMM modules
 modules1 <- importModules("GMM")
-
-# Import and merge multiple module files
-modules2 <- importModules(c("GMM", "GBM"))
 
 # Import local module file
 # modules2 <- importModules("path/to/file")

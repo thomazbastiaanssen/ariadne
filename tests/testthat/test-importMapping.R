@@ -1,34 +1,19 @@
 test_that("importMapping", {
-  
+
     expect_error(
-        importMapping("ChocoPhlAn", from = "wrong", to = "uniref90"),
-        "'from' should be defined and be one of eggnog, go, ko, level4ec."
+        importMapping("ChocoPhlAn", subset = c("wrong", "uniref90")),
+        "both terms must be found as colnames in 'x'"
     )
-    
-    expect_error(
-        importMapping("ChocoPhlAn", from = "ko", to = "wrong"),
-        "'to' should be defined and be one of uniref50, uniref90."
-    )
-    
-    expect_error(
-        importMapping("ChocoPhlAn", from = "ko", formula = ko ~ uniref90),
-        "'from' and 'to' arguments cannot be used with 'formula'."
-    )
-    
-    map <- importMapping("ChocoPhlAn", from = "ko", to = "uniref90")
-    
+
+  expect_error(
+    importMapping("ChocoPhlAn", subset = c("ko", "wrong")),
+    "both terms must be found as colnames in 'x'"
+  )
+
+    map <- importMapping("ChocoPhlAn", subset = c("ko", "uniref90"),
+                         dry.run = FALSE)
+
     expect_named(map)
-  
-    expect_error(
-        importMapping(
-            "ChocoPhlAn",
-            from = c("eggnog", "ko"),
-            to = c("uniref90", "uniref90", "uniref90")
-        ),
-        "'map.file', 'from' and 'to' must have compatible lengths."
-    )
-    
-    expect_no_error(
-        importMapping("ChocoPhlAn", from = c("eggnog", "ko"), to = "uniref90")
-    )
+
+
 })

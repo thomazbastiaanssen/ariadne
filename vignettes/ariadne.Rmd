@@ -64,6 +64,8 @@ library(miaViz)
 # Import dataset
 data("Tengeler2020", package = "mia")
 tse <- Tengeler2020
+
+
 ```
 
 ## Retrieve taxonomic modules
@@ -89,12 +91,15 @@ tse <- addModules(tse, bsdb.mods)
 # Import GBM
 gbm <- importModules("GBM")
 
+# Prepare a connection to the ChocoPhlAn mapping files
+ChocoPhlAn <- ariadne("ChocoPhlAn")
+
+# Select relevant linking files
+choco_selection <-  subset(ChocoPhlAn, ko ~ uniref90)
+
 # Import ko-to-uniref90 mapping
-ko.uniref90 <- importMapping(
-    "ChocoPhlAn",
-    from = c("eggnog", "ko"),
-    to = "uniref90"
-)
+ko.uniref90 <- importMapping( choco_selection,  dry.run = FALSE )
+  
 ```
 
 ```{r}
