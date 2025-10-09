@@ -1,0 +1,15 @@
+^ariadne\.Rproj$
+^.*\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+^README\.Rmd$
+^README_files$
+^man-roxygen$
+^doc$
+^docs$
+^Meta$
+^pkgdown$
+^dev$
+^\.github$
+^\.air\.toml$
+^\.travis\.yml$

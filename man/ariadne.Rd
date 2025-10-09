@@ -4,14 +4,14 @@
 \alias{ariadne}
 \title{Ariadne: On-demand annotation and module analysis}
 \usage{
-ariadne(repo)
+ariadne(x)
 }
 \arguments{
-\item{repo}{\code{Missing} (default) or \verb{Character or index scalar} selecting an
-available database}
+\item{x}{\code{Missing} (default) or \verb{Character or index scalar} selecting an
+available relational database or module set.}
 }
 \value{
-if \code{repo} is missing, print names of available databases. Otherwise,
+if \code{x} is missing, print names of available databases. Otherwise,
 return a \code{MultiFactor} object of the selected database.
 }
 \description{
@@ -23,4 +23,6 @@ ariadne("ChocoPhlAn")
 }
 \seealso{
 \code{\link[=importMapping]{importMapping()}}
+
+\code{\link[=importModules]{importModules()}}
 }
