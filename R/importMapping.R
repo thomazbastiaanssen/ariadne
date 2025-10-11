@@ -45,20 +45,9 @@
 #' # Import ko-to-uniref90 mapping from ChocoPhlAn
 #' map2 <- importMapping("ChocoPhlAn", ko ~ uniref90)
 #'
-#' # Import and merge ko- and eggnog-to-uniref90 mappings from ChocoPhlAn
-#' map3 <- importMapping(
-#'     "ChocoPhlAn",
-#'     from = c("eggnog", "ko"),
-#'     to = "uniref90"
-#' )
-#'
-#' # Import local mapping file
-#' # map4 <- importMapping("path/to/file")
 #'
 #' # Import several files from an ariadne-indexed database:
-#' db <- ariadne("ChocoPhlAn")
-#' #  Subset
-#' db <- db["ko2uniref90"]
+#' db <- ariadne("ChocoPhlAn", ko ~ uniref90)
 #'
 #' # Which db-side files would be downloaded? Download them if not dry.run.
 #' db.local <- importMapping(db, dry.run = TRUE)

@@ -50,7 +50,7 @@
 #' tse <- Tengeler2020
 #'
 #' # Convert butyrate table to module list
-#' butyrate <- getFullTaxonomyLabels(butyrate)
+#' butyrate <- ariadne:::getFullTaxonomyLabels(butyrate)
 #'
 #' # Generate modules table
 #' mod.table <- getModules(tse, butyrate)
@@ -78,8 +78,9 @@ NULL
 #' @importFrom SummarizedExperiment SummarizedExperiment rowData colData
 #'   rowData<- colData<-
 #' @importFrom methods getClass
-S7::method(addModules, getClass("SummarizedExperiment", where = "SummarizedExperiment")) <- function(
-    x, modules, by = 1L, group = "taxonomy", exact.tax.level = FALSE){
+S7::method(addModules,
+           getClass("SummarizedExperiment", where = "SummarizedExperiment")) <-
+    function(x, modules, by = 1L, group = "taxonomy", exact.tax.level = FALSE){
 
     # Make modules table
     modules <- getModules(
@@ -90,9 +91,9 @@ S7::method(addModules, getClass("SummarizedExperiment", where = "SummarizedExper
         exact.tax.level = exact.tax.level
     )
     # Bind modules table with side information
-    if( by %in% c(1L, "features") ){
+    if( by %in% c(1L, "features") ) {
         rowData(x) <- cbind(rowData(x), modules)
-    }else if( by %in% c(2L, "samples") ){
+    } else if( by %in% c(2L, "samples") ) {
         colData(x) <- cbind(colData(x), modules)
     }
     return(x)
@@ -103,8 +104,9 @@ S7::method(addModules, getClass("SummarizedExperiment", where = "SummarizedExper
 #' @importFrom mia taxonomyRanks
 #' @importFrom stringr str_escape str_remove
 #' @importFrom methods getClass is
-S7::method(getModules, getClass("SummarizedExperiment", where = "SummarizedExperiment")) <- function(
-    x, modules, by = 1L, group = "taxonomy", exact.tax.level = FALSE){
+S7::method(getModules,
+           getClass("SummarizedExperiment", where = "SummarizedExperiment")) <-
+    function(x, modules, by = 1L, group = "taxonomy", exact.tax.level = FALSE) {
 
     # Check modules
     if( !is.vector(modules) ){
@@ -192,7 +194,8 @@ S7::method(getModules, getClass("SummarizedExperiment", where = "SummarizedExper
 # Add taxrank prefixes to taxonomy table
 .add_prefix_to_taxtable <- function(tax){
     # Retrieve taxrank prefixes
-    tax.prefix <- paste0(mia:::getTaxonomyRankPrefixes()[tolower(names(tax))], "__")
+    tax.prefix <-
+        paste0(mia:::getTaxonomyRankPrefixes()[tolower(names(tax))], "__")
     # Add prefix unless rank is NA
     tax <- mapply(function(rank, prefix)
         ifelse(is.na(rank), NA, paste0(prefix, rank)), tax, tax.prefix)
