@@ -113,6 +113,12 @@ S7::method(mapModules, MultiFactor) <- function(
             component2x <- Matrix::crossprod(c2c, complex2x, boolArith = TRUE)
             # Assess module coverage
             module_coverage <- .map_coverage(map_m2c, component2x)
+
+            if( verbose ){
+                message(NROW(x), " features were mapped to ",
+                        NROW(module_coverage), " modules.")
+            }
+
             if( method == "coverage" ) {
                 rownames(module_coverage) <- levels(map_m2c[[1L]])
                 return(module_coverage)
@@ -140,12 +146,6 @@ S7::method(mapModules, MultiFactor) <- function(
             }
         }
 
-
-
-        if( verbose ){
-            message(NROW(x), " features were mapped to ",
-                    NROW(module_coverage), " modules.")
-        }
 
     if(is.character(x.stratified)) {
 
@@ -183,7 +183,7 @@ S7::method(mapModules, MultiFactor) <- function(
         row.names(out) <- paste(
             rep(all_modules, times = length(names(module_coverage))),
             rep(names(module_coverage), each = length(all_modules)),
-            sep = "|")
+            sep = x.stratified)
         return(out)
     }
     module_present <- lapply(module_coverage,  `>=`,  coverage.threshold)
@@ -192,11 +192,9 @@ S7::method(mapModules, MultiFactor) <- function(
         row.names(out) <- paste(
             rep(all_modules, times = length(names(module_coverage))),
             rep(names(module_coverage), each = length(all_modules)),
-            sep = "|")
+            sep = x.stratified)
         return(out)
     }
-
-
 
     mod2x <- MultiFactor::weave(map, .by = c(x.type, module_name), out.format = "matrix")
 
@@ -211,9 +209,8 @@ S7::method(mapModules, MultiFactor) <- function(
         row.names(out) <- paste(
             rep(all_modules, times = length(names(module_coverage))),
             rep(names(module_coverage), each = length(all_modules)),
-            sep = "|")
+            sep = x.stratified)
         return(out)
-
 
     }
 

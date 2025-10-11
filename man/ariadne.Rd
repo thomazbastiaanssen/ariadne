@@ -4,11 +4,15 @@
 \alias{ariadne}
 \title{Ariadne: On-demand annotation and module analysis}
 \usage{
-ariadne(x)
+ariadne(x, .by)
 }
 \arguments{
-\item{x}{\code{Missing} (default) or \verb{Character or index scalar} selecting an
+\item{x}{\code{Missing} (default) or \verb{Character vector} selecting any number of
 available relational database or module set.}
+
+\item{.by}{Either a \code{formula} or a \verb{Character vector} of length 2 with the
+names of the desired combination of feature types. See \code{MultiFactor}
+subset method, which is called internally.}
 }
 \value{
 if \code{x} is missing, print names of available databases. Otherwise,
@@ -19,7 +23,9 @@ Display available prepared relational databases.
 }
 \examples{
 ariadne()
-ariadne("ChocoPhlAn")
+ariadne("Choco")
+ariadne("ChocoPhlAn", ko ~ uniref90)
+ariadne(c("ChocoPhlAn", "GBM"), GBM ~ uniref90)
 }
 \seealso{
 \code{\link[=importMapping]{importMapping()}}

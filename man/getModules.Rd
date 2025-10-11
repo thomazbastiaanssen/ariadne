@@ -58,7 +58,7 @@ data("Tengeler2020", package = "mia")
 tse <- Tengeler2020
 
 # Convert butyrate table to module list
-butyrate <- getFullTaxonomyLabels(butyrate)
+butyrate <- ariadne:::getFullTaxonomyLabels(butyrate)
 
 # Generate modules table
 mod.table <- getModules(tse, butyrate)
