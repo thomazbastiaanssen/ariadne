@@ -60,6 +60,7 @@ Here, the terms "module" and "signature" are used in place of each other.
 library(ariadne)
 library(mia)
 library(miaViz)
+library(curatedMetagenomicData)
 
 # Import dataset
 data("Tengeler2020", package = "mia")
@@ -68,74 +69,49 @@ tse <- Tengeler2020
 
 ```
 
-## Retrieve taxonomic modules
-
-```{r}
-library(bugsigdbr)
-
-# Download database
-bsdb <- importBugSigDB()
-
-# Retrieve microbial signatures
-bsdb.mods <- getSignatures(bsdb, tax.id.type = "metaphlan")
-```
-
-```{r}
-# Add module membership to rowData
-tse <- addModules(tse, bsdb.mods)
-```
-
 ## Retrieve functional modules
 
-```{r}
-# Import GBM
-gbm <- importModules("GBM")
+```{r cmd-cache, cache = TRUE}
+# Prepare mapping
+map <- ariadne( c("ChocoPhlAn", "GBM"), GBM ~ uniref90 )
 
-# Prepare a connection to the ChocoPhlAn mapping files
-ChocoPhlAn <- ariadne("ChocoPhlAn")
+# Download ko2uniref LinkMap from repo
+map <- importMapping(map, dry.run = FALSE)
 
-# Select relevant linking files
-choco_selection <-  subset(ChocoPhlAn, ko ~ uniref90)
+# Download example data
+id <- "2021-10-14.GopalakrishnanV_2018.gene_families"
 
-# Import ko-to-uniref90 mapping
-ko.uniref90 <- importMapping( choco_selection,  dry.run = FALSE )
-  
+se <- curatedMetagenomicData(id, counts = TRUE, dryrun = FALSE)[[1L]]
+
+tse <- TreeSummarizedExperiment::TreeSummarizedExperiment(
+  assays = list(counts = assay(se)), 
+  colData = colData(se))
+
+x <- SummarizedExperiment::assay(tse)
+
+# subset for speed
+x <- x[grep("s__Bacteroides", row.names(x), fixed = TRUE),]
+
 ```
 
 ```{r}
 # Map modules to taxa
-gbm.mods <- mapModules(
-    gbm,
-    ko.uniref90,
-    mode = "andor",
-    uniprot = TRUE,
-    remove.empty = TRUE
+gbms <- mapModules(
+    map, x, x.type = "uniref90", x.stratified = "|"
 )
 ```
 
-```{r}
-# Add module membership to rowData
-tse <- addModules(
-    tse,
-    gbm.mods,
-    by = 1L,
-    group = "taxonomy"
-)
-```
 
 ## Module analysis
 
 ```{r}
 # Collect all module names
-all.mods <- c(names(bsdb.mods), names(gbm.mods))
-
-# Agglomerate features by every module
-altExp(tse, "modules") <- agglomerateByModule(tse, by = 1L, group = names(gbm.mods))
+altExp(tse, "modules") <- SummarizedExperiment(list("modules" = gbms))
 
 # Find top 5 modules by average count
 top.mods <- getTop(
-    altExp(tse, "modules"),
-    assay.type = "counts"
+    altExp(tse),
+    assay.type = "modules"
 )
 ```
 
@@ -152,20 +128,20 @@ tse <- swapAltExp(
     tse,
     name = "modules",
     saved = "features",
-    withColData = FALSE
+    withColData = TRUE
 )
 ```
 
 
 ```{r}
-plotAbundance(
-    tse[top.mods, ],
-    assay.type = "counts",
-    as.relative = TRUE,
-    col.var = "patient_status",
-    order.col.by = "patient_status",
-    add.legend = FALSE
-)
+# plotAbundance(
+#     tse[top.mods, ],
+#     assay.type = "modules",
+#     as.relative = TRUE,
+#     col.by = "disease",
+#     order.col.by = "disease",
+#     add.legend = FALSE
+# )
 ```
 
 
@@ -174,17 +150,17 @@ plotAbundanceDensity(
     tse,
     layout = "density",
     n = 5,
-    assay.type = "counts",
-    colour.by = "patient_status"
+    assay.type = "modules",
+    colour.by = "disease"
 )
 ```
 
 ```{r}
 library(ggplot2)
 
-mse <- meltSE(tse, assay.type = "counts", add.col = TRUE)
+mse <- meltSE(tse, assay.type = "modules", add.col = TRUE)
 
-ggplot(mse, aes(x = SampleID, y = FeatureID, fill = counts)) +
+ggplot(mse, aes(x = SampleID, y = FeatureID, fill = modules)) +
     geom_tile() +
     #facet_wrap(. ~ patient_status) +
     scale_fill_gradient2(low = "white", high = "red") +
@@ -199,10 +175,6 @@ ggplot(mse, aes(x = SampleID, y = FeatureID, fill = counts)) +
 ```
 
 ## Microbe-set enrichment analysis
-
-```{r}
-tse <- transformAssay(tse, method = "relabundance")
-```
 
 
 ```{r}

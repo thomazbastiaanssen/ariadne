@@ -2,5 +2,6 @@
 .Rhistory
 .RData
 docs/
+vignettes/ariadne_cache/
 .Rproj.user
 ariadne.Rproj
