@@ -77,7 +77,7 @@ ariadne <- function(x, .by) {
 
 .get_repo <- function(x) {
     repo <- local({
-        data("repo_layouts", package = "ariadne", envir = environment())
+        data(list = paste0(x, "_layout"), package = "ariadne", envir = environment())
         return(get(x))
     })
 

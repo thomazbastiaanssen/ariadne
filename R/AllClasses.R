@@ -21,20 +21,23 @@ LinkMapDB <- S7::new_class(
     package = "ariadne",
     parent = MultiFactor::LinkMap,
     properties  = list(
-        levels  = S7::new_property(getter = function(self) lapply(self, levels)),
-        value   = S7::class_character,
-        is_bool = S7::class_logical
+        levels  = S7::new_property(getter = function(self) lapply(self, levels))
     ),
-    constructor = function(x, repo = c("ChocoPhlAn","WoL", "other")) {
-        value <- match.arg(repo)
+    constructor = function(
+        x,
+        repo = c("ChocoPhlAn","WoL", "other"),
+        metadata = list()
+    ) {
+        repo <- match.arg(repo)
 
         if(all(lengths(x, use.names = FALSE) == 0L )) {
             x <- list2DF(lapply(x, .LinkMapDBMessage))
         }
+        metadata[["repo"]] <- repo
+
         S7::new_object(
             .parent = MultiFactor::LinkMap(x),
-            value   = value,
-            is_bool = TRUE
+            metadata = metadata
         )
     }
 )

@@ -33,7 +33,7 @@ S7::method(as.LinkMap, LinkMapDB) <- function(x) {
 #' @noRd
 .urlLinkMapDB <- function(x) {
     switch (
-        x@value,
+        x@metadata$repo,
         ChocoPhlAn = paste0(
             "https://zenodo.org/records/17100034/files/map_",
             names(x)[1L], "_", names(x)[2L], ".txt.gz"

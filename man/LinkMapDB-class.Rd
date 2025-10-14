@@ -4,7 +4,7 @@
 \alias{LinkMapDB}
 \title{LinkMapDB S7 container class}
 \usage{
-LinkMapDB(x, repo = c("ChocoPhlAn", "WoL", "other"))
+LinkMapDB(x, repo = c("ChocoPhlAn", "WoL", "other"), metadata = list())
 }
 \arguments{
 \item{x}{a \code{data.frame} with two named columns that can be coerced to factors}
