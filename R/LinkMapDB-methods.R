@@ -38,9 +38,13 @@ S7::method(as.LinkMap, LinkMapDB) <- function(x) {
             "https://zenodo.org/records/17100034/files/map_",
             names(x)[1L], "_", names(x)[2L], ".txt.gz"
         ),
-        WoL     = paste0(
+        WoL = paste0(
             "https://ftp.microbio.me/pub/wol-20April2021/function",
             names(x)[1L], "/", names(x)[2L], ".map.xz"
+        ),
+        GO = paste0(
+            "https://current.geneontology.org/ontology/external2go/",
+            names(x)[1L], "2", names(x)[2L]
         )
     )
 }

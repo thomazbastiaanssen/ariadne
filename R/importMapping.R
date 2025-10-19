@@ -8,7 +8,7 @@
 #'
 #' @param x \code{Character vector}. One or more paths to custom mapping
 #'   files or one or more names from the available databases
-#'   (\code{c("ChocoPhlAn", "Woltka")}).
+#'   (\code{c("ChocoPhlAn", "GO", "Woltka")}).
 #'
 #' @param subset \code{formula scalar} or \code{Character vector}. Specifies the
 #'   'to' and 'from' of mapping in the syntax \code{from ~ to}, or equivalently
@@ -26,7 +26,7 @@
 #'       \item{from: \code{c("eggnog", "go", "ko", "level4ec")}}
 #'       \item{to: \code{c("uniref50", "uniref90")}}}
 #'   }
-#'   \item{\code{"Woltka"}: x-to-uniref mapping files from the Web of Life
+#'   \item{\code{"WoL"}: x-to-uniref mapping files from the Web of Life
 #'     \itemize{
 #'       \item{repo: \href{https://ftp.microbio.me/pub/wol-20April2021/}{https://ftp.microbio.me/pub/wol-20April2021/}}
 #'       \item{from: c("eggnog", "go", "ko", "orthodb", "refseq")}
@@ -63,9 +63,20 @@ MappingDatabases <- list(
             paste0(repo, "map_", from, "_", to, ".txt.gz")
         }
     ),
-    Woltka = list(
+    GO = list(
+        repo = "https://current.geneontology.org/ontology/external2go/",
+        from = c("ec", "kegg", "hamap", "interpro", "metacyc", "reactome",
+            "rfam", "rhea", "um-bbd_enzymeid", "um-bbd_reactionid",
+            "um-bbd_pathwayid", "uniprotkb_kw", "uniprotkb_sl", "unirule",
+            "wikipedia"),
+        to = "go",
+        path = function(repo, from, to){
+            paste0(repo, from, "2", to)
+        }
+    ),
+    WoL = list(
         repo = "https://ftp.microbio.me/pub/wol-20April2021/",
-        from = c("eggnog", "go", "ko", "orthodb", "refseq"),
+        from = c("eggnog", "go", "kegg", "orthodb", "refseq"),
         to = "uniref90",
         path = function(repo, from, to){
             paste0(repo, "function/", from, "/", from, ".map.xz")
@@ -94,7 +105,7 @@ S7::method(importMapping, MultiFactor) <-
         cat(paste(lmdbs, collapse = ", "))
         MultiFactor::MultiFactor(lapply(x, as.LinkMap))
     }
-    }
+}
 
 #' @importFrom MultiFactor LinkMap MultiFactor as.LinkMap
 S7::method(importMapping, S7::class_character) <-
@@ -107,36 +118,57 @@ S7::method(importMapping, S7::class_character) <-
 }
 # Import single mapping file
 .import_mapping <- function(x, verbose = TRUE){
+    
+    FUN <- switch(
+        x,
+        ChocoPhlAn = .process_chocophlan,
+        WoL = .process_wol,
+        GO = .process_go
+    )
+    
     x <- .getCache(x)
+    
     if( verbose ){
         message("Retrieving mappings from ", x, ".")
     }
 
     # Read file content
-    line.content <- readLines(x)
+    map <- readLines(x)
+    map <- FUN(map)
+    
+    return(map)
+}
+
+.process_chocophlan <- function(x){
 
     # Split elements in each line by tab
-    line.content <- strsplit(line.content, "\t", fixed = TRUE)
+    x <- strsplit(x, "\t", fixed = TRUE)
     # Extract keys
-    keys <- vapply(line.content, `[`, 1L, FUN.VALUE = character(1L))
+    keys <- vapply(x, `[`, 1L, FUN.VALUE = character(1L))
     # Extract values
-    values <- lapply(line.content, `[`, -1L)
+    values <- lapply(x, `[`, -1L)
 
-    data.frame(
+    x <- data.frame(
         id.x = rep(keys, lengths(values, use.names = FALSE)),
         id.y = unlist(values, recursive = TRUE, use.names = FALSE)
     )
+    
+    return(x)
 }
 
-
-#' @importFrom MultiFactor as.LinkMap
-.process_woltka <- function(woltka.map){
-    names(woltka.map) <- paste0("UniRef90_", names(woltka.map))
-    linkmap <- as.LinkMap(woltka.map)
-    woltka.map <- split(linkmap$x, linkmap$y)
-    return(woltka.map)
+.process_wol <- function(x){
+    names(x) <- paste0("UniRef90_", names(x))
+    x <- .process_chocophlan(x)
+    return(x)
 }
 
+.process_go <- function(x){
+    x <- x[!startsWith(x, "!")]
+    x <- sub("^(\\S+).*?(\\S+)$", "\\1 \\2", x)
+    x <- strsplit(x, " ", fixed = TRUE)
+    x <- as.data.frame(do.call(rbind, x))
+    return(x)
+}
 
 # Read a df, make a MF-shaped list
 .reftableToDFList <- function(x) `names<-`(lapply(

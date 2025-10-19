@@ -21,8 +21,8 @@
 #' @export
 #'
 ariadne <- function(x, .by) {
-    repos   <- c("ChocoPhlAn", "WoL")
-    modules <- c("GBM",        "GMM")
+    repos   <- c("ChocoPhlAn", "WoL", "GO")
+    modules <- c("GBM", "GMM")
 
     if(rlang::is_missing(x)) {
         stopifnot(
