@@ -45,7 +45,6 @@
 #' # Import ko-to-uniref90 mapping from ChocoPhlAn
 #' map2 <- importMapping("ChocoPhlAn", ko ~ uniref90)
 #'
-#'
 #' # Import several files from an ariadne-indexed database:
 #' db <- ariadne("ChocoPhlAn", ko ~ uniref90)
 #'

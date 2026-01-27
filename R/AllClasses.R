@@ -23,7 +23,8 @@ LinkMapDB <- S7::new_class(
     properties  = list(
         levels  = S7::new_property(getter = function(self) lapply(self, levels)),
         value   = S7::class_character,
-        is_bool = S7::class_logical
+        is_bool = S7::class_logical,
+        metadata = S7::class_list
     ),
     constructor = function(x, repo = c("ChocoPhlAn","WoL", "other")) {
         value <- match.arg(repo)
@@ -31,10 +32,12 @@ LinkMapDB <- S7::new_class(
         if(all(lengths(x, use.names = FALSE) == 0L )) {
             x <- list2DF(lapply(x, .LinkMapDBMessage))
         }
+        
         S7::new_object(
             .parent = MultiFactor::LinkMap(x),
             value   = value,
-            is_bool = TRUE
+            is_bool = TRUE,
+            metadata = list()
         )
     }
 )
