@@ -73,7 +73,7 @@ tse <- Tengeler2020
 
 ```{r cmd-cache, cache = TRUE}
 # Prepare mapping
-map <- ariadne( GBM ~ uniref90 )
+map <- ariadne( c("GBM", "ChocoPhlan"), .by = GBM ~ uniref90)
 
 # Download ko2uniref LinkMap from repo
 map <- importMapping(map, dry.run = FALSE)

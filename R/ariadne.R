@@ -2,8 +2,8 @@
 #' @name ariadne
 #' @description
 #' Display available prepared relational databases.
-#' @importFrom rlang is_missing
-#' @importFrom rlang dots_list
+#' @importFrom rlang is_missing dots_list
+#' @importFrom MultiFactor MultiFactor
 #' @param x `Missing` (default) or `Character vector` selecting any number of
 #'     available relational database or module set.
 #' @param .by Either a `formula` or a `Character vector` of length 2 with the
@@ -35,7 +35,7 @@ ariadne <- function(x, .by) {
     res <- .ariadne_single(repos, modules, x)
 
     if(!rlang::is_missing(.by)) {
-        res <- subset(res, .by)
+        res <- subset(res, subset = .by, by_path = TRUE, drop.unmatched = FALSE)
     }
     return(res)
 }
