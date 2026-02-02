@@ -1,4 +1,5 @@
 
+igraph <- S7::new_S3_class("igraph")
 
 #' @export
 #' @rdname ariadne

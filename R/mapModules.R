@@ -62,11 +62,10 @@ NULL
 #' @importFrom Matrix crossprod
 #' @importFrom MultiFactor weave
 #' @noRd
-S7::method(mapModules, MultiFactor) <- function(
-        map, x, x.type = "uniref90", x.stratified = FALSE,
-        method = c("sum", "count", "coverage", "presence"),
-        verbose = TRUE, coverage.threshold = 0.8
-        ) {
+S7::method(mapModules, MultiFactor::MultiFactor) <- function(
+    map, x, x.type = "uniref90", x.stratified = FALSE,
+    method = c("sum", "count", "coverage", "presence"),
+    verbose = TRUE, coverage.threshold = 0.8){
 
     # Check arguments
     if( !is.logical(verbose) ){
@@ -100,7 +99,7 @@ S7::method(mapModules, MultiFactor) <- function(
         weave(map, .by = c(complex_name, x.type))
         }
 
-    mod2x <- MultiFactor::weave(
+    mod2x <- weave(
         map, .by = c(module_name, feature_name)
     )
     c2c         <- as.matrix(map[[c2c_ind]], terms = c(2L, 1L))
@@ -129,7 +128,7 @@ S7::method(mapModules, MultiFactor) <- function(
                 return(module_present)
             }
 
-            mod2x <- MultiFactor::weave(map, .by = c(x.type, module_name), out.format = "matrix")
+            mod2x <- weave(map, .by = c(x.type, module_name), out.format = "matrix")
 
             if( method == "sum" ) {
                 sum_table <- Matrix::crossprod(mod2x, x) * module_present
@@ -196,7 +195,7 @@ S7::method(mapModules, MultiFactor) <- function(
         return(out)
     }
 
-    mod2x <- MultiFactor::weave(map, .by = c(x.type, module_name), out.format = "matrix")
+    mod2x <- weave(map, .by = c(x.type, module_name), out.format = "matrix")
 
     if( method %in% c("sum", "count" )) {
         res_table <- lapply(

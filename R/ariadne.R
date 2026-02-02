@@ -2,6 +2,7 @@
 #' @name ariadne
 #' @rdname ariadne
 
+#' @importFrom igraph graph_from_data_frame
 S7::method(ariadne, S7::class_list) <-
     function(resources, versions = NULL){
     # Convert resources to graph data.frames

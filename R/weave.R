@@ -2,11 +2,9 @@
 #' @name weavePath
 #' @rdname weavePath
 
-#' @importFrom methods getClass
-#' @importFrom igraph k_shortest_paths
-S7::method(weavePath, S7::class_any) <-
-    function(graph, by, k = 1, timeout = 1e6){
-    
+#' @importFrom igraph E<- k_shortest_paths as_data_frame
+#' @importFrom MultiFactor MultiFactor
+S7::method(weavePath, igraph) <- function(graph, by, k = 1, timeout = 1e6){
     # Set timeout for downloads
     options(timeout = timeout)
     # Extract vars from formula
