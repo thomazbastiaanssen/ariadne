@@ -1,7 +1,12 @@
 
-library(KEGGREST)
+#' @name weavePath
+#' @rdname weavePath
 
-weave2 <- function(graph, by, k = 1, timeout = 1e6){
+#' @importFrom methods getClass
+#' @importFrom igraph k_shortest_paths
+S7::method(weavePath, S7::class_any) <-
+    function(graph, by, k = 1, timeout = 1e6){
+    
     # Set timeout for downloads
     options(timeout = timeout)
     # Extract vars from formula
@@ -26,7 +31,7 @@ weave2 <- function(graph, by, k = 1, timeout = 1e6){
 
         if( graph_df$source[i] %in% c("ChocoPhlAn", "WoL", "GO")){
               
-            cached <- .getCache(graph_df$path[i], graph_df$source[i])
+            cached <- .cache_resource(graph_df$path[i], graph_df$source[i])
             df <- read.csv(cached)
                 
         }else if( graph_df$source[i] == "KEGG" ){
@@ -38,6 +43,9 @@ weave2 <- function(graph, by, k = 1, timeout = 1e6){
                 y = gsub("^[^:]*:", "", names(kegg.link)),
                 row.names = NULL
             )
+        
+        }else if( graph_df$source[i] %in% c("GBM", "GMM") ){
+            
             
         }else if( graph_df$source[i] == "UniProt" ){
               

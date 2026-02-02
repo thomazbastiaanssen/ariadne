@@ -1,8 +1,7 @@
 
-library(BiocFileCache)
 
 #' @importFrom BiocFileCache BiocFileCache bfcquery bfcadd 
-.getCache <- function(url, resource) {
+.cache_resource <- function(url, resource) {
 
   cache <- tools::R_user_dir("ariadne", "cache")
   bfc <- BiocFileCache(cache, ask = FALSE)

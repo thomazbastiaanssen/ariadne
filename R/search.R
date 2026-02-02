@@ -1,5 +1,10 @@
 
-search <- function(graph, by, k = 1){
+#' @name searchPath
+#' @rdname searchPath
+
+#' @importFrom igraph k_shortest_paths
+S7::method(searchPath, S7::class_any) <-
+    function(graph, by, k = 1){
     
     by.vars <- all.vars(by)
     

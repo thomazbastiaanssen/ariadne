@@ -1,7 +1,9 @@
-library(igraph)
-library(ggraph)
 
-ariadne <- function(resources, versions = NULL){
+#' @name ariadne
+#' @rdname ariadne
+
+S7::method(ariadne, S7::class_list) <-
+    function(resources, versions = NULL){
     # Convert resources to graph data.frames
     graph_dfs <- mapply(
         .resource2graph_df,

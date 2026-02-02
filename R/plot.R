@@ -1,6 +1,14 @@
 
-plot <- function(graph, by = NULL, k = 1){
-  
+#' @name plotPath
+#' @rdname plotPath
+
+#' @importFrom igraph k_shortest_paths
+#' @importFrom ggplot2 aes theme_void
+#' @importFrom ggraph ggraph geom_edge_link geom_node_point geom_node_text
+#'   scale_edge_colour_manual
+S7::method(plotPath, S7::class_any) <-
+    function(graph, by = NULL, k = 1){
+    
     E(graph)$highlight <- FALSE
     E(graph)$name <- ""
     

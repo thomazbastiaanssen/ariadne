@@ -1,21 +1,15 @@
 
 graph <- ariadne(Resources)
 
-plot(graph)
+plotPath(graph)
 
-search(graph, refseq ~ rhea, k = 5)
+searchPath(graph, refseq ~ rhea, k = 5)
 
-plot(graph, refseq ~ rhea, k = 2)
+plotPath(graph, refseq ~ rhea, k = 2)
 
-linkmap <- weave2(graph, refseq ~ rhea, k = 2)
+# takes long
+linkmap <- weavePath(graph, refseq ~ rhea, k = 2)
 
-linkmap <- weave2(graph, ko ~ eggnog, k = 2)
+# takes less long
+linkmap <- weavePath(graph, ko ~ eggnog, k = 2)
 
-
-my_fun <- function(by){
-  mf <- randomMultiFactor()
-  linkmap <- weave(mf, by)
-  return(linkmap)
-}
-
-linkmap <- my_fun(a ~ b)

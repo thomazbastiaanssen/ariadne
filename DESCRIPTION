@@ -31,6 +31,9 @@ Depends:
 Imports:
     BiocFileCache,
     BiocParallel,
+    ggraph,
+    igraph,
+    KEGGREST,
     methods,
     mia,
     MultiFactor,

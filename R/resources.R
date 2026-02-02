@@ -1,4 +1,7 @@
 
+#' @name resources
+#' @rdname resources
+
 .create_resource <- function(repo = NULL, version = NULL, from = NULL,
     to = NULL, path = NULL){
     # Add dummy names to unnamed features
