@@ -75,13 +75,4 @@ ariadne <- function(x, .by) {
     )
 }
 
-.get_repo <- function(x) {
-    repo <- local({
-        data(list = paste0(x, "_layout"), package = "ariadne", envir = environment())
-        return(get(x))
-    })
-
-    repo <- MultiFactor::MultiFactor(lapply(repo, LinkMapDB))
-    return(repo)
-}
 
