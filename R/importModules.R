@@ -25,6 +25,12 @@
 #' # modules2 <- importModules("path/to/file")
 NULL
 
+ModuleDatabases <- list(
+  GMM = "https://github.com/omixer/omixer-rpmR/raw/refs/heads/main/inst/extdata/GMMs.v1.07.txt",
+  GBM = "https://github.com/omixer/omixer-rpmR/raw/refs/heads/main/inst/extdata/GBMs.v1.0.txt"
+)
+
+
 S7::method(importModules, S7::class_character) <- function(
     x, br = "///", AND = ",", OR = "\t",
     module_id = "module", feature_id = "feature", verbose = TRUE

@@ -45,6 +45,7 @@
 #' # Import ko-to-uniref90 mapping from ChocoPhlAn
 #' map2 <- importMapping("ChocoPhlAn", ko ~ uniref90)
 #'
+#'
 #' # Import several files from an ariadne-indexed database:
 #' db <- ariadne("ChocoPhlAn", ko ~ uniref90)
 #'
@@ -52,6 +53,26 @@
 #' db.local <- importMapping(db, dry.run = TRUE)
 #'
 NULL
+
+MappingDatabases <- list(
+    ChocoPhlAn = list(
+        repo = "https://zenodo.org/records/17100034/files/",
+        from = c("eggnog", "go", "ko", "level4ec"),
+        to = c("uniref50", "uniref90"),
+        path = function(repo, from, to){
+            paste0(repo, "map_", from, "_", to, ".txt.gz")
+        }
+    ),
+    Woltka = list(
+        repo = "https://ftp.microbio.me/pub/wol-20April2021/",
+        from = c("eggnog", "go", "ko", "orthodb", "refseq"),
+        to = "uniref90",
+        path = function(repo, from, to){
+            paste0(repo, "function/", from, "/", from, ".map.xz")
+        }
+    )
+)
+
 
 #' @importFrom MultiFactor LinkMap MultiFactor as.LinkMap
 S7::method(importMapping, MultiFactor) <-
@@ -73,19 +94,17 @@ S7::method(importMapping, MultiFactor) <-
         cat(paste(lmdbs, collapse = ", "))
         MultiFactor::MultiFactor(lapply(x, as.LinkMap))
     }
-}
+    }
 
 #' @importFrom MultiFactor LinkMap MultiFactor as.LinkMap
 S7::method(importMapping, S7::class_character) <-
-    function( x, subset = NULL, dry.run = TRUE ){
+    function( x, subset = NULL, dry.run = TRUE ) {
 
-    importMapping(
-        x = ariadne(x),
-        subset = subset,
-        dry.run = dry.run
-    )
+        importMapping(
+        ariadne(x),
+        subset, dry.run
+        )
 }
-
 # Import single mapping file
 .import_mapping <- function(x, verbose = TRUE){
     x <- .getCache(x)

@@ -70,3 +70,8 @@ ariadne <- function(x, .by) {
         if ( x %in% modules ) return(importModules(x))
     }))
 }
+<<<<<<< HEAD
+
+
+=======
+>>>>>>> devel
