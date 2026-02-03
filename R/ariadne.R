@@ -58,20 +58,15 @@ ariadne <- function(x, .by) {
         toupper(c(repos, modules)),
         duplicates.ok = FALSE
     )]
-    
+
     if(all(is.na(x))) {
         stop("'x' should select a known relational database or module set:\n",
             "  ", {paste(c(repos, modules), collapse = ", ")}, ".",
             call. = FALSE)
     }
-    
+
     do.call(`c`, lapply(x, function(x) {
         if ( x %in% repos ) return(.get_repo(x))
         if ( x %in% modules ) return(importModules(x))
     }))
 }
-<<<<<<< HEAD
-
-
-=======
->>>>>>> devel
