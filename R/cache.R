@@ -30,16 +30,16 @@
   FUN <- switch(
       resource,
       ChocoPhlAn = .process_chocophlan,
-      WoL = .process_wol,
       GO = .process_go,
-      #GM = .process_complex_modules,
-      # KEGG = maybe no need to cache?
+      TIGRFAMs = .process_tigrfams,
+      WoL = .process_wol
   )
 
   # Read file content
   x <- readLines(path)
   # Preprocess data
   linkmap <- FUN(x)
+  
   # Store preprocessed data
   write.csv(linkmap, path, row.names = FALSE)
   
@@ -59,19 +59,17 @@
 
 
 .process_chocophlan <- function(x){
-  
     # Split elements in each line by tab
     line.content <- strsplit(x, "\t", fixed = TRUE)
     # Extract keys
     keys <- vapply(line.content, `[`, 1L, FUN.VALUE = character(1L))
     # Extract values
     values <- lapply(line.content, `[`, -1L)
-    
+    # Create linkmap
     linkmap <- data.frame(
       x = rep(keys, lengths(values, use.names = FALSE)),
       y = unlist(values, recursive = TRUE, use.names = FALSE)
     )
-    
     return(linkmap)
 }
 
@@ -82,12 +80,76 @@
 }
 
 .process_go <- function(x){
+    # Remove header
     x <- x[!startsWith(x, "!")]
+    # Split entries into keys and values
     x <- sub("^(\\S+).*?(\\S+)$", "\\1 \\2", x)
     x <- strsplit(x, " ", fixed = TRUE)
-    x <- as.data.frame(do.call(rbind, x))
-    return(x)
+    # Create linkmap
+    linkmap <- as.data.frame(do.call(rbind, x))
+    # Trim prefix ending with :
+    linkmap <- data.frame(
+        x = gsub("^[^:]*:", "", linkmap[, 1]),
+        y = gsub("^[^:]*:", "", linkmap[, 2]),
+        row.names = NULL
+    )
+    return(linkmap)
 }
 
+.process_complex_modules <- function(x, br = "///", AND = ",", OR = "\t") {
+    # Read the file content
+    line.content <- readLines(x)
+    # Identify break lines
+    v_br <- line.content == br
+    # Split content by breaks, excluding break lines themselves
+    line.content <- split(line.content[!v_br], cumsum(v_br)[!v_br])
+    # Extract keys (first line of each block)
+    keys <- vapply(line.content, `[`, 1L, FUN.VALUE = "", USE.NAMES = FALSE)
+    # Extract values (all lines except first in each block)
+    values <- lapply(line.content, `[`, -1L)
+    # Replace tabs with spaces in keys, repeated for each value line
+    module <- gsub("\t.*", "", rep(keys, lengths(values, use.names = FALSE)))
+    # Create unique module_component identifiers
+    module_component <- paste0(
+        module, "_part_",
+        unlist(lapply(rle(module)$lengths, seq), use.names = FALSE)
+    )
+    # Split feature list by tab character
+    feature_list <- strsplit(
+        unlist(values, recursive = TRUE, use.names = FALSE), "\t"
+    )
 
+    names(feature_list) <- module_component
+    # Flatten feature complex list and split by comma to get individual features
+    feature_complex <- unlist(feature_list, use.names = FALSE)
+    feature <- strsplit(feature_complex, ",")
+    # Create and return structured list of data frames
+    modules <- list(
+        module2module_component = data.frame(module,module_component),
+        component2feature_complex = data.frame(
+            module_component = rep(module_component, lengths(feature_list)),
+            feature_complex
+        ),
+        feature_complex2feature = data.frame(
+            feature_complex = rep(feature_complex, lengths(feature)),
+            feature = unlist(feature, use.names = FALSE)
+        )
+    )
+    
+    modules <- MultiFactor(modules)
+    return(modules)
+}
 
+.process_tigrfams <- function(x){
+    # Split elements in each line by tab
+    line.content <- strsplit(x, "\t", fixed = TRUE)
+    # Extract keys
+    keys <- vapply(line.content, `[`, 1L, FUN.VALUE = character(1L))
+    # Extract values
+    values <- vapply(line.content, `[`, 2L, FUN.VALUE = character(1L))
+    # Remove id prefix ending with :
+    values <- gsub("^[^:]*:", "", values)
+    # Create linkmap
+    linkmap <- data.frame(x = keys, y = values)
+    return(linkmap)
+}

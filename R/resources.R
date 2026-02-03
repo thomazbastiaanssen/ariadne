@@ -55,10 +55,11 @@ Resources <- list(
     ),
     GO = .create_resource(
         repo = "https://current.geneontology.org/ontology/external2go/",
-        from = c("ec", "ko", "hamap", "interpro", "metacyc", "reactome",
-            "rfam", "rhea", "um-bbd_enzymeid", "um-bbd_reactionid",
-            "um-bbd_pathwayid", "uniprotkb_kw", "uniprotkb_sl", "unirule",
-            "wikipedia"),
+        from = c("ec", "hamap", "interpro", reaction = "kegg_reaction",
+            "metacyc", "reactome", "pfam", "pirsf", "prints", "prosite",
+            "reactome", "resid", "rfam", "rhea", "smart", "um-bbd_enzymeid",
+            "um-bbd_pathwayid", "um-bbd_reactionid", "uniprotkb_kw",
+            "uniprotkb_sl", "unirule", "wikipedia"),
         to = "go",
         path = function(repo, version, from, to){
             paste0(repo, version, from, "2", to)
@@ -81,9 +82,18 @@ Resources <- list(
         path = function(repo, version, from, to){
             # Account for exceptions
             suffix <- ifelse(from == "go", "all", from)
-            from <- ifelse(from == "ko", "kegg", from)
+            suffix <- ifelse(from == "kegg", "ko", suffix)
             # Create path
             paste0(repo, version, "function/", from, "/", suffix, ".map.xz")
+        }
+    ),
+    TIGRFAMs = .create_resource(
+        repo = "https://ftp.ncbi.nlm.nih.gov/hmm/TIGRFAMs/",
+        version = "release_15.0/",
+        from = c(tigr = "tigrfams"),
+        to = "go",
+        path = function(repo, version, from, to){
+            paste0(repo, version, toupper(from), "_", toupper(to), "_LINK")
         }
     )
 )

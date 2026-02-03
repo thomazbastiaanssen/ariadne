@@ -4,6 +4,7 @@
 
 #' @importFrom igraph E<- k_shortest_paths as_data_frame
 #' @importFrom MultiFactor MultiFactor
+#' @importFrom KEGGREST keggLink
 S7::method(weavePath, igraph) <- function(graph, by, k = 1, timeout = 1e6){
     # Set timeout for downloads
     options(timeout = timeout)
@@ -27,7 +28,7 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, timeout = 1e6){
     
     for( i in seq_len(nrow(graph_df)) ){
 
-        if( graph_df$source[i] %in% c("ChocoPhlAn", "WoL", "GO")){
+        if( graph_df$source[i] %in% c("ChocoPhlAn", "GO", "TIGRFAMs", "WoL")){
               
             cached <- .cache_resource(graph_df$path[i], graph_df$source[i])
             df <- read.csv(cached)

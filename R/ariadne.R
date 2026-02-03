@@ -38,7 +38,9 @@ S7::method(ariadne, S7::class_list) <-
     if( is.null(res$path) ){
         graph_df$path <- NA
     } else {
-        graph_df$path <- res$path(res$repo, version, graph_df$from, graph_df$to)
+        from <- res$from[graph_df$from]
+        to <- res$to[graph_df$to]
+        graph_df$path <- res$path(res$repo, version, from, to)
     }
     return(graph_df)
 }
