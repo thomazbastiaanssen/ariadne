@@ -63,7 +63,7 @@ S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1){
     # Find shortest path 
     sp <- k_shortest_paths(graph, from = from, to = to, k = k, mode = "all")
     # Get edges IDs in path
-    path.edges <- unique(unlist(sp$epaths[1:k]))
+    path.edges <- unique(unlist(sp$epaths[k], use.names = FALSE))
     # Assign positive mark to path edges
     E(graph)$mark[path.edges] <- 1
     # Return graph with aesthetics defined
@@ -98,7 +98,7 @@ S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1){
     chosen.comb <- comb.indices[k, var_cols]
     # Assign unique mark per neighbour to colour edges accordingly
     for (i in seq_along(chosen.comb)) {
-        path.edges <- unlist(paths[[i]][[chosen.comb[[i]]]])
+        path.edges <- unlist(paths[[i]][[chosen.comb[[i]]]], use.names = FALSE)
         # Assign mark to these edges
         E(graph)$mark[path.edges] <- i
     }

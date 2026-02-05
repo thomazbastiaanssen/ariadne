@@ -30,6 +30,8 @@
   FUN <- switch(
       resource,
       ChocoPhlAn = .process_chocophlan,
+      GBM = .process_complex_modules,
+      GMM = .process_complex_modules,
       GO = .process_go,
       TIGRFAMs = .process_tigrfams,
       WoL = .process_wol
@@ -70,6 +72,8 @@
       x = rep(keys, lengths(values, use.names = FALSE)),
       y = unlist(values, recursive = TRUE, use.names = FALSE)
     )
+    # Remove GO id prefix ending with :
+    linkmap$x <- gsub("GO:", "", linkmap$x, fixed = TRUE)
     return(linkmap)
 }
 
@@ -97,12 +101,10 @@
 }
 
 .process_complex_modules <- function(x, br = "///", AND = ",", OR = "\t") {
-    # Read the file content
-    line.content <- readLines(x)
     # Identify break lines
-    v_br <- line.content == br
+    v_br <- x == br
     # Split content by breaks, excluding break lines themselves
-    line.content <- split(line.content[!v_br], cumsum(v_br)[!v_br])
+    line.content <- split(x[!v_br], cumsum(v_br)[!v_br])
     # Extract keys (first line of each block)
     keys <- vapply(line.content, `[`, 1L, FUN.VALUE = "", USE.NAMES = FALSE)
     # Extract values (all lines except first in each block)
@@ -135,9 +137,7 @@
             feature = unlist(feature, use.names = FALSE)
         )
     )
-    
     modules <- MultiFactor(modules)
-    return(modules)
     linkmap <- weave(modules, module ~ feature)
     return(linkmap)
 }
