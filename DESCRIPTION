@@ -37,7 +37,6 @@ Imports:
     methods,
     mia,
     MultiFactor,
-    reticulate,
     S7,
     rlang,
     Matrix,
