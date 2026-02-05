@@ -37,10 +37,11 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, timeout = 1e6){
     
     for( i in seq_len(nrow(graph_df)) ){
 
-        if( graph_df$source[i] %in% c("ChocoPhlAn", "GO", "TIGRFAMs", "WoL")){
+        if( graph_df$source[i] %in% c("ChocoPhlAn", "GBM", "GMM", "GO",
+                                      "TIGRFAMs", "WoL")){
               
             cached <- .cache_resource(graph_df$path[i], graph_df$source[i])
-            df <- read.csv(cached)
+            df <- read.csv(cached, colClasses = "character")
                 
         }else if( graph_df$source[i] == "KEGG" ){
                 
@@ -52,11 +53,6 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, timeout = 1e6){
                 row.names = NULL
             )
         
-        }else if( graph_df$source[i] %in% c("GBM", "GMM") ){
-        
-            # .process_complex_modules
-            
-            
         }else if( graph_df$source[i] == "UniProt" ){
               
             # .querySPARQL(with uniref features from previous step)
@@ -69,7 +65,6 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, timeout = 1e6){
     }
     # Construct MultiFactor from linkmaps
     mf <- MultiFactor(linkmaps)
-    # return(mf)
     # Weave desired linkmap from MultiFactor
     linkmap <- weave(mf, by)
     return(linkmap)

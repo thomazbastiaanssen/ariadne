@@ -2,8 +2,8 @@
 #' @name plotPath
 #' @rdname plotPath
 
-#' @importFrom igraph E k_shortest_paths
-#' @importFrom ggplot2 aes theme_void
+#' @importFrom igraph E
+#' @importFrom ggplot2 aes theme_void theme
 #' @importFrom ggraph ggraph geom_edge_link geom_node_point geom_node_text
 #'   scale_edge_colour_manual
 S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1){
@@ -44,9 +44,9 @@ S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1){
             aes(colour = factor(mark), label = name),
             edge_width = 1.2, fontface = "bold",
             show.legend = TRUE) +
-        geom_node_point(size = 5, color = "darkorange") +
+        geom_node_point(size = 5, colour = "darkorange") +
         geom_node_text(aes(label = name), vjust = 1.8, size = 4) +
-        scale_edge_color_manual(
+        scale_edge_colour_manual(
             values = path.colours,
             breaks = path.names,
             labels = path.names,
@@ -58,6 +58,7 @@ S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1){
     return(p)
 }
 
+#' @importFrom igraph E k_shortest_paths get_edge_ids
 .path2any <- function(graph, from, to, k){
     # Find shortest path 
     sp <- k_shortest_paths(graph, from = from, to = to, k = k, mode = "all")
@@ -69,7 +70,7 @@ S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1){
     return(graph)
 }
 
-
+#' @importFrom igraph E k_shortest_paths neighbors
 .path2gbm <- function(graph, from, to, k) {
     # Find unique neighbours
     neighbours <- unique(neighbors(graph, from, mode = "all"))

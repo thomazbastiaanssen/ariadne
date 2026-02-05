@@ -138,6 +138,8 @@
     
     modules <- MultiFactor(modules)
     return(modules)
+    linkmap <- weave(modules, module ~ feature)
+    return(linkmap)
 }
 
 .process_tigrfams <- function(x){
