@@ -52,17 +52,33 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, timeout = 1e6){
                 y = gsub("^[^:]*:", "", names(kegg.link)),
                 row.names = NULL
             )
-        
-        }else if( graph_df$source[i] == "UniProt" ){
-              
-            # .querySPARQL(with uniref features from previous step)
-              
+        }else{
+          next
         }
+        
         # Add edge names
         colnames(df) <- c(graph_df$from[i], graph_df$to[i])
         # Append linkmap
-        linkmaps[[length(linkmaps) + 1]] <- df
+        linkmaps[[paste0(graph_df$from[i], "2", graph_df$to[i])]] <- df
     }
+    
+    for( i in seq_len(nrow(graph_df)) ){
+    
+        if( graph_df$source[i] == "UniProt" ){
+          
+            input.ind <- grepl(paste0(".+2", graph_df$from[i]), names(linkmaps))
+            uniref.vec <- unique(linkmaps[input.ind][[1]][ , graph_df$from[i]])
+            df <- SPARQLmap(uniref.vec[seq(1000)], .by = uniref ~ species)
+            df$uniref <- gsub(
+                "http://purl.uniprot.org/uniref/", "", df$uniref, fixed = TRUE
+            )
+            # Add edge names
+            colnames(df) <- c(graph_df$from[i], graph_df$to[i])
+            # Append linkmap
+            linkmaps[[paste0(graph_df$from[i], "2", graph_df$to[i])]] <- df
+        }
+    }
+    
     # Construct MultiFactor from linkmaps
     mf <- MultiFactor(linkmaps)
     # Weave desired linkmap from MultiFactor

@@ -66,7 +66,7 @@ Resources <- list(
         }
     ),
     KEGG = .create_resource(
-        from = c("pathway", "brite", kegg.mod = "module", "vg", "ag",
+        from = c("pathway", "brite", kegg_mod = "module", "vg", "ag",
                  "reaction", "rclass", "enzyme", "disease", "drug", "ec"),
         to = c("ko", "cpd")
     ),

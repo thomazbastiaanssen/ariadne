@@ -44,8 +44,3 @@ S7::method(ariadne, S7::class_list) <-
     }
     return(graph_df)
 }
-<<<<<<< HEAD
-
-
-=======
->>>>>>> devel
