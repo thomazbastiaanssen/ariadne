@@ -38,8 +38,8 @@ Resources <- list(
     GMM = .create_resource(
         repo = "https://github.com/omixer/omixer-rpmR/raw/refs/heads/main/inst/extdata/",
         version = "GMMs.v1.07.txt",
-        from = "mod",
-        to = "complex",
+        from = "gmm",
+        to = "ko",
         path = function(repo, version, from, to){
             paste0(repo, version)
         }
@@ -47,8 +47,8 @@ Resources <- list(
     GBM = .create_resource(
         repo = "https://github.com/omixer/omixer-rpmR/raw/refs/heads/main/inst/extdata/",
         version = "GBMs.v1.0.txt",
-        from = "mod",
-        to = "complex",
+        from = "gbm",
+        to = c("eggnog", "ko", "tigr"),
         path = function(repo, version, from, to){
             paste0(repo, version)
         }
@@ -56,8 +56,8 @@ Resources <- list(
     GO = .create_resource(
         repo = "https://current.geneontology.org/ontology/external2go/",
         from = c("ec", "hamap", "interpro", reaction = "kegg_reaction",
-            "metacyc", "reactome", "pfam", "pirsf", "prints", "prosite",
-            "reactome", "resid", "rfam", "rhea", "smart", "um-bbd_enzymeid",
+            "metacyc", "pfam", "pirsf", "prints", "prosite", "reactome",
+            "resid", "rfam", "rhea", "smart", "um-bbd_enzymeid",
             "um-bbd_pathwayid", "um-bbd_reactionid", "uniprotkb_kw",
             "uniprotkb_sl", "unirule", "wikipedia"),
         to = "go",

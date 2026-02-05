@@ -8,21 +8,30 @@
 S7::method(weavePath, igraph) <- function(graph, by, k = 1, timeout = 1e6){
     # Set timeout for downloads
     options(timeout = timeout)
+    # Initialise mark for files to download
+    E(graph)$mark <- 0
     # Extract vars from formula
     by.vars <- all.vars(by)
     # Assign from and to vars
     from <- by.vars[1]
     to <- by.vars[2]
-    # Find shortest path from A to C
-    sp <- k_shortest_paths(graph, from = from, to = to, k = k, mode = "all")
-    path_edges <- sp$epaths[[k]]  # edge IDs in path
+
+    if( to == "gbm" ){
+        to <- from
+        from <- "gbm"
+    }
+    
+    FUN <- ifelse(from == "gbm", .path2gbm, .path2any)
+    
+    graph <- FUN(graph, from, to, k)
     # Add edge attribute to download critical edges
-    E(graph)$download <- FALSE
-    E(graph)$download[path_edges] <- TRUE
+    E(graph)$mark <- E(graph)$mark != 0
     # Convert graph to data.frame
     graph_df <- as_data_frame(graph, what = "edges")
     # Select only edges to download
-    graph_df <- graph_df[graph_df$download, ]
+    graph_df <- graph_df[graph_df$mark, ]
+    # Remove duplicate file paths
+    graph_df <- graph_df[!duplicated(graph_df$path, incomparables = NA), ]
     # Initialise linkmap list
     linkmaps <- list()
     
@@ -44,6 +53,8 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, timeout = 1e6){
             )
         
         }else if( graph_df$source[i] %in% c("GBM", "GMM") ){
+        
+            # .process_complex_modules
             
             
         }else if( graph_df$source[i] == "UniProt" ){
@@ -58,6 +69,7 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, timeout = 1e6){
     }
     # Construct MultiFactor from linkmaps
     mf <- MultiFactor(linkmaps)
+    # return(mf)
     # Weave desired linkmap from MultiFactor
     linkmap <- weave(mf, by)
     return(linkmap)

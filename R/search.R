@@ -14,11 +14,11 @@ S7::method(searchPath, igraph) <- function(graph, by, k = 1){
     sp <- k_shortest_paths(graph, from = from, to = to, k = k, mode = "all")
     # Convert vertex IDs to names
     vertices <- lapply(
-        sp$vpath,
+        sp$vpaths,
         function(path) V(graph)$name[path]
     )
     edges <- lapply(
-        sp$epath,
+        sp$epaths,
         function(path) E(graph)$source[path]
     )
     
