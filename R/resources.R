@@ -70,10 +70,6 @@ Resources <- list(
                  "reaction", "rclass", "enzyme", "disease", "drug", "ec"),
         to = c("ko", "cpd")
     ),
-    UniProt = .create_resource(
-        from = c("uniref50", "uniref90"),
-        to = "taxonomy"
-    ),
     WoL = .create_resource(
         repo = "https://ftp.microbio.me/pub/",
         version = "wol-20April2021/",
@@ -95,5 +91,22 @@ Resources <- list(
         path = function(repo, version, from, to){
             paste0(repo, version, toupper(from), "_", toupper(to), "_LINK")
         }
+    ),
+    UniProt = .create_resource(
+      from = c("uniref50", "uniref90", "uniref100"),
+      to = c("taxname", "taxid", "uniprotkb", "ec")
+    ),
+    UniProt = .create_resource(
+        repo = "https://sparql.uniprot.org/",
+        from = "uniprotkb",
+        to = c(refseq = "RefSeq", "PIR", "CCDS", "EMBL", pdb = "PDB", "BioGRID",
+               "ComplexPortal", "DIP", "STRING", "ChEMBL", "DrugBank",
+               "GuidetoPHARMACOLOGY", "SwissLipids", "Allergome", "ESTHER",
+               "MEROPS", "PeroxiBase", "REBASE", "TCDB", "GlyConnect",
+               "BioMuta", "DMDM", "CPTAC", "ProteomicsDB", "DNASU", "Ensembl",
+               "GeneID", "KEGG", "PATRIC", "UCSC", "WBParaSite", eggnog = "eggNOG",
+               "GeneTree", "HOGENOM", "OMA", orthodb = "OrthoDB", "TreeFam", "BioCyc",
+               "PlantReactome", reactome = "Reactome", "UniPathway", "CollecTF","ChiTaRS",
+               "GeneWiki", "GenomeRNAi", "PHI-base", "DisProt", "IDEAL")
     )
 )

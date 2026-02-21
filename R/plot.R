@@ -18,13 +18,7 @@ S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1){
         from <- by.vars[1]
         to <- by.vars[2]
         
-        if( to == "gbm" ){
-            to <- from
-            from <- "gbm"
-        }
-        
-        FUN <- ifelse(from == "gbm", .path2gbm, .path2any)
-        
+        FUN <- ifelse("gbm" %in% by.vars, .path2gbm, .path2any)
         graph <- FUN(graph, from, to, k)
     }
     # Add edge attribute to mark edges in the path
@@ -72,6 +66,11 @@ S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1){
 
 #' @importFrom igraph E k_shortest_paths neighbors
 .path2gbm <- function(graph, from, to, k) {
+    # Flip direction if to is gbm
+    if( to == "gbm" ){
+        to <- from
+        from <- "gbm"
+    }
     # Find unique neighbours
     neighbours <- unique(neighbors(graph, from, mode = "all"))
     # Gather all paths for each intermediate node up to k

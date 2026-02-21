@@ -32,6 +32,7 @@ Imports:
     BiocFileCache,
     BiocParallel,
     ggraph,
+    httr,
     igraph,
     KEGGREST,
     methods,
@@ -42,7 +43,8 @@ Imports:
     Matrix,
     stringr,
     SummarizedExperiment,
-    TreeSummarizedExperiment
+    TreeSummarizedExperiment,
+    utils
 Suggests:
     BiocStyle,
     bugsigdbr,

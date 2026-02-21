@@ -15,14 +15,8 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, timeout = 1e6){
     # Assign from and to vars
     from <- by.vars[1]
     to <- by.vars[2]
-
-    if( to == "gbm" ){
-        to <- from
-        from <- "gbm"
-    }
     
-    FUN <- ifelse(from == "gbm", .path2gbm, .path2any)
-    
+    FUN <- ifelse("gbm" %in% by.vars, .path2gbm, .path2any)
     graph <- FUN(graph, from, to, k)
     # Add edge attribute to download critical edges
     E(graph)$mark <- E(graph)$mark != 0
