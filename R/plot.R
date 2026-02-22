@@ -3,13 +3,15 @@
 #' @rdname plotPath
 
 #' @importFrom igraph E
-#' @importFrom ggplot2 aes theme_void theme
+#' @importFrom ggplot2 aes scale_alpha theme_void theme
 #' @importFrom ggraph ggraph geom_edge_link geom_node_point geom_node_text
 #'   scale_edge_colour_manual
-S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1){
+S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1, rm.empty = FALSE){
     
     E(graph)$mark <- 0
     E(graph)$name <- ""
+    E(graph)$alpha <- 1
+    V(graph)$alpha <- 1
     
     if( !is.null(by) ){
       
@@ -21,6 +23,7 @@ S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1){
         FUN <- ifelse("gbm" %in% by.vars, .path2gbm, .path2any)
         graph <- FUN(graph, from, to, k)
     }
+    
     # Add edge attribute to mark edges in the path
     keep <- E(graph)$mark != 0
     E(graph)$name[keep] <- E(graph)$source[keep]
@@ -30,22 +33,29 @@ S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1){
     # Define path colours
     path.colours <- rainbow(num.paths)
     names(path.colours) <- path.names
+    # Create a vector for edge alpha: 1 if marked, else 0 (transparent)
+    if( rm.empty ){
+        E(graph)$alpha <- ifelse(E(graph)$mark != 0, 1, 0)
+        connected_nodes <- unique(c(ends(graph, E(graph)[E(graph)$mark != 0])))
+        V(graph)$alpha <- ifelse(V(graph)$name %in% connected_nodes, 1, 0)
+    }
     # Include grey for edges not in paths
     path.colours <- c(path.colours, "0" = "grey80")
     # Plot graph with edges marked and others faded
     p <- ggraph(graph, layout = "stress") +
         geom_edge_link(
-            aes(colour = factor(mark), label = name),
+            aes(colour = factor(mark), label = name, alpha = alpha),
             edge_width = 1.2, fontface = "bold",
             show.legend = TRUE) +
-        geom_node_point(size = 5, colour = "darkorange") +
-        geom_node_text(aes(label = name), vjust = 1.8, size = 4) +
+        geom_node_point(aes(alpha = alpha), size = 5, colour = "darkorange") +
+        geom_node_text(aes(label = name, alpha = alpha), vjust = 1.8, size = 4) +
         scale_edge_colour_manual(
             values = path.colours,
             breaks = path.names,
             labels = path.names,
             name = "Paths"
         ) +
+        scale_alpha(range = c(0, 1), guide = "none") +
         theme_void() +
         theme(legend.position = "bottom")
     

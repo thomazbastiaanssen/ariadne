@@ -93,7 +93,7 @@
 .endpoint_table <- function(endpoint){
   
     endpoint <- switch(endpoint,
-        uniprot = "https://sparql.uniprot.org/"
+        UniProt = "https://sparql.uniprot.org/"
     )
     
     return(endpoint)
@@ -201,7 +201,7 @@
         LIMIT ", limit
     )
     
-    iri_list <- .sendSPARQL(query, "uniprot")
+    iri_list <- .sendSPARQL(query, "UniProt")
     iri_list <- unlist(iri_list, use.names = FALSE)
     iri_list <- gsub("([^/]+)$", "", iri_list)
     iri <- unique(iri_list)

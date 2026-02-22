@@ -33,27 +33,28 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, timeout = 1e6){
     # Fetch resources in parallel
     linkmaps <- bplapply(
         seq_len(nrow(graph_df1)),
-        function(i) .fetch_resource(x[i])
+        function(i) .fetch_resource(graph_df1[i])
     )
+    # Add names to linkmaps
     names(linkmaps) <- paste0(graph_df1$from, "2", graph_df1$to)
     # Proceed with UniProt queries
     for( i in seq_len(nrow(graph_df2)) ){
     
-        if( graph_df$source[i] == "UniProt" ){
-          
-            input.ind <- grepl(paste0(".+2", graph_df$from[i]), names(linkmaps))
-            uniref.vec <- unique(linkmaps[input.ind][[1]][ , graph_df$from[i]])
-            df <- SPARQLmap(uniref.vec[seq(1000)], .by = uniref ~ species)
-            df$uniref <- gsub(
-                "http://purl.uniprot.org/uniref/", "", df$uniref, fixed = TRUE
-            )
-            # Add edge names
-            colnames(df) <- c(graph_df$from[i], graph_df$to[i])
-            # Append linkmap
-            linkmaps[[paste0(graph_df$from[i], "2", graph_df$to[i])]] <- df
-        }
+        input.ind <- grepl(paste0(".+2", graph_df2$from[i]), names(linkmaps))
+        x <- unique(linkmaps[input.ind][[1]][ , graph_df2$from[i]])
+        
+        from <- ifelse(grepl("uniref", graph_df2$from[i]), "uniref", graph_df2$from[i])
+        to <- ifelse(grepl("uniref", graph_df2$to[i]), "uniref", graph_df2$to[i])
+        
+        df <- .querySPARQL(x, from, to, graph_df2$source[i])
+        df <- apply(df, 2L, function(x) gsub("([^/]+)$", "", x), simplify = FALSE)
+        
+        # Add edge names
+        colnames(df) <- c(graph_df2$from[i], graph_df2$to[i])
+        # Append linkmap
+        linkmaps[[paste0(graph_df2$from[i], "2", graph_df2$to[i])]] <- df
     }
-    
+    return(linkmaps)
     # Construct MultiFactor from linkmaps
     mf <- MultiFactor(linkmaps)
     # Weave desired linkmap from MultiFactor
