@@ -23,40 +23,21 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, timeout = 1e6){
     # Convert graph to data.frame
     graph_df <- as_data_frame(graph, what = "edges")
     # Select only edges to download
-    graph_df <- graph_df[graph_df$mark, ]
+    graph_df <- graph_df[graph_df$mark, , drop = FALSE]
     # Remove duplicate file paths
     graph_df <- graph_df[!duplicated(graph_df$path, incomparables = NA), ]
-    # Initialise linkmap list
-    linkmaps <- list()
-    
-    for( i in seq_len(nrow(graph_df)) ){
-
-        if( graph_df$source[i] %in% c("ChocoPhlAn", "GBM", "GMM", "GO",
-                                      "TIGRFAMs", "WoL")){
-              
-            cached <- .cache_resource(graph_df$path[i], graph_df$source[i])
-            df <- read.csv(cached, colClasses = "character")
-                
-        }else if( graph_df$source[i] == "KEGG" ){
-                
-            kegg.link <- keggLink(graph_df$from[i], graph_df$to[i])
-                
-            df <- data.frame(
-                x = gsub("^[^:]*:", "", kegg.link),
-                y = gsub("^[^:]*:", "", names(kegg.link)),
-                row.names = NULL
-            )
-        }else{
-          next
-        }
-        
-        # Add edge names
-        colnames(df) <- c(graph_df$from[i], graph_df$to[i])
-        # Append linkmap
-        linkmaps[[paste0(graph_df$from[i], "2", graph_df$to[i])]] <- df
-    }
-    
-    for( i in seq_len(nrow(graph_df)) ){
+    # Split by UniProt which needs past linkmaps
+    uniprot_idx <- graph_df$source == "UniProt"
+    graph_df1 <- graph_df[!uniprot_idx, , drop = FALSE]
+    graph_df2 <- graph_df[uniprot_idx, , drop = FALSE]
+    # Fetch resources in parallel
+    linkmaps <- bplapply(
+        seq_len(nrow(graph_df1)),
+        function(i) .fetch_resource(x[i])
+    )
+    names(linkmaps) <- paste0(graph_df1$from, "2", graph_df1$to)
+    # Proceed with UniProt queries
+    for( i in seq_len(nrow(graph_df2)) ){
     
         if( graph_df$source[i] == "UniProt" ){
           
@@ -78,4 +59,30 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, timeout = 1e6){
     # Weave desired linkmap from MultiFactor
     linkmap <- weave(mf, by)
     return(linkmap)
+}
+
+
+
+.fetch_resource <- function(g){
+    
+    if( g$source[i] %in% c("ChocoPhlAn", "GBM", "GMM", "GO", "TIGRFAMs", "WoL")){
+    
+        cached <- .cache_resource(g$path[i], g$source[i])
+        df <- read.csv(cached, colClasses = "character")
+    
+    }else if( g$source[i] == "KEGG" ){
+    
+        kegg.link <- keggLink(g$from[i], g$to[i])
+        
+        df <- data.frame(
+            x = gsub("^[^:]*:", "", kegg.link),
+            y = gsub("^[^:]*:", "", names(kegg.link)),
+            row.names = NULL
+        )
+    
+    }
+    
+    # Add edge names
+    colnames(df) <- c(g$from[i], g$to[i])
+    return(df)
 }
