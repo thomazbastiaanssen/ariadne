@@ -1,62 +1,57 @@
 
 
 #' @importFrom BiocFileCache BiocFileCache bfcquery bfcadd 
+#' @importFrom arrow write_parquet
 .cache_resource <- function(url, resource) {
-
-  cache <- tools::R_user_dir("ariadne", "cache")
-  bfc <- BiocFileCache(cache, ask = FALSE)
+    # Initialise cache
+    cache <- tools::R_user_dir("ariadne", "cache")
+    bfc <- BiocFileCache(cache, ask = FALSE)
+    # Build resource name
+    rname <- file.path(resource, basename(url))
+    # Check if preprocessed file is cached
+    cached <- bfcquery(bfc, rname)$rpath
+    # If preprocessed file found in cache
+    if( length(cached) > 0L ){
+        # Return path
+        return(cached[1])
+    }
+    # Find path for cache subdir
+    path <- file.path(cache, rname)
+    subdir <- dirname(path)
+    # Create subdir if absent
+    if( !dir.exists(subdir) ){
+        dir.create(subdir)
+    }
+    # Download raw file
+    download.file(url, path)
+    # Select function based on resource
+    FUN <- switch(
+        resource,
+        ChocoPhlAn = .process_chocophlan,
+        GBM = .process_complex_modules,
+        GMM = .process_complex_modules,
+        GO = .process_go,
+        TIGRFAMs = .process_tigrfams,
+        WoL = .process_wol
+    )
   
-  rname <- file.path(resource, basename(url))
-  
-  # Check if preprocessed file is cached
-  cached <- bfcquery(bfc, rname)$rpath
-  
-  # If preprocessed file found in cache
-  if( length(cached) > 0L ){
-      # Return path
-      return(cached[1])
-  }
-  
-  path <- file.path(cache, rname)
-  subdir <- dirname(path)
-  
-  if( !dir.exists(subdir) ){
-      dir.create(subdir)
-  }
-  
-  # Download raw file
-  download.file(url, path)
-
-  FUN <- switch(
-      resource,
-      ChocoPhlAn = .process_chocophlan,
-      GBM = .process_complex_modules,
-      GMM = .process_complex_modules,
-      GO = .process_go,
-      TIGRFAMs = .process_tigrfams,
-      WoL = .process_wol
-  )
-
-  # Read file content
-  x <- readLines(path)
-  # Preprocess data
-  linkmap <- FUN(x)
-  
-  # Store preprocessed data
-  write.csv(linkmap, path, row.names = FALSE)
-  
-  # Cache the preprocessed file using URL as resource name
-  bfcadd(
-      bfc,
-      rname = rname,
-      fpath = path,
-      fname = "exact",
-      action = "asis"
-  )
-
-  # Return path to cached preprocessed file
-  cached <- bfcquery(bfc, rname)$rpath
-  return(cached)
+    # Read file content
+    x <- readLines(path)
+    # Preprocess data
+    linkmap <- FUN(x)
+    # Store preprocessed data
+    write_parquet(linkmap, path)
+    # Cache the preprocessed file using URL as resource name
+    bfcadd(
+        bfc,
+        rname = rname,
+        fpath = path,
+        fname = "exact",
+        action = "asis"
+    )
+    # Return path to cached preprocessed file
+    cached <- bfcquery(bfc, rname)$rpath
+    return(cached)
 }
 
 
@@ -69,8 +64,8 @@
     values <- lapply(line.content, `[`, -1L)
     # Create linkmap
     linkmap <- data.frame(
-      x = rep(keys, lengths(values, use.names = FALSE)),
-      y = unlist(values, recursive = TRUE, use.names = FALSE)
+        x = rep(keys, lengths(values, use.names = FALSE)),
+        y = unlist(values, recursive = TRUE, use.names = FALSE)
     )
     # Remove GO id prefix ending with :
     linkmap$x <- gsub("GO:", "", linkmap$x, fixed = TRUE)
@@ -95,7 +90,6 @@
     linkmap <- data.frame(
         x = gsub("^[^:]*:", "", linkmap[, 1]),
         y = gsub("^[^:]*:", "", linkmap[, 2]),
-        row.names = NULL
     )
     return(linkmap)
 }

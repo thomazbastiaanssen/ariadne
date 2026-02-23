@@ -4,7 +4,7 @@
 
 #' @importFrom igraph E<- k_shortest_paths as_data_frame
 #' @importFrom MultiFactor MultiFactor
-#' @importFrom KEGGREST keggLink
+#' @importFrom BiocParallel bplapply
 S7::method(weavePath, igraph) <- function(graph, by, k = 1, timeout = 1e6){
     # Set timeout for downloads
     options(timeout = timeout)
@@ -31,9 +31,9 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, timeout = 1e6){
     graph_df1 <- graph_df[!uniprot_idx, , drop = FALSE]
     graph_df2 <- graph_df[uniprot_idx, , drop = FALSE]
     # Fetch resources in parallel
-    linkmaps <- bplapply(
+    linkmaps <- lapply(
         seq_len(nrow(graph_df1)),
-        function(i) .fetch_resource(graph_df1[i])
+        function(i) .fetch_resource(graph_df1[i, ])
     )
     # Add names to linkmaps
     names(linkmaps) <- paste0(graph_df1$from, "2", graph_df1$to)
@@ -64,16 +64,18 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, timeout = 1e6){
 
 
 
+#' @importFrom KEGGREST keggLink
+#' @importFrom arrow read_parquet
 .fetch_resource <- function(g){
     
-    if( g$source[i] %in% c("ChocoPhlAn", "GBM", "GMM", "GO", "TIGRFAMs", "WoL")){
+    if( g$source %in% c("ChocoPhlAn", "GBM", "GMM", "GO", "TIGRFAMs", "WoL")){
     
-        cached <- .cache_resource(g$path[i], g$source[i])
-        df <- read.csv(cached, colClasses = "character")
+        cached <- .cache_resource(g$path, g$source)
+        df <- read_parquet(cached)
     
-    }else if( g$source[i] == "KEGG" ){
+    }else if( g$source == "KEGG" ){
     
-        kegg.link <- keggLink(g$from[i], g$to[i])
+        kegg.link <- keggLink(g$from, g$to)
         
         df <- data.frame(
             x = gsub("^[^:]*:", "", kegg.link),
@@ -84,6 +86,6 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, timeout = 1e6){
     }
     
     # Add edge names
-    colnames(df) <- c(g$from[i], g$to[i])
+    colnames(df) <- c(g$from, g$to)
     return(df)
 }

@@ -1,15 +1,13 @@
+devtools::load_all()
 
 graph <- ariadne(Resources)
 
-plotPath(graph)
+plotPath(graph, gbm ~ uniref50, k = 3, rm.empty = TRUE)
 
-searchPath(graph, refseq ~ rhea, k = 5)
+linkmaps <- weavePath(graph, gbm ~ uniref50, k = 3)
 
-plotPath(graph, refseq ~ rhea, k = 2)
+mff <- MultiFactor(lapply(linkmaps, function(x) head(x, 100000)))
 
-# takes long
-# linkmap <- weavePath(graph, refseq ~ rhea, k = 2)
+lmp <- .stack_by_formula(mff, gbm ~ ko + eggnog + tigr)
 
-# takes less long
-linkmap <- weavePath(graph, ko ~ eggnog, k = 2)
 

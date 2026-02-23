@@ -111,15 +111,16 @@
         ?member up:organism ?taxid.
     "
     
-    uniref2taxname <- paste0(
-        uniref2taxid,
-        "# Bind taxa to scientific names and ranks
+    taxname2taxid <- "
+        # Bind taxa to scientific names and ranks
         ?taxid up:scientificName ?sciName; up:rank ?rank.
-        
+    
         # Process name to prefix__taxon format
         BIND(lcase(substr(strafter(str(?rank), 'Rank_'), 1, 1)) as ?prefix)
         BIND(concat(?prefix, '__', ?sciName) as ?taxname)
-    ")
+    "
+    
+    uniref2taxname <- paste0(uniref2taxid, taxname2taxid)
     
     uniref2uniprotkb <- "
         ?uniprotkb up:representativeFor ?uniref.
@@ -146,6 +147,7 @@
     triple <- switch(
         key,
         uniref2taxid = uniref2taxid,
+        taxname2taxid = taxname2taxid,
         uniref2taxname = uniref2taxname,
         uniref2uniprotkb = uniref2uniprotkb,
         uniref2ec = uniref2ec,

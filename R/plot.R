@@ -2,16 +2,19 @@
 #' @name plotPath
 #' @rdname plotPath
 
-#' @importFrom igraph E
+#' @importFrom igraph E V E<- V<- ends
 #' @importFrom ggplot2 aes scale_alpha theme_void theme
 #' @importFrom ggraph ggraph geom_edge_link geom_node_point geom_node_text
 #'   scale_edge_colour_manual
 S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1, rm.empty = FALSE){
-    
+    if( rm.empty && is.null(by) ){
+        stop("'rm.empty' can be TRUE when 'by' is defined.", call. = FALSE)
+    }
     E(graph)$mark <- 0
     E(graph)$name <- ""
     E(graph)$alpha <- 1
     V(graph)$alpha <- 1
+    alpha_min <- 1
     
     if( !is.null(by) ){
       
@@ -38,6 +41,7 @@ S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1, rm.empty = FAL
         E(graph)$alpha <- ifelse(E(graph)$mark != 0, 1, 0)
         connected_nodes <- unique(c(ends(graph, E(graph)[E(graph)$mark != 0])))
         V(graph)$alpha <- ifelse(V(graph)$name %in% connected_nodes, 1, 0)
+        alpha_min <- 0
     }
     # Include grey for edges not in paths
     path.colours <- c(path.colours, "0" = "grey80")
@@ -55,7 +59,7 @@ S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1, rm.empty = FAL
             labels = path.names,
             name = "Paths"
         ) +
-        scale_alpha(range = c(0, 1), guide = "none") +
+        scale_alpha(range = c(alpha_min, 1), guide = "none") +
         theme_void() +
         theme(legend.position = "bottom")
     

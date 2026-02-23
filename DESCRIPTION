@@ -29,6 +29,7 @@ Encoding: UTF-8
 Depends:
     R (>= 4.1)
 Imports:
+    arrow,
     BiocFileCache,
     BiocParallel,
     ggraph,
