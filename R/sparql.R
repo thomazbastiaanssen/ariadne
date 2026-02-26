@@ -34,7 +34,8 @@
 
 
 #' @importFrom utils URLencode read.csv
-#' @importFrom httr GET timeout add_headers stop_for_status content
+#' @importFrom httr2 request req_headers req_timeout req_perform
+#'    resp_check_status resp_body_string
 #' @noRd
 .sendSPARQL <- function(query, endpoint, timeout = 1e6) {
     # Get base URL from endpoint table
@@ -43,17 +44,17 @@
     query <- URLencode(query, reserved = TRUE)
     # Construct full URL by appending query parameter
     query <- paste0(endpoint, "?query=", query)
-    # Send GET request with Accept header for CSV format
-    response <- GET(
-        query,
-        timeout(timeout),
-        add_headers(Accept = "text/csv")
-    )
+    # Build request with Accept header for CSV format
+    req <- request(query) |>
+        req_headers(Accept = "text/csv") |>
+        req_timeout(timeout)
+    # Get response
+    resp <- req_perform(req)
     # Check for HTTP errors
-    stop_for_status(response)
+    resp_check_status(resp)
     # Parse CSV content into data frame
     linkmap <- read.csv(
-        textConnection(content(response, "text", encoding = "UTF-8")),
+        text = resp_body_string(resp),
         stringsAsFactors = FALSE
     )
     return(linkmap)

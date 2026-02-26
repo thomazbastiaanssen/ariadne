@@ -1,10 +1,11 @@
 
 
-#' @importFrom BiocFileCache BiocFileCache bfcquery bfcadd 
+#' @importFrom BiocFileCache BiocFileCache bfcquery bfcadd
+#' @importFrom tools R_user_dir
 #' @importFrom arrow write_parquet
 .cache_resource <- function(url, resource) {
     # Initialise cache
-    cache <- tools::R_user_dir("ariadne", "cache")
+    cache <- R_user_dir("ariadne", "cache")
     bfc <- BiocFileCache(cache, ask = FALSE)
     # Build resource name
     rname <- file.path(resource, basename(url))
