@@ -2,20 +2,21 @@
 % Please edit documentation in R/sparql.R
 \name{SPARQLmap}
 \alias{SPARQLmap}
+\alias{.querySPARQL}
 \title{SPARQLmap}
 \usage{
-SPARQLmap(x, x.type = "uniref", .by = NULL, endpoint = "uniprot")
+.querySPARQL(x, from, to, endpoint, timeout = 1e+06)
 }
 \arguments{
 \item{x}{\verb{Character vector}. Optional. Feature IDs on which the query should
 be constrained.}
 
+\item{endpoint}{The SPARQL endpoint (a URL)}
+
 \item{x.type}{\verb{Character scalar}. Feature type of \code{x}. (Default: \code{"uniref"})}
 
 \item{.by}{either a \code{formula}, or a \verb{Character vector} of length 2,  with the
 names of the desired combination of feature types.}
-
-\item{endpoint}{The SPARQL endpoint (a URL)}
 }
 \value{
 a data.frame of desired query.

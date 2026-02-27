@@ -6,9 +6,9 @@
 #' @importFrom ggplot2 aes scale_alpha theme_void theme
 #' @importFrom ggraph ggraph geom_edge_link geom_node_point geom_node_text
 #'   scale_edge_colour_manual
-S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1, rm.empty = FALSE){
-    if( rm.empty && is.null(by) ){
-        stop("'rm.empty' can be TRUE when 'by' is defined.", call. = FALSE)
+S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1, focus = FALSE){
+    if( focus && is.null(by) ){
+        stop("'focus' can be TRUE when 'by' is defined.", call. = FALSE)
     }
     E(graph)$mark <- 0
     E(graph)$name <- ""
@@ -37,7 +37,7 @@ S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1, rm.empty = FAL
     path.colours <- rainbow(num.paths)
     names(path.colours) <- path.names
     # Create a vector for edge alpha: 1 if marked, else 0 (transparent)
-    if( rm.empty ){
+    if( focus ){
         E(graph)$alpha <- ifelse(E(graph)$mark != 0, 1, 0)
         connected_nodes <- unique(c(ends(graph, E(graph)[E(graph)$mark != 0])))
         V(graph)$alpha <- ifelse(V(graph)$name %in% connected_nodes, 1, 0)
@@ -50,7 +50,8 @@ S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1, rm.empty = FAL
         geom_edge_link(
             aes(colour = factor(mark), label = name, alpha = alpha),
             edge_width = 1.2, fontface = "bold",
-            show.legend = TRUE) +
+            show.legend = TRUE
+        ) +
         geom_node_point(aes(alpha = alpha), size = 5, colour = "darkorange") +
         geom_node_text(aes(label = name, alpha = alpha), vjust = 1.8, size = 4) +
         scale_edge_colour_manual(

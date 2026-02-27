@@ -11,18 +11,13 @@
     rname <- file.path(resource, basename(url))
     # Check if preprocessed file is cached
     cached <- bfcquery(bfc, rname)$rpath
-    # If preprocessed file found in cache
-    if( length(cached) > 0L ){
-        # Return path
-        return(cached[1])
-    }
+    # Return preprocessed file if available
+    if (length(cached) > 0L) return(cached[1])
     # Find path for cache subdir
     path <- file.path(cache, rname)
     subdir <- dirname(path)
     # Create subdir if absent
-    if( !dir.exists(subdir) ){
-        dir.create(subdir)
-    }
+    if (!dir.exists(subdir)) dir.create(subdir, recursive = TRUE)
     # Download raw file
     download.file(url, path)
     # Select function based on resource
@@ -90,7 +85,7 @@
     # Trim prefix ending with :
     linkmap <- data.frame(
         x = gsub("^[^:]*:", "", linkmap[, 1]),
-        y = gsub("^[^:]*:", "", linkmap[, 2]),
+        y = gsub("^[^:]*:", "", linkmap[, 2])
     )
     return(linkmap)
 }

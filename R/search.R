@@ -13,14 +13,8 @@ S7::method(searchPath, igraph) <- function(graph, by, k = 1){
     # Find shortest path 
     sp <- k_shortest_paths(graph, from = from, to = to, k = k, mode = "all")
     # Convert vertex IDs to names
-    vertices <- lapply(
-        sp$vpaths,
-        function(path) V(graph)$name[path]
-    )
-    edges <- lapply(
-        sp$epaths,
-        function(path) E(graph)$source[path]
-    )
+    vertices <- lapply(sp$vpaths, function(path) V(graph)$name[path])
+    edges <- lapply(sp$epaths, function(path) E(graph)$source[path])
     
     paths <- mapply(
         function(nodes, labels) {
@@ -31,4 +25,26 @@ S7::method(searchPath, igraph) <- function(graph, by, k = 1){
     )
 
     return(paths)
+}
+
+
+
+
+.draw_path <- function(graph, from, to, k){
+  
+    sp <- k_shortest_paths(graph, from = from, to = to, k = k, mode = "all")
+    
+    edge_idx <- sp$epaths[[k]]
+    node_idx <- sp$vpaths[[k]]
+    
+    edges <- E(graph)$source[edge_idx]
+    nodes <- V(graph)$name[node_idx]
+    
+    path_df <- data.frame(
+        from = nodes[-length(nodes)],
+        to = nodes[-1],
+        source = edges
+    )
+    
+    return(path_df)
 }
