@@ -3,7 +3,7 @@
 #' @importFrom BiocFileCache BiocFileCache bfcquery bfcadd
 #' @importFrom tools R_user_dir
 #' @importFrom arrow write_parquet
-.cache_resource <- function(url, resource) {
+.cache_resource <- function(url, resource, col.names) {
     # Initialise cache
     cache <- R_user_dir("ariadne", "cache")
     bfc <- BiocFileCache(cache, ask = FALSE)
@@ -24,26 +24,22 @@
     FUN <- switch(
         resource,
         ChocoPhlAn = .process_chocophlan,
-        GBM = .process_complex_modules,
-        GMM = .process_complex_modules,
+        GM = .process_complex_modules,
         GO = .process_go,
         TIGRFAMs = .process_tigrfams,
         WoL = .process_wol
     )
-  
     # Read file content
     x <- readLines(path)
     # Preprocess data
     linkmap <- FUN(x)
+    # Add colnames
+    colnames(linkmap) <- col.names
     # Store preprocessed data
     write_parquet(linkmap, path)
     # Cache the preprocessed file using URL as resource name
     bfcadd(
-        bfc,
-        rname = rname,
-        fpath = path,
-        fname = "exact",
-        action = "asis"
+        bfc, rname = rname, fpath = path, fname = "exact", action = "asis"
     )
     # Return path to cached preprocessed file
     cached <- bfcquery(bfc, rname)$rpath
@@ -128,8 +124,8 @@
         )
     )
     modules <- MultiFactor(modules)
-    linkmap <- weave(modules, module ~ feature)
-    return(linkmap)
+    #linkmap <- weave(modules, module ~ feature)
+    return(modules)
 }
 
 .process_tigrfams <- function(x){

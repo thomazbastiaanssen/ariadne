@@ -21,9 +21,9 @@
 #'
 #' SPARQLmap(x, .by = uniref ~ species,  endpoint = "uniprot")
 #'
-.querySPARQL <- function(x, from, to, endpoint, timeout = 1e6){
+.querySPARQL <- function(from, to, endpoint, init, timeout){
     
-    query <- .composeSPARQL(x, from, to)
+    query <- .composeSPARQL(from, to, init)
     
     out <- .sendSPARQL(query, endpoint, timeout)
     
@@ -35,19 +35,18 @@
 
 #' @importFrom utils URLencode read.csv
 #' @importFrom httr2 request req_headers req_timeout req_perform
-#'    resp_check_status resp_body_string
+#'    resp_check_status resp_body_string req_body_form
 #' @noRd
-.sendSPARQL <- function(query, endpoint, timeout = 1e6) {
+.sendSPARQL <- function(query, endpoint, timeout) {
     # Get base URL from endpoint table
     endpoint <- .endpoint_table(endpoint)
-    # URL-encode only the query string (the SPARQL query)
-    query <- URLencode(query, reserved = TRUE)
-    # Construct full URL by appending query parameter
-    query <- paste0(endpoint, "?query=", query)
     # Build request with Accept header for CSV format
-    req <- request(query) |>
+    req <- request(endpoint) |>
+        req_method("POST") |>
+        req_body_form(query = query) |>
         req_headers(Accept = "text/csv") |>
         req_timeout(timeout)
+    
     # Get response
     resp <- req_perform(req)
     # Check for HTTP errors
@@ -62,29 +61,36 @@
 
 
 #' @importFrom utils URLencode
-.composeSPARQL <- function(x, from, to) {
-    
-    if( length(x) == 0L ){
-        stop("No binding found", call. = FALSE)
-    }
+.composeSPARQL <- function(from, to, init) {
     
     preface <- "
         PREFIX up: <http://purl.uniprot.org/core/>
         PREFIX uniref: <http://purl.uniprot.org/uniref/>
+        PREFIX taxon: <http://purl.uniprot.org/taxonomy/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     "
-    
-    triple <- .triple_table(from, to)
 
     clause <- paste0("
         SELECT DISTINCT ?", paste0(c(from, to), collapse = " ?"), "
         WHERE {
-            VALUES ?", from, " {\n",
-                paste0(.iri_table(x, from), collapse = " "), "\n",
-            "}",
-            triple,
-        "}"
+        "
     )
+    
+    if( !is.null(init) && length(init) != 0L ){
+        
+        spec.from <- ifelse(from == "taxname", "sciName", from)
+        
+        clause <- paste0(
+            clause,
+            "VALUES ?", spec.from, " {\n",
+                paste0(.iri_table(init, from), collapse = " "), "\n",
+            "}\n"
+        )
+    }
+    
+    triple <- .triple_table(from, to)
+    
+    clause <- paste0(clause, triple, "\n}")
     # Build query
     query <- paste0(preface, clause)
     return(query)
@@ -127,18 +133,18 @@
         ?uniprotkb up:representativeFor ?uniref.
     "
     
-    uniprotkb2ec <- "
-        ?uniprotkb ( up:enzyme | up:domain/up:enzyme | up:component/up:enzyme ) ?ec.
+    uniprotkb2enzyme <- "
+        ?uniprotkb ( up:enzyme | up:domain/up:enzyme | up:component/up:enzyme ) ?enzyme.
     "
     
-    uniref2ec <- paste0(uniref2uniprotkb, uniprotkb2ec)
+    uniref2enzyme <- paste0(uniref2uniprotkb, uniprotkb2enzyme)
     
-    external <- spterms[!spterms %in% c("uniref", "uniprotkb", "taxid", "taxname", "ec")]
-    
+    ext <- spterms[!spterms %in% c("uniref", "uniprotkb", "taxname", "taxid", "enzyme")]
+
     uniprotkb2external <- paste0("
         ?uniprotkb a up:Protein.
-        ?uniprotkb rdfs:seeAlso ?", external, ".
-        ?", external, " up:database <http://purl.uniprot.org/database/", external, ">.
+        ?uniprotkb rdfs:seeAlso ?", ext, ".
+        ?", ext, " up:database <http://purl.uniprot.org/database/", ext, ">.
     ")
     
     uniref2external <- paste0(uniref2uniprotkb, uniprotkb2external)
@@ -151,12 +157,12 @@
         taxname2taxid = taxname2taxid,
         uniref2taxname = uniref2taxname,
         uniref2uniprotkb = uniref2uniprotkb,
-        uniref2ec = uniref2ec,
-        uniprotkb2ec = uniprotkb2ec,
+        uniref2enzyme = uniref2enzyme,
+        uniprotkb2enzyme = uniprotkb2enzyme,
         "external"
     )
     
-    if( triple == "external" && "uniprotkb" %in% spterms){
+    if( triple == "external" && "uniprotkb" %in% spterms ){
         triple <- uniprotkb2external
     }else if( triple == "external" && "uniref" %in% spterms ){
         triple <- uniref2external
@@ -170,24 +176,25 @@
     
     iri <- switch(
         from,
-        "uniref" = "uniref",
-        "taxid" = ,
-        "taxname" = ,
-        "uniprotkb" = "up",
-        "ec" = "enzyme",
+        uniprotkb = "up",
+        uniref = "uniref",
+        taxid = "taxon",
+        taxname = "",
+        enzyme = "enzyme",
         "external"
     )
 
     if( iri == "external" ){
         iri <- .get_external_iri(from)
         x <- paste0("<", iri, x, ">")
-    }else(
+    }else if( iri == "" ){
+        x <- paste0("'", x, "'")
+    }else{
         x <- paste0(iri, ":", x)
-    )
+    }
     
     return(x)
 }
-
 
 
 .get_external_iri <- function(ext, limit = 10) {
@@ -209,7 +216,7 @@
     iri_list <- gsub("([^/]+)$", "", iri_list)
     iri <- unique(iri_list)
     
-    if( length(iri) != 1L ){
+    if( length(iri) > 1L ){
         stop("Multiple prefixes were found in the selected database",
             call. = FALSE)
     }

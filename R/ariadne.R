@@ -7,7 +7,6 @@
 #' @importFrom igraph read_graph as_data_frame graph_from_data_frame
 #' @importFrom tools R_user_dir
 ariadne <- function(versions = NULL){
-    
     # Initialise database
     db <- R_user_dir("ariadne", "data")
     # Define database url
@@ -81,7 +80,7 @@ ariadne <- function(versions = NULL){
 
 .generic2specific <- function(edges, nodes, what = c("from", "to")){
     # Match
-    idx <- match(edges[ , what], nodes$name)
+    idx <- match(edges[[what]], nodes$name)
     idy <- match(edges$source, names(nodes))
     
     specific <- nodes[cbind(idx, idy)]
@@ -102,8 +101,8 @@ meta <- list(
 )
 
 meta <- data.frame(
-  name = names(meta),
-  repo = unlist(meta, use.names = FALSE)
+    name = names(meta),
+    repo = unlist(meta, use.names = FALSE)
 )
 
 ###
