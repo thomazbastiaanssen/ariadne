@@ -1,34 +1,18 @@
-#' @title SPARQLmap
-#' @name SPARQLmap
-#' @param x `Character vector`. Optional. Feature IDs on which the query should
-#'     be constrained.
-#' @param x.type `Character scalar`. Feature type of `x`. (Default: `"uniref"`)
-#' @param .by either a `formula`, or a `Character vector` of length 2,  with the
-#'      names of the desired combination of feature types.
-#' @param endpoint The SPARQL endpoint (a URL)
-#' @returns a data.frame of desired query.
-#' @examples
-#'
-#'
-#'x <- paste0(
-#'    "UniRef90_",
-#'    c("A0A010PZR5", "A0A010PZT4", "A0A010PZU0", "A0A010PZV8",
-#'    "A0A010PZW7", "A0A010Q006", "A0A010Q047", "A0A010Q0B1")
-#'    )
-#'
-#'
-#' SPARQLmap(x, .by = uniref ~ ec,  endpoint = "uniprot")
-#'
-#' SPARQLmap(x, .by = uniref ~ species,  endpoint = "uniprot")
-#'
-.querySPARQL <- function(from, to, endpoint, init, timeout){
+
+#' @importFrom BiocParallel bplapply
+.querySPARQL <- function(from, to, endpoint, init, timeout,
+    batch.size = 25000, workers = NULL, factor = 3){
     
-    query <- .composeSPARQL(from, to, init)
+    ranges <- .get_batches(init, batch.size, workers, factor)
     
-    out <- .sendSPARQL(query, endpoint, timeout)
+    out.list <- bplapply(ranges, function(i){
+        x <- init[i[1]:i[2]]
+        query <- .composeSPARQL(from, to, x)
+        resp <- .sendSPARQL(query, endpoint, timeout)
+    })
     
+    out <- do.call(rbind, out.list)
     colnames(out) <- c(from, to)
-    
     return(out)
 }
 
@@ -36,7 +20,6 @@
 #' @importFrom utils URLencode read.csv
 #' @importFrom httr2 request req_headers req_timeout req_perform
 #'    resp_check_status resp_body_string req_body_form
-#' @noRd
 .sendSPARQL <- function(query, endpoint, timeout) {
     # Get base URL from endpoint table
     endpoint <- .endpoint_table(endpoint)
@@ -46,11 +29,8 @@
         req_body_form(query = query) |>
         req_headers(Accept = "text/csv") |>
         req_timeout(timeout)
-    
     # Get response
     resp <- req_perform(req)
-    # Check for HTTP errors
-    resp_check_status(resp)
     # Parse CSV content into data frame
     linkmap <- read.csv(
         text = resp_body_string(resp),
@@ -60,7 +40,6 @@
 }
 
 
-#' @importFrom utils URLencode
 .composeSPARQL <- function(from, to, init) {
     
     preface <- "
@@ -211,7 +190,7 @@
         LIMIT ", limit
     )
     
-    iri_list <- .sendSPARQL(query, "UniProt")
+    iri_list <- .sendSPARQL(query, "UniProt", 1e6)
     iri_list <- unlist(iri_list, use.names = FALSE)
     iri_list <- gsub("([^/]+)$", "", iri_list)
     iri <- unique(iri_list)

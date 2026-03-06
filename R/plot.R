@@ -88,33 +88,21 @@ S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1, focus = FALSE)
     }
     # Find unique neighbours
     neighbours <- unique(neighbors(graph, from, mode = "all"))
-    # Gather all paths for each intermediate node up to k
-    paths <- list()
-    for (i in seq_along(neighbours)) {
+    # Find number of neighbours
+    num.neighbours <- sum(lengths(neighbours))
+    # Generate indices to make minimum set of paths
+    path.comb <- .generate_path_combos(k, num.neighbours)
+    
+    for (i in seq_along(path.comb)) {
+        # Select k
+        j <- path.comb[[i]]
+        # Gather k path for each intermediate node
         sp <- k_shortest_paths(
-            graph, from = neighbours[i], to = to, k = k, mode = "all"
+            graph, from = neighbours[i], to = to, k = j, mode = "all"
         )
-        paths[[i]] <- sp$epaths[1:min(k, length(sp$epaths))]
-    }
-    # Number of paths per neighbor
-    num.paths <- lengths(paths)
-    # Generate all combinations of path indices
-    comb.indices <- expand.grid(lapply(num.paths, function(n) seq_len(n)))
-    # Calculate the max coordinate per row
-    comb.indices$max_val <- apply(comb.indices, 1, max)
-    
-    var_cols <- setdiff(names(comb.indices), "max_val")
-    comb.order <- do.call(order, as.list(comb.indices[, c("max_val", var_cols)]))
-    
-    # Order by max_val, then lex order
-    comb.indices <- comb.indices[comb.order, ]
-    # Select the k-th combination of paths
-    chosen.comb <- comb.indices[k, var_cols]
-    # Assign unique mark per neighbour to colour edges accordingly
-    for (i in seq_along(chosen.comb)) {
-        path.edges <- unlist(paths[[i]][[chosen.comb[[i]]]], use.names = FALSE)
-        # Assign mark to these edges
-        E(graph)$mark[path.edges] <- i
+        edges <- unlist(sp$epaths[[j]], use.names = FALSE)
+        # Assign unique mark to these edges
+        E(graph)$mark[edges] <- i
     }
     # Add edges from 'from' to intermediate nodes (original edges)
     from_id <- which(V(graph)$name == from)
@@ -126,7 +114,24 @@ S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1, focus = FALSE)
             E(graph)$mark[eid] <- i
         }
     }
-    
     return(graph)
 }
 
+
+.generate_path_comb <- function(k, j){
+    # Find minimum number of paths per neighbour
+    num.paths <- rep(ceiling(k^(1 / j)), j)
+    # Generate all combinations of path indices
+    comb.indices <- expand.grid(lapply(num.paths, function(n) seq_len(n)))
+    # Calculate the max coordinate per row
+    comb.indices$max_val <- apply(comb.indices, 1L, max)
+    
+    var_cols <- setdiff(names(comb.indices), "max_val")
+    comb.order <- do.call(order, as.list(comb.indices[, c("max_val", var_cols)]))
+    # Order by max_val, then lex order
+    comb.indices <- comb.indices[comb.order, ]
+    rownames(comb.indices) <- NULL
+    # Select the k-th combination of paths
+    path.comb <- comb.indices[k, var_cols]
+    return(path.comb)
+}

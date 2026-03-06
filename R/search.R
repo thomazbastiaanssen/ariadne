@@ -28,23 +28,33 @@ S7::method(searchPath, igraph) <- function(graph, by, k = 1){
 }
 
 
-
-
 .draw_path <- function(graph, from, to, k){
-  
-    sp <- k_shortest_paths(graph, from = from, to = to, k = k, mode = "all")
     
-    edge_idx <- sp$epaths[[k]]
-    node_idx <- sp$vpaths[[k]]
+    path.comb <- .generate_path_comb(k, length(to))
     
-    edges <- E(graph)$source[edge_idx]
-    nodes <- V(graph)$name[node_idx]
+    path_dfs <- list()
     
-    path_df <- data.frame(
-        from = nodes[-length(nodes)],
-        to = nodes[-1],
-        source = edges
-    )
+    for( i in seq_along(path.comb) ){
+        
+        j <- path.comb[[i]]
+        
+        sp <- k_shortest_paths(
+            graph, from = from, to = to[[i]], k = j, mode = "all"
+        )
+        
+        edge_idx <- sp$epaths[[j]]
+        node_idx <- sp$vpaths[[j]]
+        
+        edges <- E(graph)$source[edge_idx]
+        nodes <- V(graph)$name[node_idx]
+        
+        path_dfs[[i]] <- data.frame(
+            from = nodes[-length(nodes)],
+            to = nodes[-1],
+            source = edges
+        )
+    }
     
+    path_df <- unique(do.call(rbind, path_dfs))
     return(path_df)
 }

@@ -23,11 +23,10 @@
     # Select function based on resource
     FUN <- switch(
         resource,
-        ChocoPhlAn = .process_chocophlan,
-        GM = .process_complex_modules,
+        ChocoPhlAn = ,
+        WoL = .process_chocophlan,
         GO = .process_go,
-        TIGRFAMs = .process_tigrfams,
-        WoL = .process_wol
+        TIGRFAMs = .process_tigrfams
     )
     # Read file content
     x <- readLines(path)
@@ -64,12 +63,6 @@
     return(linkmap)
 }
 
-.process_wol <- function(x){
-    x <- .process_chocophlan(x)
-    x <- x[ , c(2, 1)]
-    return(x)
-}
-
 .process_go <- function(x){
     # Remove header
     x <- x[!startsWith(x, "!")]
@@ -86,7 +79,7 @@
     return(linkmap)
 }
 
-.process_complex_modules <- function(x, br = "///", AND = ",", OR = "\t") {
+.process_complex_modules <- function(x, br = "///", AND = ",", OR = "\t"){
     # Identify break lines
     v_br <- x == br
     # Split content by breaks, excluding break lines themselves
@@ -106,25 +99,22 @@
     feature_list <- strsplit(
         unlist(values, recursive = TRUE, use.names = FALSE), "\t"
     )
-
     names(feature_list) <- module_component
     # Flatten feature complex list and split by comma to get individual features
     feature_complex <- unlist(feature_list, use.names = FALSE)
     feature <- strsplit(feature_complex, ",")
     # Create and return structured list of data frames
     modules <- list(
-        module2module_component = data.frame(module,module_component),
-        component2feature_complex = data.frame(
-            module_component = rep(module_component, lengths(feature_list)),
-            feature_complex
+        module2component = data.frame(module, component = module_component),
+        component2complex = data.frame(
+            component = rep(module_component, lengths(feature_list)),
+            complex = feature_complex
         ),
-        feature_complex2feature = data.frame(
-            feature_complex = rep(feature_complex, lengths(feature)),
+        complex2feature = data.frame(
+            complex = rep(feature_complex, lengths(feature)),
             feature = unlist(feature, use.names = FALSE)
         )
     )
-    modules <- MultiFactor(modules)
-    #linkmap <- weave(modules, module ~ feature)
     return(modules)
 }
 

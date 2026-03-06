@@ -23,21 +23,23 @@
 
 
 #' @importFrom BiocParallel bplapply
-.queryOTT <- function(x, from, to){
+.queryOTT <- function(x, from, to, timeout, ...){
     #
     x <- gsub("^.__", "", x)
     # 
     if( from == "taxname" ){
-        y <- .queryTNRS(x, to)
+        y <- .queryTNRS(x, to, timeout, ...)
     }
     else if( from == "ott" ){
         x <- as.numeric(x)
-        y <- bplapply(x, .queryTaxonInfo, to = to, prefix = "ott_id")
-        y <- unlist(y)
+        y <- unlist(bplapply(
+            x, .queryTaxonInfo, to = to, prefix = "ott_id", timeout = timeout
+        ))
     }else if( from %in% c("ncbi", "gbif", "worms", "if", "irmng") ){
         x <- paste0(from, ":", x)
-        y <- bplapply(x, .queryTaxonInfo, to = to, prefix = "source_id")
-        y <- unlist(y)
+        y <- unlist(bplapply(
+            x, .queryTaxonInfo, to = to, prefix = "source_id", timeout = timeout
+        ))
     }else{
         stop("'from' is not valid.", call. = FALSE)
     }
@@ -48,7 +50,7 @@
 
 
 #' @importFrom httr2 request req_method req_body_json req_perform resp_body_json
-.queryTaxonInfo <- function(x, to, prefix){
+.queryTaxonInfo <- function(x, to, prefix, timeout){
     
     url <- "https://api.opentreeoflife.org/v3/taxonomy/taxon_info"
     
@@ -58,6 +60,7 @@
     resp <- request(url) |>
         req_method("POST") |>
         req_body_json(body) |>
+        req_timeout(timeout) |>
         req_perform()
     
     resp <- resp_body_json(resp)
@@ -83,7 +86,21 @@
 
 #' @importFrom jsonlite toJSON
 #' @importFrom httr2 req_body_raw req_headers
-.queryTNRS <- function(x, to){
+.queryTNRS <- function(
+    x, to, timeout, batch.size = 5000, workers = NULL, factor = 3){
+    
+    ranges <- .get_batches(x, batch.size, workers, factor)
+    
+    out.list <- bplapply(
+       ranges, function(i) .subqueryTNRS(x[i[1]:i[2]], to, timeout)
+    )
+    
+    out <- do.call(rbind, out.list)
+    return(out)
+}
+
+
+.subqueryTNRS <- function(x){
     
     url <- "https://api.opentreeoflife.org/v3/tnrs/match_names"
 
@@ -93,6 +110,7 @@
         req_method("POST") |>
         req_body_raw(charToRaw(body)) |>
         req_headers(`Content-Type` = "application/json") |>
+        req_timeout(timeout) |>
         req_perform()
     
     resp <- resp_body_json(resp)
