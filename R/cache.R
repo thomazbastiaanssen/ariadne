@@ -79,45 +79,6 @@
     return(linkmap)
 }
 
-.process_complex_modules <- function(x, br = "///", AND = ",", OR = "\t"){
-    # Identify break lines
-    v_br <- x == br
-    # Split content by breaks, excluding break lines themselves
-    line.content <- split(x[!v_br], cumsum(v_br)[!v_br])
-    # Extract keys (first line of each block)
-    keys <- vapply(line.content, `[`, 1L, FUN.VALUE = "", USE.NAMES = FALSE)
-    # Extract values (all lines except first in each block)
-    values <- lapply(line.content, `[`, -1L)
-    # Replace tabs with spaces in keys, repeated for each value line
-    module <- gsub("\t.*", "", rep(keys, lengths(values, use.names = FALSE)))
-    # Create unique module_component identifiers
-    module_component <- paste0(
-        module, "_part_",
-        unlist(lapply(rle(module)$lengths, seq), use.names = FALSE)
-    )
-    # Split feature list by tab character
-    feature_list <- strsplit(
-        unlist(values, recursive = TRUE, use.names = FALSE), "\t"
-    )
-    names(feature_list) <- module_component
-    # Flatten feature complex list and split by comma to get individual features
-    feature_complex <- unlist(feature_list, use.names = FALSE)
-    feature <- strsplit(feature_complex, ",")
-    # Create and return structured list of data frames
-    modules <- list(
-        module2component = data.frame(module, component = module_component),
-        component2complex = data.frame(
-            component = rep(module_component, lengths(feature_list)),
-            complex = feature_complex
-        ),
-        complex2feature = data.frame(
-            complex = rep(feature_complex, lengths(feature)),
-            feature = unlist(feature, use.names = FALSE)
-        )
-    )
-    return(modules)
-}
-
 .process_tigrfams <- function(x){
     # Split elements in each line by tab
     line.content <- strsplit(x, "\t", fixed = TRUE)

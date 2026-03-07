@@ -2,27 +2,34 @@
 #' @name weavePath
 #' @rdname weavePath
 
-#' @importFrom igraph E<- k_shortest_paths as_data_frame
+#' @importFrom igraph as_data_frame
 #' @importFrom MultiFactor MultiFactor
-#' @importFrom BiocParallel bplapply
 S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
-    prune = TRUE, verbose = TRUE, timeout = 1e6, ...){
+    prune = TRUE, output.format = "long", verbose = TRUE, timeout = 1e6, ...){
     # Set timeout for downloads
     options(timeout = timeout)
-    # Extract vars from formula
-    by.vars <- all.vars(by)
     # Assign from and to vars
-    from <- by.vars[1]
-    to <- by.vars[2]
-    
+    from <- all.vars(by[[2]])
+    to <- all.vars(by[[3]])
+    # Select unique input
+    init <- unique(init)
+    # Retrieve edges and nodes data
     graph_df <- as_data_frame(graph, what = "both")
-    
-    linkmaps <- list()
+    # Draw kth path from source to target
     path_df <- .draw_path(graph, from, to, k)
-    
+    # Initialise list of linkmaps
+    linkmaps <- list()
+    # Perform step of path
     for( i in seq_len(nrow(path_df)) ){
         # Retrieve step
         g <- path_df[i, ]
+        # If pruning is active
+        if( g$step != 1L && prune ){
+            # Retrieve logs
+            logs <- path_df[1:i - 1, ]
+            # Update init
+            init <- .update_init(g$from, logs, linkmaps)
+        }
         # Print step
         if( verbose ) message(g$from, " -(", g$source, ")-> ", g$to)
         # Fetch linkmap
@@ -30,16 +37,37 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
             graph_df, g$from, g$to, g$source, init, timeout, ...
         )
         # Add to linkmaps
-        linkmaps[[paste0(g$from, "2", g$to)]] <- linkmap
-        # Update init
-        init <- if( prune ) unique(linkmap[[g$to]]) else NULL
+        linkmaps[[paste0(g$from, "2", g$to, ":", g$source)]] <- linkmap
     }
     # Construct MultiFactor from linkmaps
     mf <- MultiFactor(linkmaps)
     # Weave desired linkmap from MultiFactor
-    linkmap <- weave(mf, by)
-    return(linkmap)
+    out <- weave(mf, by)
+    # Convert to wide format
+    if( output.format == "wide" ){
+        # Convert to adjacency matrix
+        out <- table(out) == 1
+        # Remove dimnames
+        names(dimnames(out)) <- NULL
+    }
+    return(out)
 }
+
+
+.update_init <- function(from, logs, linkmaps){
+    
+    logs <- logs[logs$to == from, ]
+    
+    log.names <- paste0(logs$from, "2", logs$to, ":", logs$source)
+    logs <- vapply(
+        linkmaps[log.names], `[`, from,
+        FUN.VALUE = data.frame(1L), USE.NAMES = FALSE
+    )
+    
+    init <- unique(do.call(c, logs))
+    return(init)
+}
+
 
 
 #' @importFrom KEGGREST keggLink

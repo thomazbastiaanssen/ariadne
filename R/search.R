@@ -28,18 +28,22 @@ S7::method(searchPath, igraph) <- function(graph, by, k = 1){
 }
 
 
+#' @importFrom igraph k_shortest_paths E<- V<-
 .draw_path <- function(graph, from, to, k){
     
-    path.comb <- .generate_path_comb(k, length(to))
+    comb_df <- expand.grid(from = from, to = to, stringsAsFactors = FALSE)
+    path.comb <- .generate_path_comb(k, nrow(comb_df))
     
     path_dfs <- list()
     
     for( i in seq_along(path.comb) ){
         
         j <- path.comb[[i]]
+        orig <- comb_df$from[[i]]
+        target <- comb_df$to[[i]]
         
         sp <- k_shortest_paths(
-            graph, from = from, to = to[[i]], k = j, mode = "all"
+            graph, from = orig, to = target, k = j, mode = "all"
         )
         
         edge_idx <- sp$epaths[[j]]
@@ -51,10 +55,16 @@ S7::method(searchPath, igraph) <- function(graph, by, k = 1){
         path_dfs[[i]] <- data.frame(
             from = nodes[-length(nodes)],
             to = nodes[-1],
-            source = edges
+            source = edges,
+            step = seq(edges)
         )
     }
-    
-    path_df <- unique(do.call(rbind, path_dfs))
+    # Bind paths
+    path_df <- do.call(rbind, path_dfs)
+    # Order by step
+    path_df <- path_df[order(path_df$step), ]
+    # Remove duplicates
+    is.duplicate <- duplicated(path_df[ , c("from", "to", "source")])
+    path_df <- path_df[!is.duplicate, ]
     return(path_df)
 }

@@ -91,7 +91,7 @@ S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1, focus = FALSE)
     # Find number of neighbours
     num.neighbours <- sum(lengths(neighbours))
     # Generate indices to make minimum set of paths
-    path.comb <- .generate_path_combos(k, num.neighbours)
+    path.comb <- .generate_path_comb(k, num.neighbours)
     
     for (i in seq_along(path.comb)) {
         # Select k
@@ -126,12 +126,12 @@ S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1, focus = FALSE)
     # Calculate the max coordinate per row
     comb.indices$max_val <- apply(comb.indices, 1L, max)
     
-    var_cols <- setdiff(names(comb.indices), "max_val")
-    comb.order <- do.call(order, as.list(comb.indices[, c("max_val", var_cols)]))
+    var.cols <- setdiff(names(comb.indices), "max_val")
+    comb.order <- do.call(order, as.list(comb.indices[, c("max_val", var.cols)]))
     # Order by max_val, then lex order
     comb.indices <- comb.indices[comb.order, ]
     rownames(comb.indices) <- NULL
     # Select the k-th combination of paths
-    path.comb <- comb.indices[k, var_cols]
+    path.comb <- comb.indices[k, var.cols]
     return(path.comb)
 }
