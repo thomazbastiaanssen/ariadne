@@ -95,7 +95,7 @@ meta <- list(
     GM = "https://github.com/omixer/omixer-rpmR/raw/refs/heads/main/inst/extdata/",
     GO = "https://current.geneontology.org/ontology/external2go/",
     KEGG = "https://www.genome.jp/kegg/",
-    TIGRFAMs = "https://ftp.ncbi.nlm.nih.gov/hmm/TIGRFAMs/release_15.0/",
+    TIGRfams = "https://ftp.ncbi.nlm.nih.gov/hmm/TIGRFAMs/release_15.0/",
     UniProt = "https://sparql.uniprot.org/",
     WoL = "https://ftp.microbio.me/pub/wol-20April2021/"
 )
@@ -127,7 +127,7 @@ meta <- data.frame(
             paste0(repo, from, "2", to)
         },
         TIGRfams = function(from, to, repo){
-          paste0(from, "_", to, "_LINK")
+          paste0(repo, from, "_", to, "_LINK")
         },
         WoL = function(from, to, repo){
             # Account for exceptions

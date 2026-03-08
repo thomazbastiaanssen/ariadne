@@ -3,9 +3,9 @@
 # silva
 
 # Query from ncbi ids
-#ncbi_ids <- c(562, 1423, 1280)
-#ott_ids <- .queryOTT(ncbi_ids, from = "ncbi", to = "ott")
-#tax_names <- .queryOTT(ncbi_ids, from = "ncbi", to = "taxname")
+# ncbi_ids <- c(562, 1423, 1280)
+# ott_ids <- .queryOTT(from = "ncbi", to = "ott", ncbi_ids, 1e6)
+# tax_names <- .queryOTT(ncbi_ids, from = "ncbi", to = "taxname")
 
 # Qeury from ott ids
 #ott_ids <- c(474506, 1084928, 1090496)
@@ -23,29 +23,45 @@
 
 
 #' @importFrom BiocParallel bplapply
-.queryOTT <- function(x, from, to, timeout, ...){
-    #
-    x <- gsub("^.__", "", x)
-    # 
+.queryOTT <- function(from, to, init, timeout, ...){
+    # Remove rank prefixes
+    x <- gsub("^[a-z]__", "", init)
+    # If source is taxname
     if( from == "taxname" ){
-        y <- .queryTNRS(x, to, timeout, ...)
+        # Search with TNRS API
+        y <- .queryTNRS(x, to, ...)
     }
+    # If source is ott
     else if( from == "ott" ){
+        # Convert to numeric
         x <- as.numeric(x)
-        y <- unlist(bplapply(
+        # Search with taxon_info API
+        y <- bplapply(
             x, .queryTaxonInfo, to = to, prefix = "ott_id", timeout = timeout
-        ))
+        )
+    # If source is external taxon id
     }else if( from %in% c("ncbi", "gbif", "worms", "if", "irmng") ){
+        # Add prefix
         x <- paste0(from, ":", x)
-        y <- unlist(bplapply(
+        # Search with taxon_info API
+        y <- bplapply(
             x, .queryTaxonInfo, to = to, prefix = "source_id", timeout = timeout
-        ))
+        )
     }else{
         stop("'from' is not valid.", call. = FALSE)
     }
+    # Fill empty results
+    y[lengths(y) == 0L] <- NA
+    # Create linkmap
+    linkmap <- data.frame(
+        x = rep(init, lengths(y, use.names = FALSE)),
+        y = unlist(y, recursive = TRUE, use.names = FALSE)
+    )
+    # Omit rows with missing values
+    linkmap <- na.omit(linkmap)
     # Strip source prefix
-    y <- gsub("^.+:", "", y)
-    return(y)
+    linkmap$y <- sub("^.+:", "", linkmap$y)
+    return(linkmap)
 }
 
 
@@ -80,71 +96,35 @@
         tax_sources <- unlist(resp$tax_sources)
         y <- tax_sources[grepl(to, tax_sources, fixed = TRUE)]
     }
-    
     return(y)
 }
 
-#' @importFrom jsonlite toJSON
-#' @importFrom httr2 req_body_raw req_headers
-.queryTNRS <- function(
-    x, to, timeout, batch.size = 5000, workers = NULL, factor = 3){
+#' @importFrom BiocParallel bplapply
+.queryTNRS <- function(x, to, batch.size = 1000, workers = NULL, factor = 3){
     
     ranges <- .get_batches(x, batch.size, workers, factor)
     
     out.list <- bplapply(
-       ranges, function(i) .subqueryTNRS(x[i[1]:i[2]], to, timeout)
+       ranges, function(i) .subqueryTNRS(x[i[1]:i[2]], to = to)
     )
     
-    out <- do.call(rbind, out.list)
+    out <- do.call(c, out.list)
     return(out)
 }
 
-
-.subqueryTNRS <- function(x){
-    
-    url <- "https://api.opentreeoflife.org/v3/tnrs/match_names"
-
-    body <- list(names = x) |> toJSON(auto_unbox = FALSE)
-
-    resp <- request(url) |>
-        req_method("POST") |>
-        req_body_raw(charToRaw(body)) |>
-        req_headers(`Content-Type` = "application/json") |>
-        req_timeout(timeout) |>
-        req_perform()
-    
-    resp <- resp_body_json(resp)
-
-    res <- resp$results
-    
+#' @importFrom rotl tnrs_match_names tax_sources
+.subqueryTNRS <- function(x, to, timeout){
+    # Match input names
+    res <- tnrs_match_names(x)
+    # Based on target
     if( to == "ott" ){
-        # A
-        y <- vapply(
-            res,
-            function(x){
-                if( length(x$matches) == 0L ){
-                    NA_integer_
-                }else{
-                    x$matches[[1]]$taxon$ott_id
-                }
-            },
-            integer(1L)
-        )
+        # Extract ott ids
+        y <- res$ott_id
     }else{
-        # B
-        y <- vapply(
-            res,
-            function(x){
-                if( length(x$matches) == 0L ){
-                    return(NA_character_)
-                }
-                tax_sources <- unlist(x$matches[[1]]$taxon$tax_sources)
-                y <- tax_sources[grepl(to, tax_sources, fixed = TRUE)]
-                    
-                if (length(y) == 0L) NA_character_ else y
-            },
-            character(1L)
-        )
+        # Find ids for each input
+        y <- lapply(tax_sources(res), function(x) x[grepl(to, x, fixed = TRUE)])
+        # Match ids to input names
+        y <- y[res$unique_name]
     }
     return(y)
 }

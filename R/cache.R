@@ -26,7 +26,7 @@
         ChocoPhlAn = ,
         WoL = .process_chocophlan,
         GO = .process_go,
-        TIGRFAMs = .process_tigrfams
+        TIGRfams = .process_tigrfams
     )
     # Read file content
     x <- readLines(path)

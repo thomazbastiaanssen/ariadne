@@ -4,8 +4,7 @@
 
 #' @importFrom igraph as_data_frame
 #' @importFrom MultiFactor MultiFactor
-S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
-    prune = TRUE, output.format = "long", verbose = TRUE, timeout = 1e6, ...){
+.weave_path <- function(graph, by, k, init, prune, output.format, verbose, timeout, ...){
     # Set timeout for downloads
     options(timeout = timeout)
     # Assign from and to vars
@@ -39,6 +38,8 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
         # Add to linkmaps
         linkmaps[[paste0(g$from, "2", g$to, ":", g$source)]] <- linkmap
     }
+    # Merge linkmaps by colnames
+    linkmaps <- .merge_linkmaps(linkmaps)
     # Construct MultiFactor from linkmaps
     mf <- MultiFactor(linkmaps)
     # Weave desired linkmap from MultiFactor
@@ -68,6 +69,20 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
     return(init)
 }
 
+
+.merge_linkmaps <- function(linkmaps){
+    # Create group keys by sorted column names joined by "2"
+    groups <- vapply(
+        linkmaps,
+        function(x) paste(sort(names(x)), collapse = "2"),
+        character(1L)
+    )
+    # Split list by group keys
+    linkmaps <- split(linkmaps, groups)
+    # Combine elements group-wise
+    linkmaps <- lapply(linkmaps, function(x) do.call(rbind, x))
+    return(linkmaps)
+}
 
 
 #' @importFrom KEGGREST keggLink
@@ -99,7 +114,7 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
     
     g <- edge_df[idx, , drop = FALSE]
     
-    if( g$source %in% c("ChocoPhlAn", "GO", "TIGRFAMs", "WoL")){
+    if( g$source %in% c("ChocoPhlAn", "GO", "TIGRfams", "WoL")){
         
         cached <- .cache_resource(g$path, g$source, c(g$from, g$to))
         
@@ -135,11 +150,8 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
         
         df <- data.frame(
             x = init,
-            y = .queryOTT(init, spec.from, spec.to),
-            row.names = NULL
+            y = .queryOTT(spec.from, spec.to, init, ...),
         )
-        
-        df <- na.omit(df)
     
     }else if( g$source == "UniProt" ){
         

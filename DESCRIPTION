@@ -43,6 +43,7 @@ Imports:
     MultiFactor,
     S7,
     rlang,
+    rotl,
     Matrix,
     stringr,
     SummarizedExperiment,
