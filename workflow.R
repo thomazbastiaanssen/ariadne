@@ -1,9 +1,9 @@
 devtools::load_all("../MultiFactor")
 devtools::load_all()
 
-graph <- ariadne(Resources)
+graph <- ariadne()
 
-plotPath(graph, gbm ~ uniref50, k = 3, rm.empty = TRUE)
+plotPath(graph, gbm ~ uniref90 ~ taxid, focus = TRUE)
 
 linkmaps <- weavePath(graph, gbm ~ uniref50, k = 3)
 

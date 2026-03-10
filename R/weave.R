@@ -2,20 +2,56 @@
 #' @name weavePath
 #' @rdname weavePath
 
+
+S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
+    prune = TRUE, output.format = "long", mode = "presence", threshold = 1,
+    verbose = TRUE, timeout = 1e6, ...){
+    # Check shared character args
+    output.format <- match.arg(output.format, c("long", "wide"))
+    # Check shared numeric args
+    if( !is.numeric(k) || length(k) != 1L || k <= 0 ){
+        stop("'k' must be a positive integer.", call. = FALSE)
+    }
+    if( !is.numeric(timeout) || length(timeout) != 1L || timeout <= 0 ){
+        stop("'timeout' must be a positive number", call. = FALSE)
+    }
+    # Check shared logical args
+    if( !is.logical(prune) || length(prune) != 1L ){
+        stop("'prune' must be TRUE or FALSE.", call. = FALSE)
+    }
+    if( !is.logical(verbose) || length(verbose) != 1L ){
+        stop("'verbose' must be TRUE or FALSE.", call. = FALSE)
+    }
+    # Define complex modules
+    mod.names <- c("gbm", "gmm")
+    # If formula includes complex modules
+    if( any(mod.names %in% all.vars(by)) ){
+        # Dispatch to method for complex modules
+        out <- .weave_complex(
+            graph, by, k, init, prune, output.format,
+            mode, threshold, verbose, timeout, ...
+        )
+    }else{
+        # Dispatch to regular method
+        out <- .weave_path(
+            graph, by, k, init, prune, output.format, verbose, timeout, ...
+        )
+    }
+    return(out)
+}
+
+
 #' @importFrom igraph as_data_frame
 #' @importFrom MultiFactor MultiFactor
 .weave_path <- function(graph, by, k, init, prune, output.format, verbose, timeout, ...){
     # Set timeout for downloads
     options(timeout = timeout)
-    # Assign from and to vars
-    from <- all.vars(by[[2]])
-    to <- all.vars(by[[3]])
     # Select unique input
     init <- unique(init)
     # Retrieve edges and nodes data
     graph_df <- as_data_frame(graph, what = "both")
     # Draw kth path from source to target
-    path_df <- .draw_path(graph, from, to, k)
+    path_df <- .draw_path(graph, by, k)
     # Initialise list of linkmaps
     linkmaps <- list()
     # Perform step of path
@@ -42,8 +78,10 @@
     linkmaps <- .merge_linkmaps(linkmaps)
     # Construct MultiFactor from linkmaps
     mf <- MultiFactor(linkmaps)
+    # Extract formula (remove when MF supports multiple ~)
+    inner.by <- .extract_formula(by)
     # Weave desired linkmap from MultiFactor
-    out <- weave(mf, by)
+    out <- weave(mf, inner.by)
     # Convert to wide format
     if( output.format == "wide" ){
         # Convert to adjacency matrix
@@ -52,6 +90,16 @@
         names(dimnames(out)) <- NULL
     }
     return(out)
+}
+
+
+.extract_formula <- function(by){
+    # Extract by vars
+    by.vars <- .formula2list(by)
+    from <- paste0(by.vars[[1]], collapse = "+")
+    to <- paste0(by.vars[[length(by.vars)]], collapse = "+")
+    by <- as.formula(paste0(from, "~", to))
+    return(by)
 }
 
 
@@ -116,7 +164,7 @@
     
     if( g$source %in% c("ChocoPhlAn", "GO", "TIGRfams", "WoL")){
         
-        cached <- .cache_resource(g$path, g$source, c(g$from, g$to))
+        cached <- .cache_resource(g$url, g$source, g$from, g$to)
         
         if( !is.null(init) ){
             

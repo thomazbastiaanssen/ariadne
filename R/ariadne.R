@@ -70,8 +70,8 @@ ariadne <- function(versions = NULL){
         repo = edge_df$source,
         USE.NAMES = FALSE
     )
-    # Add paths to edge data
-    edge_df$path <- as.vector(paths)
+    # Add urls to edge data
+    edge_df$url <- as.vector(paths)
     # Build final resource graph
     graph <- graph_from_data_frame(edge_df, vertices = node_df)
     return(graph)
@@ -91,12 +91,13 @@ ariadne <- function(versions = NULL){
 
 # This is temporary while ariadne.db is not online
 meta <- list(
+    BugSigDB = "https://zenodo.org/records/15272273/files/",
     ChocoPhlAn = "https://zenodo.org/records/17100034/files/",
     GM = "https://github.com/omixer/omixer-rpmR/raw/refs/heads/main/inst/extdata/",
     GO = "https://current.geneontology.org/ontology/external2go/",
     KEGG = "https://www.genome.jp/kegg/",
     TIGRfams = "https://ftp.ncbi.nlm.nih.gov/hmm/TIGRFAMs/release_15.0/",
-    UniProt = "https://sparql.uniprot.org/",
+    UniProt = "https://www.uniprot.org/",
     WoL = "https://ftp.microbio.me/pub/wol-20April2021/"
 )
 
@@ -112,6 +113,9 @@ meta <- data.frame(
     
     FUN <- switch(
         repo,
+        BugSigDB = function(from, to, repo){
+            paste0(repo, "bugsigdb_signatures_mixed_", to, ".gmt")
+        },
         ChocoPhlAn = function(from, to, repo){
             paste0(repo, "map_", from, "_", to, ".txt.gz")
         },
@@ -127,7 +131,7 @@ meta <- data.frame(
             paste0(repo, from, "2", to)
         },
         TIGRfams = function(from, to, repo){
-          paste0(repo, from, "_", to, "_LINK")
+            paste0(repo, from, "_", to, "_LINK")
         },
         WoL = function(from, to, repo){
             # Account for exceptions

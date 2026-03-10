@@ -21,8 +21,8 @@
 #' @importFrom httr2 request req_headers req_timeout req_perform
 #'    resp_check_status resp_body_string req_body_form
 .sendSPARQL <- function(query, endpoint, timeout) {
-    # Get base URL from endpoint table
-    endpoint <- .endpoint_table(endpoint)
+    # Get base url from endpoint table
+    enpoint <- .endpoint_table(endpoint)
     # Build request with Accept header for CSV format
     req <- request(endpoint) |>
         req_method("POST") |>
@@ -203,3 +203,34 @@
     return(iri)
 }
 
+
+#' @importFrom BiocParallel bpworkers
+.get_batches <- function(x, batch.size, workers, factor){
+    
+    if( is.null(x) ){
+        return(list(c(1L, 1L)))
+    }
+    
+    xlen <- length(x)
+    
+    if( is.null(workers) ){
+        workers <- bpworkers()
+    }
+    
+    batch.num <- min(ceiling(xlen / batch.size), factor * workers)
+    adapted.size <- ceiling(xlen / batch.num)
+    
+    if( adapted.size > batch.size ){
+        stop("Query limit was reached (", adapted.size, " > ", batch.size, ").",
+            " Increase 'factor', 'batch.size' or 'workers' and try again.",
+            call. = FALSE)
+    }
+    
+    ranges <- lapply(seq_len(batch.num), function(i) {
+        start <- (i - 1) * adapted.size + 1
+        end <- min(i * adapted.size, xlen)
+        c(start, end)
+    })
+    
+    return(ranges)
+}

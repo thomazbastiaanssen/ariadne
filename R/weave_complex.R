@@ -16,46 +16,7 @@
 
 #exp1 <- weaveComplexModules(graph, taxname ~ gmm, k = 3, init = res[1:5])
 
-S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
-    prune = TRUE, output.format = "long", mode = "presence", threshold = 1,
-    verbose = TRUE, timeout = 1e6, ...){
-    # Check shared character args
-    output.format <- match.arg(output.format, c("long", "wide"))
-    # Check shared numeric args
-    if( !is.numeric(k) || length(k) != 1L || k <= 0 ){
-        stop("'k' must be a positive integer.", call. = FALSE)
-    }
-    if( !is.numeric(timeout) || length(timeout) != 1L || timeout <= 0 ){
-        stop("'timeout' must be a positive number", call. = FALSE)
-    }
-    # Check shared logical args
-    if( !is.logical(prune) || length(prune) != 1L ){
-        stop("'prune' must be TRUE or FALSE.", call. = FALSE)
-    }
-    if( !is.logical(verbose) || length(verbose) != 1L ){
-        stop("'verbose' must be TRUE or FALSE.", call. = FALSE)
-    }
-    # Define complex modules
-    mod.names <- c("gbm", "gmm")
-    # If formula includes complex modules
-    if( any(mod.names %in% all.vars(by)) ){
-        # Dispatch to method for complex modules
-        out <- .weave_complex(
-            graph, by, k, init, prune, output.format,
-            mode, threshold, verbose, timeout, ...
-        )
-    }else{
-        # Dispatch to regular method
-        out <- .weave_path(
-            graph, by, k, init, prune, output.format, verbose, timeout, ...
-        )
-    }
-    return(out)
-}
 
-
-#' @importFrom MultiFactor MultiFactor as.matrix
-#' @importFrom Matrix Matrix crossprod colSums
 #' @importFrom igraph as_data_frame
 .weave_complex <- function(graph, by, k, init, prune, output.format, mode,
     threshold, verbose, timeout, ...){
@@ -83,10 +44,9 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
     mod.name <- by.vars[var.idx[["mod"]]]
     orig.name <- by.vars[var.idx[["orig"]]]
     
-    feat.name <- switch(mod.name, gmm = "ko", gbm = "ko+eggnog+tigr")
-    
     edge_df <- as_data_frame(graph, what = "edges")
-    url <- unique(edge_df$path[edge_df$from == mod.name])
+    feat.name <- paste(edge_df$to[edge_df$from == mod.name], collapse = "+")
+    url <- unique(edge_df$url[edge_df$from == mod.name])
     
     x <- readLines(url)
     linkmaps <- .process_complex_modules(x)
@@ -110,24 +70,8 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
     mf <- MultiFactor(linkmaps)
     # Print step
     if( verbose ) message(feat.name, " -(GM)-> ", mod.name)
-    # Retrieve matrices from MultiFactor
-    col.order <- c(2L, 1L)
-    orig2f <- as.matrix(mf[["feature2orig"]])
-    ct2cx <- as.matrix(mf[["component2complex"]], terms = col.order)
-    cx2f <- as.matrix(mf[["complex2feature"]], terms = col.order)
-    m2cp <- as.matrix(mf[["module2component"]], terms = col.order)
-    
-    complex2x <- Matrix(
-        crossprod(cx2f, orig2f != 0L) >= Matrix::colSums(cx2f),
-        sparse = TRUE
-    )
-    
-    component2x <- crossprod(ct2cx, complex2x, boolArith = TRUE)
-    # Assess module coverage
-    out <- Matrix(
-        crossprod(m2cp, component2x != 0L) / Matrix::colSums(m2cp),
-        sparse = TRUE
-    )
+    # Map features to complex modules
+    out <- .map_modules(mf)
     # If presence is set
     if( mode == "presence" ){
         # Convert to adjacency matrix
@@ -151,9 +95,32 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
             row.names = NULL
         )
         # Add colnames
-        colnames(out) <- by.vars[var.idx]
+        colnames(out) <- c(orig.name, mod.name)
     }
     return(out)
+}
+
+
+#' @importFrom Matrix Matrix crossprod colSums
+.map_modules <- function(mf){
+    # Retrieve matrices from MultiFactor
+    col.order <- c(2L, 1L)
+    orig2f <- as.matrix(mf[["feature2orig"]])
+    ct2cx <- as.matrix(mf[["component2complex"]], terms = col.order)
+    cx2f <- as.matrix(mf[["complex2feature"]], terms = col.order)
+    m2cp <- as.matrix(mf[["module2component"]], terms = col.order)
+    
+    complex2x <- Matrix(
+        crossprod(cx2f, orig2f != 0L) >= Matrix::colSums(cx2f),
+        sparse = TRUE
+    )
+    
+    component2x <- crossprod(ct2cx, complex2x, boolArith = TRUE)
+    # Compute module coverage
+    out <- Matrix(
+        crossprod(m2cp, component2x != 0L) / Matrix::colSums(m2cp),
+        sparse = TRUE
+    )
 }
 
 

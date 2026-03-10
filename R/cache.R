@@ -3,7 +3,7 @@
 #' @importFrom BiocFileCache BiocFileCache bfcquery bfcadd
 #' @importFrom tools R_user_dir
 #' @importFrom arrow write_parquet
-.cache_resource <- function(url, resource, col.names) {
+.cache_resource <- function(url, resource, from, to) {
     # Initialise cache
     cache <- R_user_dir("ariadne", "cache")
     bfc <- BiocFileCache(cache, ask = FALSE)
@@ -23,17 +23,18 @@
     # Select function based on resource
     FUN <- switch(
         resource,
-        ChocoPhlAn = ,
-        WoL = .process_chocophlan,
+        BugSigDB = .process_bugsigdb,
+        ChocoPhlAn = .process_chocophlan,
         GO = .process_go,
-        TIGRfams = .process_tigrfams
+        TIGRfams = .process_tigrfams,
+        WoL = .process_wol
     )
     # Read file content
     x <- readLines(path)
     # Preprocess data
     linkmap <- FUN(x)
     # Add colnames
-    colnames(linkmap) <- col.names
+    colnames(linkmap) <- c(from, to)
     # Store preprocessed data
     write_parquet(linkmap, path)
     # Cache the preprocessed file using URL as resource name
@@ -63,6 +64,14 @@
     return(linkmap)
 }
 
+
+.process_wol <- function(x){
+    linkmap <- .process_chocophlan(x)
+    linkmap$x <- paste0("UniRef90_", linkmap$x)
+    return(linkmap)
+}
+
+
 .process_go <- function(x){
     # Remove header
     x <- x[!startsWith(x, "!")]
@@ -79,6 +88,7 @@
     return(linkmap)
 }
 
+
 .process_tigrfams <- function(x){
     # Split elements in each line by tab
     line.content <- strsplit(x, "\t", fixed = TRUE)
@@ -90,5 +100,27 @@
     values <- gsub("^[^:]*:", "", values)
     # Create linkmap
     linkmap <- data.frame(x = keys, y = values)
+    return(linkmap)
+}
+
+
+.process_bugsigdb <- function(x){
+    # Remove header
+    x <- x[-1L]
+    # Split elements in each line by tab
+    line.content <- strsplit(x, "\t", fixed = TRUE)
+    # Extract keys
+    keys <- vapply(line.content, `[`, 1L, FUN.VALUE = character(1L))
+    # Remove module prefix
+    keys <- sub("bsdb:", "", keys, fixed = TRUE)
+    # Remove module description
+    keys <- sub("_.*$", "", keys)
+    # Extract values
+    values <- lapply(line.content, `[`, -c(1L, 2L))
+    # Create linkmap
+    linkmap <- data.frame(
+        x = rep(keys, lengths(values, use.names = FALSE)),
+        y = unlist(values, recursive = TRUE, use.names = FALSE)
+    )
     return(linkmap)
 }
