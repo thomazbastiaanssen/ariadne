@@ -2,9 +2,10 @@ destination: docs
 reference:
 - title: Main functions
 - contents:
-  - importMapping
-  - importModules
-  - mapModules
+  - ariadne
+  - weavePath
+  - searchPath
+  - plotPath
   - getModules
   - addModules
 - title: Other

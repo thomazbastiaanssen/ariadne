@@ -113,7 +113,7 @@
 }
 
 #' @importFrom rotl tnrs_match_names tax_sources
-.subqueryTNRS <- function(x, to, timeout){
+.subqueryTNRS <- function(x, to){
     # Match input names
     res <- tnrs_match_names(x)
     # Based on target

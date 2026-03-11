@@ -1,6 +1,32 @@
-
+#' Build ariadne resource graph
+#'
 #' @name ariadne
 #' @rdname ariadne
+#' 
+#' @description
+#' \code{ariadne} imports the resource graph hosted in ariadne.db companion data
+#' package.
+#' 
+#' @param versions \code{Character list}. A named list of resource versions to
+#' load. Latest versions are used if not specified. (Default: \code{NULL})
+#' 
+#' @return
+#' An igraph object with the ariadne resource graph.
+#' 
+#' @examples
+#' 
+#' # Import ariadne resource graph
+#' graph <- ariadne()
+#' 
+#' # Specify resource versions
+#' graph <- ariadne(versions = list(BugSigDB = "v1.2.0", WoL = "v2.0"))
+#' 
+#' @seealso
+#' 
+#' \link[ariadne.db]{ariadne.db}
+#' \url{https://zenodo.org/records/18788725}{Link to Zenodo}
+#' 
+NULL
 
 #' @export
 #' @importFrom httr2 request req_perform resp_body_json

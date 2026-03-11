@@ -17,12 +17,12 @@
 }
 
 
-#' @importFrom utils URLencode read.csv
+#' @importFrom utils read.csv
 #' @importFrom httr2 request req_headers req_timeout req_perform
-#'    resp_check_status resp_body_string req_body_form
+#'   resp_body_string req_body_form
 .sendSPARQL <- function(query, endpoint, timeout) {
     # Get base url from endpoint table
-    enpoint <- .endpoint_table(endpoint)
+    endpoint <- .endpoint_table(endpoint)
     # Build request with Accept header for CSV format
     req <- request(endpoint) |>
         req_method("POST") |>

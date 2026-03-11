@@ -2,10 +2,6 @@
 igraph <- S7::new_S3_class("igraph")
 
 #' @export
-#' @rdname ariadne
-ariadne <- S7::new_generic("ariadne", "resources")
-
-#' @export
 #' @rdname searchPath
 searchPath <- S7::new_generic("searchPath", "graph")
 
@@ -16,10 +12,6 @@ plotPath <- S7::new_generic("plotPath", "graph")
 #' @export
 #' @rdname weavePath
 weavePath <- S7::new_generic("weavePath", "graph")
-
-#' @export
-#' @rdname mapModules
-mapModules <- S7::new_generic("mapModules", "map")
 
 #' @export
 #' @rdname getModules

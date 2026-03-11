@@ -1,6 +1,82 @@
-
+#' Weave path between resources
+#' 
 #' @name weavePath
 #' @rdname weavePath
+#' 
+#' @description
+#' \code{weavePath} weaves the path between resources.
+#' 
+#' @param graph An igraph object.
+#' 
+#' @param by A formula specifying the path to weave.
+#' 
+#' @param k \code{Numeric scalar}. The kth shortest path to weave.
+#'   (Default: \code{1})
+#' 
+#' @param init \code{Character vector}. Initial values to prune the first
+#'   mapping step. (Default: \code{NULL})
+#' 
+#' @param prune \code{Logical scalar}. Should the values from each step be used
+#'   prune the following step. (Default: \code{TRUE})
+#' 
+#' @param output.format \code{Character scalar}. The output format, either
+#'   linkmap (\code{"long"}) or matrix (\code{"wide"}). (Default: \code{"long"})
+#' 
+#' @param mode \code{Character scalar}. The mode of the output, either as
+#'   \code{"presence"} or \code{"coverage"} information.
+#'   (Default: \code{"presence"})
+#' 
+#' @param threshold \code{Numeric scalar}. The coverage threshold to infer
+#'   presence, between 0 and 1. Only used for complex modules.
+#'   (Default: \code{1})
+#' 
+#' @param verbose \code{Logical scalar}. Should messages be printed in the
+#'   console. (Default: \code{TRUE})
+#' 
+#' @param timeout \code{Numeric scalar}. The timeout for downloading resources.
+#'   (Default: \code{1e6})
+#' 
+#' @param ... Additional arguments.
+#' \itemize{
+#'     \item \code{batch.size}: \code{Numeric scalar}. The maximum batch size
+#'     for SPARQL or API queries. (Default: half the maximum query size)
+#'
+#'     \item \code{workers}: \code{Numeric scalar}. Number of workers to use,
+#'     automatically detected when \code{NULL}. (Default: \code{NULL})
+#'     
+#'     \item \code{factor}: \code{Numeric scalar}. Number of jobs per worker.
+#'     (Default: \code{3})
+#' }
+#' 
+#' @return
+#' A two-column data.frame (x-to-y linkmap) or an x-by-y matrix (presence or
+#' coverage).
+#' 
+#' @examples
+#' 
+#' library(mia)
+#' 
+#' # Import dataset
+#' data("Tengeler2020", package = "mia")
+#' tse <- Tengeler2020
+#' 
+#' # Load resource graph
+#' graph <- ariadne()
+#' 
+#' # Retrieve taxon names
+#' tax.labs <- getTaxonomyLabels(tse, make.unique = FALSE)
+#' tax.labs <- sub("^.+:", "", tax.labs)
+#' 
+#' # Weave path starting from initial values
+#' tax2bugsig <- weavePath(graph, taxname ~ bugsig, init = tax.labs)
+#' 
+#' # Weave 3-rd path
+#' tax2bugsig <- weavePath(graph, taxname ~ bugsig, init = tax.labs, k = 3)
+#' 
+#' Weave path passing through taxid
+#' tax2bugsig <- weavePath(graph, taxname ~ taxid ~ bugsig, init = tax.labs)
+#' 
+NULL
 
 
 S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
@@ -42,7 +118,7 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
 
 
 #' @importFrom igraph as_data_frame
-#' @importFrom MultiFactor MultiFactor
+#' @importFrom MultiFactor MultiFactor weave
 .weave_path <- function(graph, by, k, init, prune, output.format, verbose, timeout, ...){
     # Set timeout for downloads
     options(timeout = timeout)
@@ -162,7 +238,7 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
     
     g <- edge_df[idx, , drop = FALSE]
     
-    if( g$source %in% c("ChocoPhlAn", "GO", "TIGRfams", "WoL")){
+    if( g$source %in% c("BugSigDB", "ChocoPhlAn", "GO", "TIGRfams", "WoL")){
         
         cached <- .cache_resource(g$url, g$source, g$from, g$to)
         
@@ -193,13 +269,13 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
     
     }else if( g$source == "OTT" ){
         
+        g$from <- from
+        g$to <- to
+        
         spec.from <- node_df[node_df$name == g$from, g$source]
         spec.to <- node_df[node_df$name == g$to, g$source]
         
-        df <- data.frame(
-            x = init,
-            y = .queryOTT(spec.from, spec.to, init, ...),
-        )
+        df <- .queryOTT(spec.from, spec.to, init, timeout, ...)
     
     }else if( g$source == "UniProt" ){
         

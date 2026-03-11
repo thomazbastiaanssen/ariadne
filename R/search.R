@@ -1,9 +1,45 @@
-
+#' Search path between resources
+#' 
 #' @name searchPath
 #' @rdname searchPath
+#' 
+#' @description
+#' \code{searchPath} allows to search the first k-th shortest paths between
+#' resources.
+#' 
+#' @param graph An igraph object.
+#' 
+#' @param by A formula specifying the path to search.
+#' 
+#' @param k \code{Numeric scalar}. The kth shortest paths to search.
+#'   (Default: \code{1})
+#' 
+#' @return
+#' NULL, message
+#' 
+#' @examples
+#' 
+#' # Retrieve resource graph
+#' graph <- ariadne()
+#' 
+#' # Search first 5 paths from ko to ec
+#' searchPath(graph, ko ~ ec, k = 5)
+#' 
+#' # Search first path through uniref90
+#' searchPath(graph, taxname ~ uniref90 ~ ko)
+#' 
+#' # Search first path from ko and ec to uniref90
+#' searchPath(graph, ko + ec ~ uniref90)
+#' 
+NULL
+
 
 #' @importFrom igraph E V k_shortest_paths
 S7::method(searchPath, igraph) <- function(graph, by, k = 1){
+    
+    if( !is.numeric(k) || length(k) != 1L || k <= 0 ){
+        stop("'k' must be a positive integer.", call. = FALSE)
+    }
     
     msg <- c()
     
