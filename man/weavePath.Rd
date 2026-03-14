@@ -28,6 +28,12 @@ automatically detected when \code{NULL}. (Default: \code{NULL})
 \item{k}{\code{Numeric scalar}. The kth shortest path to weave.
 (Default: \code{1})}
 
+\item{include}{\code{Character vector}. Nodes to cross in the path.
+(Default: \code{NULL})}
+
+\item{exclude}{\code{Character vector}. Nodes to avoid in the path.
+(Default: \code{NULL})}
+
 \item{init}{\code{Character vector}. Initial values to prune the first
 mapping step. (Default: \code{NULL})}
 
@@ -80,6 +86,8 @@ tax2bugsig <- weavePath(graph, taxname ~ bugsig, init = tax.labs)
 tax2bugsig <- weavePath(graph, taxname ~ bugsig, init = tax.labs, k = 3)
 
 Weave path passing through taxid
-tax2bugsig <- weavePath(graph, taxname ~ taxid ~ bugsig, init = tax.labs)
+tax2bugsig <- weavePath(
+    graph, taxname ~ bugsig, include = "taxid", init = tax.labs
+)
 
 }

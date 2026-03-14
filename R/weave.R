@@ -13,6 +13,12 @@
 #' @param k \code{Numeric scalar}. The kth shortest path to weave.
 #'   (Default: \code{1})
 #' 
+#' @param include \code{Character vector}. Nodes to cross in the path.
+#'   (Default: \code{NULL})
+#' 
+#' @param exclude \code{Character vector}. Nodes to avoid in the path.
+#'   (Default: \code{NULL})
+#' 
 #' @param init \code{Character vector}. Initial values to prune the first
 #'   mapping step. (Default: \code{NULL})
 #' 
@@ -74,20 +80,19 @@
 #' tax2bugsig <- weavePath(graph, taxname ~ bugsig, init = tax.labs, k = 3)
 #' 
 #' Weave path passing through taxid
-#' tax2bugsig <- weavePath(graph, taxname ~ taxid ~ bugsig, init = tax.labs)
+#' tax2bugsig <- weavePath(
+#'     graph, taxname ~ bugsig, include = "taxid", init = tax.labs
+#' )
 #' 
 NULL
 
 
-S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
-    prune = TRUE, output.format = "long", mode = "presence", threshold = 1,
-    verbose = TRUE, timeout = 1e6, ...){
+S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
+    exclude = NULL, init = NULL, prune = TRUE, output.format = "long",
+    mode = "presence", threshold = 1, verbose = TRUE, timeout = 1e6, ...){
     # Check shared character args
     output.format <- match.arg(output.format, c("long", "wide"))
     # Check shared numeric args
-    if( !is.numeric(k) || length(k) != 1L || k <= 0 ){
-        stop("'k' must be a positive integer.", call. = FALSE)
-    }
     if( !is.numeric(timeout) || length(timeout) != 1L || timeout <= 0 ){
         stop("'timeout' must be a positive number", call. = FALSE)
     }
@@ -110,7 +115,8 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
     }else{
         # Dispatch to regular method
         out <- .weave_path(
-            graph, by, k, init, prune, output.format, verbose, timeout, ...
+            graph, by, k, include, exclude, init,
+            prune, output.format, verbose, timeout, ...
         )
     }
     return(out)
@@ -119,7 +125,8 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
 
 #' @importFrom igraph as_data_frame
 #' @importFrom MultiFactor MultiFactor weave
-.weave_path <- function(graph, by, k, init, prune, output.format, verbose, timeout, ...){
+.weave_path <- function(graph, by, k, include, exclude, init, prune,
+    output.format, verbose, timeout, ...){
     # Set timeout for downloads
     options(timeout = timeout)
     # Select unique input
@@ -127,20 +134,13 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
     # Retrieve edges and nodes data
     graph_df <- as_data_frame(graph, what = "both")
     # Draw kth path from source to target
-    path_df <- .draw_path(graph, by, k)
+    path_df <- .draw_path(graph, by, k, include, exclude)
     # Initialise list of linkmaps
     linkmaps <- list()
     # Perform step of path
     for( i in seq_len(nrow(path_df)) ){
         # Retrieve step
         g <- path_df[i, ]
-        # If pruning is active
-        if( g$step != 1L && prune ){
-            # Retrieve logs
-            logs <- path_df[1:i - 1, ]
-            # Update init
-            init <- .update_init(g$from, logs, linkmaps)
-        }
         # Print step
         if( verbose ) message(g$from, " -(", g$source, ")-> ", g$to)
         # Fetch linkmap
@@ -148,16 +148,14 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
             graph_df, g$from, g$to, g$source, init, timeout, ...
         )
         # Add to linkmaps
-        linkmaps[[paste0(g$from, "2", g$to, ":", g$source)]] <- linkmap
+        linkmaps[[paste0(g$from, "2", g$to)]] <- linkmap
+        # Update init
+        init <- if( prune ) unique(linkmap[[g$to]]) else NULL
     }
-    # Merge linkmaps by colnames
-    linkmaps <- .merge_linkmaps(linkmaps)
     # Construct MultiFactor from linkmaps
     mf <- MultiFactor(linkmaps)
-    # Extract formula (remove when MF supports multiple ~)
-    inner.by <- .extract_formula(by)
     # Weave desired linkmap from MultiFactor
-    out <- weave(mf, inner.by)
+    out <- weave(mf, by)
     # Convert to wide format
     if( output.format == "wide" ){
         # Convert to adjacency matrix
@@ -166,46 +164,6 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, init = NULL,
         names(dimnames(out)) <- NULL
     }
     return(out)
-}
-
-
-.extract_formula <- function(by){
-    # Extract by vars
-    by.vars <- .formula2list(by)
-    from <- paste0(by.vars[[1]], collapse = "+")
-    to <- paste0(by.vars[[length(by.vars)]], collapse = "+")
-    by <- as.formula(paste0(from, "~", to))
-    return(by)
-}
-
-
-.update_init <- function(from, logs, linkmaps){
-    
-    logs <- logs[logs$to == from, ]
-    
-    log.names <- paste0(logs$from, "2", logs$to, ":", logs$source)
-    logs <- vapply(
-        linkmaps[log.names], `[`, from,
-        FUN.VALUE = data.frame(1L), USE.NAMES = FALSE
-    )
-    
-    init <- unique(do.call(c, logs))
-    return(init)
-}
-
-
-.merge_linkmaps <- function(linkmaps){
-    # Create group keys by sorted column names joined by "2"
-    groups <- vapply(
-        linkmaps,
-        function(x) paste(sort(names(x)), collapse = "2"),
-        character(1L)
-    )
-    # Split list by group keys
-    linkmaps <- split(linkmaps, groups)
-    # Combine elements group-wise
-    linkmaps <- lapply(linkmaps, function(x) do.call(rbind, x))
-    return(linkmaps)
 }
 
 

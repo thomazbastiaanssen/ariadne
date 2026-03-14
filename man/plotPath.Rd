@@ -14,6 +14,12 @@ plotPath(graph, ...)
 \item{k}{\code{Numeric scalar}. The kth shortest path to plot.
 (Default: \code{1})}
 
+\item{include}{\code{Character vector}. Nodes to cross in the path.
+(Default: \code{NULL})}
+
+\item{exclude}{\code{Character vector}. Nodes to avoid in the path.
+(Default: \code{NULL})}
+
 \item{focus}{\code{Logical scalar}. Whether the edges and nodes in the path
 should be plotted. (Default: \code{FALSE})}
 }
@@ -21,7 +27,7 @@ should be plotted. (Default: \code{FALSE})}
 A ggplot2 object
 }
 \description{
-\code{plotPath} provides a visual of a graph and the selected paths.
+\code{plotPath} provides a visual of a graph and the selected path.
 }
 \examples{
 
@@ -31,10 +37,10 @@ graph <- ariadne()
 # Plot fifth path from ko to ec
 plotPath(graph, ko ~ ec, k = 5)
 
-# Plot first path through uniref90
-plotPath(graph, taxname ~ uniref90 ~ ko)
+# Plot first path including uniref90
+plotPath(graph, taxname ~ ko, include = "uniref90")
 
-# Plot first path from ko and ec to uniref90
-plotPath(graph, ko + ec ~ uniref90)
+# Plot first 5 paths excluding uniref50 and uniref100
+plotPath(graph, taxname ~ ko, k = 5, exclude = c("uniref50", "uniref100"))
 
 }

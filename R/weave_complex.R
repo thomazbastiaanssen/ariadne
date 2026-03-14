@@ -55,12 +55,12 @@
         init <- unique(linkmaps[["complex2feature"]][["feature"]])
     }
     
-    inner.by <- c(feat.name, orig.name)[var.idx] |>
+    inner_by <- c(feat.name, orig.name)[var.idx] |>
         paste(collapse = "~") |>
         as.formula()
     
     feature2orig <- .weave_path(
-        graph, inner.by, k, init, prune, "long", verbose, timeout, ...
+        graph, inner_by, k, init, prune, "long", verbose, timeout, ...
     )
     
     feature2orig <- feature2orig[ , var.idx]

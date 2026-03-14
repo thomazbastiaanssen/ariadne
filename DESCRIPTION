@@ -1,5 +1,5 @@
 Package: ariadne
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: 
     c(person(given = "Giulio", family = "Benedetti", role = c("aut", "cre"),
           email = "giulio.benedetti@utu.fi",
@@ -33,10 +33,10 @@ Imports:
     BiocFileCache,
     BiocParallel,
     dplyr,
+    ggplot2,
     ggraph,
     httr2,
     igraph,
-    jsonlite,
     KEGGREST,
     methods,
     mia,

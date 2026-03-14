@@ -14,6 +14,12 @@
 #' @param k \code{Numeric scalar}. The kth shortest paths to search.
 #'   (Default: \code{1})
 #' 
+#' @param include \code{Character vector}. Nodes to cross in the path.
+#'   (Default: \code{NULL})
+#' 
+#' @param exclude \code{Character vector}. Nodes to avoid in the path.
+#'   (Default: \code{NULL})
+#' 
 #' @return
 #' NULL, message
 #' 
@@ -25,126 +31,109 @@
 #' # Search first 5 paths from ko to ec
 #' searchPath(graph, ko ~ ec, k = 5)
 #' 
-#' # Search first path through uniref90
-#' searchPath(graph, taxname ~ uniref90 ~ ko)
+#' # Search first path including uniref90
+#' searchPath(graph, taxname ~ ko, include = "uniref90")
 #' 
-#' # Search first path from ko and ec to uniref90
-#' searchPath(graph, ko + ec ~ uniref90)
+#' # Search first 5 paths excluding uniref50 and uniref100
+#' searchPath(graph, taxname ~ ko, k = 5, exclude = c("uniref50", "uniref100"))
 #' 
 NULL
 
 
 #' @importFrom igraph E V k_shortest_paths
-S7::method(searchPath, igraph) <- function(graph, by, k = 1){
-    
-    if( !is.numeric(k) || length(k) != 1L || k <= 0 ){
-        stop("'k' must be a positive integer.", call. = FALSE)
-    }
-    
+S7::method(searchPath, igraph) <- function(
+    graph, by, k = 1, include = NULL, exclude = NULL){
+    # Initialise message
     msg <- c()
-    
-    for( i in seq_len(k) ){
-        
-        msg <- c(msg, "Path ", i, ":\n")
-        
-        path_df <- .draw_path(graph, by, i, dup.rm = FALSE)
-        
-        unique_paths <- unique(path_df$path)
-        
-        for( j in unique_paths ){
-            
-            subpath_df <- path_df[path_df$path == j, ]
-            
-            path.str <- paste0(
-                " -(", subpath_df$source, ")-> ", subpath_df$to, collapse = ""
-            )
-            
-            path.str <- paste0(subpath_df$from[1], path.str)
-            
-            msg <- c(msg, path.str, "\n")
-        }
-        msg <- c(msg, "\n")
+    # Print paths up to k
+    for( j in seq_len(k) ){
+        # Add path number
+        msg <- c(msg, "Path ", j, ":\n")
+        # Get path
+        path_df <- .draw_path(graph, by, j, include, exclude)
+        # Add path string
+        path_str <- paste0(
+            " -(", path_df$source, ")-> ", path_df$to, collapse = ""
+        )
+        # Add origin
+        path_str <- paste0(path_df$from[1], path_str)
+        # Add new line 
+        msg <- c(msg, path_str, "\n\n")
     }
-    
+    # Send message
     message(msg)
     invisible(NULL)
 }
 
 
-#' @importFrom stats ave
-#' @importFrom igraph k_shortest_paths E<- V<- graph_from_data_frame topo_sort
-.draw_path <- function(graph, by, k, dup.rm = TRUE){
-    
-    by.vars <- .formula2list(by)
-    var.len <- length(by.vars)
-    
-    comb_df <- expand.grid(by.vars, stringsAsFactors = FALSE)
-    path.comb <- .generate_path_comb(k, nrow(comb_df))
-    
-    path_dfs <- list()
-        
-    for( i in seq_len(nrow(comb_df)) ){
-        
-        orig <- comb_df[i, 1]
-        target <- comb_df[i, ncol(comb_df)]
-        cur.k <- path.comb[[i]]
-        
-        for( j in seq_len(ncol(comb_df) - 1) ){
-            
-            step.start <- comb_df[i, j]
-            step.end <- comb_df[i, j + 1]
-            
-            sp <- k_shortest_paths(
-                graph, step.start, step.end, k = cur.k, mode = "all"
-            )
-            
-            edge_idx <- sp$epaths[[cur.k]]
-            node_idx <- sp$vpaths[[cur.k]]
-            
-            edges <- E(graph)$source[edge_idx]
-            nodes <- V(graph)$name[node_idx]
-            
-            path_dfs[[paste0(i, j)]] <- data.frame(
-                from = nodes[-length(nodes)],
-                to = nodes[-1],
-                source = edges,
-                path = paste0(orig, "2", target)
-            )
-        }
+#' @importFrom igraph k_shortest_paths E<- V<-
+.draw_path <- function(
+    graph, by, k, include, exclude, buffer.factor = 2, max.attempts = 5){
+    # Check args
+    if( !is.numeric(k) || length(k) != 1L || k <= 0 ){
+        stop("'k' must be a positive integer.", call. = FALSE)
     }
-    # Bind paths
-    path_df <- do.call(rbind, path_dfs)
-    # Add step number
-    path_df$step <- ave(seq_along(path_df$path), path_df$path, FUN = seq_along)
-    # If duplicates to be removed
-    if( dup.rm ){
-        # Remove duplicates
-        is.duplicate <- duplicated(path_df[ , c("from", "to", "source")])
-        path_df <- path_df[!is.duplicate, ]
-        rownames(path_df) <- NULL
+    if( length(intersect(include, exclude)) != 0L ){
+        stop("'include' and 'exclude' cannot overlap.", call. = FALSE)
     }
-    # Sort topology
-    flow <- graph_from_data_frame(path_df)
-    topo_order <- topo_sort(flow, mode = "out")
-    # Get topological order
-    node_order <- seq_along(topo_order)
-    names(node_order) <- names(topo_order)
-    # Order by graph topology
-    node_order <- order(node_order[path_df$to])
-    path_df <- path_df[node_order, ]
+    # Extract by vars
+    by.vars <- all.vars(by)
+    from <- by.vars[1]
+    to <- by.vars[2]
+    # Initialise while vars
+    j <- k
+    i <- 0
+    keep <- logical(0L)
+    # Until enough paths found
+    while( i < max.attempts && k > sum(keep) ){
+        # Find paths
+        sp <- k_shortest_paths(graph, from, to, k = j, mode = "all")
+        # Select suitable paths
+        keep <- vapply(
+          sp$vpaths,
+          function(v) all(include %in% names(v)) & !any(exclude %in% names(v)),
+          logical(1L)
+        )
+        # Increase buffer and attempt
+        j <- buffer.factor * j
+        i <- i + 1
+    }
+    # Check results
+    if( !any(keep) ){
+        stop("No paths meet 'include' and 'exclude' criteria.", call. = FALSE)
+    }
+    if( k > sum(keep) ){
+        stop("'k' is greater than the number of possible paths.", call. = FALSE)
+    }
+    # Select suitable paths
+    sp <- lapply(sp, `[`, keep)
+    # Find edges and nodes indices
+    edge_idx <- sp$epaths[[k]]
+    node_idx <- sp$vpaths[[k]]
+    # Retrieve edges and nodes
+    edges <- E(graph)$source[edge_idx]
+    nodes <- V(graph)$name[node_idx]
+    # Create path data.frame
+    path_df <- data.frame(
+        from = nodes[-length(nodes)],
+        to = nodes[-1],
+        source = edges
+    )
     return(path_df)
 }
 
 
-.expand_multiplex <- function(graph, by.vars){
-  
-    mod.name <- "gbm"
+.exclude_gm <- function(graph, by.vars){
+    
+    mod.names <- c("gbm", "gmm")
+    # Identify module name
+    is.mod <- by.vars %in% mod.names
     
     mod.idx <- which(mod.name %in% by.vars)
     is.mod <- length(mod.idx) != 0L
     
     edge_df <- as_data_frame(graph, what = "edges")
-    feat.name <- list(edge_df$to[edge_df$from == mod.name])
+    feat.name <- paste(edge_df$to[edge_df$from == mod.name], collapse = "+")
     
     if( is.mod ){
         after <- ifelse(mod.idx == length(by.vars), mod.idx - 1, mod.idx)
@@ -157,47 +146,16 @@ S7::method(searchPath, igraph) <- function(graph, by, k = 1){
 
 .generate_path_comb <- function(k, j){
     # Find minimum number of paths per neighbour
-    num.paths <- rep(ceiling(k^(1 / j)), j)
+    num_paths <- rep(ceiling(k^(1 / j)), j)
     # Generate all combinations of path indices
-    comb.indices <- expand.grid(lapply(num.paths, function(n) seq_len(n)))
-    # Calculate the max coordinate per row
-    comb.indices$max_val <- apply(comb.indices, 1L, max)
-    
-    var.cols <- setdiff(names(comb.indices), "max_val")
-    comb.order <- do.call(order, as.list(comb.indices[, c("max_val", var.cols)]))
-    # Order by max_val, then lex order
-    comb.indices <- comb.indices[comb.order, ]
-    rownames(comb.indices) <- NULL
+    comb_indices <- expand.grid(lapply(num_paths, function(n) seq_len(n)))
+    # Calculate the max and total per row
+    comb_points <- list(apply(comb_indices, 1L, max), rowSums(comb_indices))
+    # Sort indices by max and sum values
+    comb_indices <- comb_indices[do.call(order, comb_points), , drop = FALSE]
+    rownames(comb_indices) <- NULL
     # Select the k-th combination of paths
-    path.comb <- comb.indices[k, var.cols]
-    return(path.comb)
-}
-
-
-
-.formula2list <- function(expr){
-    parts <- .split_by_tilde(expr)
-    lapply(parts, .split_by_plus)
-}
-
-
-.split_by_tilde <- function(expr) {
-    if(is.call(expr) && expr[[1]] == as.name("~") ){
-        # Recursively split left and right sides
-        c(.split_by_tilde(expr[[2]]), .split_by_tilde(expr[[3]]))
-    }else{
-        # Base case: return expression as character
-        list(expr)
-    }
-}
-
-
-# Split each part by +
-.split_by_plus <- function(expr){
-    if( is.call(expr) && expr[[1]] == as.name("+") ){
-        c(.split_by_plus(expr[[2]]), .split_by_plus(expr[[3]]))
-    }else{
-        trimws(deparse(expr))
-    }
+    path_comb <- comb_indices[k, ]
+    return(path_comb)
 }
 

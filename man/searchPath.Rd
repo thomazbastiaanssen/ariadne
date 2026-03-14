@@ -13,6 +13,12 @@ searchPath(graph, ...)
 
 \item{k}{\code{Numeric scalar}. The kth shortest paths to search.
 (Default: \code{1})}
+
+\item{include}{\code{Character vector}. Nodes to cross in the path.
+(Default: \code{NULL})}
+
+\item{exclude}{\code{Character vector}. Nodes to avoid in the path.
+(Default: \code{NULL})}
 }
 \value{
 NULL, message
@@ -29,10 +35,10 @@ graph <- ariadne()
 # Search first 5 paths from ko to ec
 searchPath(graph, ko ~ ec, k = 5)
 
-# Search first path through uniref90
-searchPath(graph, taxname ~ uniref90 ~ ko)
+# Search first path including uniref90
+searchPath(graph, taxname ~ ko, include = "uniref90")
 
-# Search first path from ko and ec to uniref90
-searchPath(graph, ko + ec ~ uniref90)
+# Search first 5 paths excluding uniref50 and uniref100
+searchPath(graph, taxname ~ ko, k = 5, exclude = c("uniref50", "uniref100"))
 
 }
