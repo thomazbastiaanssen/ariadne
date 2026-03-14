@@ -4,7 +4,8 @@
 #' @rdname weavePath
 #' 
 #' @description
-#' \code{weavePath} weaves the path between resources.
+#' \code{weavePath} and \code{weaveComplex} bridge the path between resources,
+#' fetching and combining the necessary data from the ariadne database.
 #' 
 #' @param graph An igraph object.
 #' 
@@ -29,11 +30,11 @@
 #'   linkmap (\code{"long"}) or matrix (\code{"wide"}). (Default: \code{"long"})
 #' 
 #' @param mode \code{Character scalar}. The mode of the output, either as
-#'   \code{"presence"} or \code{"coverage"} information.
-#'   (Default: \code{"presence"})
+#'   \code{"presence"} or \code{"coverage"} information. Only for
+#'   \code{weaveComplex}. (Default: \code{"presence"})
 #' 
 #' @param threshold \code{Numeric scalar}. The coverage threshold to infer
-#'   presence, between 0 and 1. Only used for complex modules.
+#'   presence, between 0 and 1. Only for \code{weaveComplex}.
 #'   (Default: \code{1})
 #' 
 #' @param verbose \code{Logical scalar}. Should messages be printed in the
@@ -44,14 +45,14 @@
 #' 
 #' @param ... Additional arguments.
 #' \itemize{
-#'     \item \code{batch.size}: \code{Numeric scalar}. The maximum batch size
-#'     for SPARQL or API queries. (Default: half the maximum query size)
+#'   \item \code{batch.size}: \code{Numeric scalar}. The maximum batch size
+#'   for SPARQL or API queries. (Default: half the maximum query size)
 #'
-#'     \item \code{workers}: \code{Numeric scalar}. Number of workers to use,
-#'     automatically detected when \code{NULL}. (Default: \code{NULL})
+#'   \item \code{workers}: \code{Numeric scalar}. Number of workers to use,
+#'   automatically detected when \code{NULL}. (Default: \code{NULL})
 #'     
-#'     \item \code{factor}: \code{Numeric scalar}. Number of jobs per worker.
-#'     (Default: \code{3})
+#'   \item \code{factor}: \code{Numeric scalar}. Number of jobs per worker.
+#'   (Default: \code{3})
 #' }
 #' 
 #' @return
@@ -79,17 +80,28 @@
 #' # Weave 3-rd path
 #' tax2bugsig <- weavePath(graph, taxname ~ bugsig, init = tax.labs, k = 3)
 #' 
-#' Weave path passing through taxid
+#' # Weave path including taxid
 #' tax2bugsig <- weavePath(
 #'     graph, taxname ~ bugsig, include = "taxid", init = tax.labs
 #' )
 #' 
+#' # Weave simple path from KEGG diseases to gut metabolic modules
+#' dis2gmm <- weavePath(graph, disease ~ gmm)
+#' 
+#' # Weave complex path from KEGG diseases to gut metabolic modules
+#' dis2gmm <- weaveComplex(graph, disease ~ gmm, threshold = 0.8)
+#' 
+#' # Obtain results in terms of coverage
+#' dis2gmm <- weaveComplex(graph, disease ~ gmm, mode = "coverage")
+#' 
 NULL
 
 
+#' @importFrom igraph as_data_frame
+#' @importFrom MultiFactor MultiFactor weave
 S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
     exclude = NULL, init = NULL, prune = TRUE, output.format = "long",
-    mode = "presence", threshold = 1, verbose = TRUE, timeout = 1e6, ...){
+    verbose = TRUE, timeout = 1e6, ...){
     # Check shared character args
     output.format <- match.arg(output.format, c("long", "wide"))
     # Check shared numeric args
@@ -103,30 +115,6 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
     if( !is.logical(verbose) || length(verbose) != 1L ){
         stop("'verbose' must be TRUE or FALSE.", call. = FALSE)
     }
-    # Define complex modules
-    mod.names <- c("gbm", "gmm")
-    # If formula includes complex modules
-    if( any(mod.names %in% all.vars(by)) ){
-        # Dispatch to method for complex modules
-        out <- .weave_complex(
-            graph, by, k, init, prune, output.format,
-            mode, threshold, verbose, timeout, ...
-        )
-    }else{
-        # Dispatch to regular method
-        out <- .weave_path(
-            graph, by, k, include, exclude, init,
-            prune, output.format, verbose, timeout, ...
-        )
-    }
-    return(out)
-}
-
-
-#' @importFrom igraph as_data_frame
-#' @importFrom MultiFactor MultiFactor weave
-.weave_path <- function(graph, by, k, include, exclude, init, prune,
-    output.format, verbose, timeout, ...){
     # Set timeout for downloads
     options(timeout = timeout)
     # Select unique input
@@ -196,7 +184,7 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
     
     g <- edge_df[idx, , drop = FALSE]
     
-    if( g$source %in% c("BugSigDB", "ChocoPhlAn", "GO", "TIGRfams", "WoL")){
+    if( g$source %in% c("BugSigDB", "ChocoPhlAn", "GM", "GO", "TIGRFAMs", "WoL")){
         
         cached <- .cache_resource(g$url, g$source, g$from, g$to)
         

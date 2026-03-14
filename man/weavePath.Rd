@@ -2,9 +2,12 @@
 % Please edit documentation in R/AllGenerics.R, R/weave.R
 \name{weavePath}
 \alias{weavePath}
+\alias{weaveComplex}
 \title{Weave path between resources}
 \usage{
 weavePath(graph, ...)
+
+weaveComplex(graph, ...)
 }
 \arguments{
 \item{graph}{An igraph object.}
@@ -14,13 +17,11 @@ weavePath(graph, ...)
 \item \code{batch.size}: \code{Numeric scalar}. The maximum batch size
 for SPARQL or API queries. (Default: half the maximum query size)
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{\\item \code{workers}: \code{Numeric scalar}. Number of workers to use,
+\item \code{workers}: \code{Numeric scalar}. Number of workers to use,
 automatically detected when \code{NULL}. (Default: \code{NULL})
 
-\\item \code{factor}: \code{Numeric scalar}. Number of jobs per worker.
+\item \code{factor}: \code{Numeric scalar}. Number of jobs per worker.
 (Default: \code{3})
-}\if{html}{\out{</div>}}
-
 }}
 
 \item{by}{A formula specifying the path to weave.}
@@ -44,11 +45,11 @@ prune the following step. (Default: \code{TRUE})}
 linkmap (\code{"long"}) or matrix (\code{"wide"}). (Default: \code{"long"})}
 
 \item{mode}{\code{Character scalar}. The mode of the output, either as
-\code{"presence"} or \code{"coverage"} information.
-(Default: \code{"presence"})}
+\code{"presence"} or \code{"coverage"} information. Only for
+\code{weaveComplex}. (Default: \code{"presence"})}
 
 \item{threshold}{\code{Numeric scalar}. The coverage threshold to infer
-presence, between 0 and 1. Only used for complex modules.
+presence, between 0 and 1. Only for \code{weaveComplex}.
 (Default: \code{1})}
 
 \item{verbose}{\code{Logical scalar}. Should messages be printed in the
@@ -62,7 +63,8 @@ A two-column data.frame (x-to-y linkmap) or an x-by-y matrix (presence or
 coverage).
 }
 \description{
-\code{weavePath} weaves the path between resources.
+\code{weavePath} and \code{weaveComplex} bridge the path between resources,
+fetching and combining the necessary data from the ariadne database.
 }
 \examples{
 
@@ -85,9 +87,18 @@ tax2bugsig <- weavePath(graph, taxname ~ bugsig, init = tax.labs)
 # Weave 3-rd path
 tax2bugsig <- weavePath(graph, taxname ~ bugsig, init = tax.labs, k = 3)
 
-Weave path passing through taxid
+# Weave path including taxid
 tax2bugsig <- weavePath(
     graph, taxname ~ bugsig, include = "taxid", init = tax.labs
 )
+
+# Weave simple path from KEGG diseases to gut metabolic modules
+dis2gmm <- weavePath(graph, disease ~ gmm)
+
+# Weave complex path from KEGG diseases to gut metabolic modules
+dis2gmm <- weaveComplex(graph, disease ~ gmm, threshold = 0.8)
+
+# Obtain results in terms of coverage
+dis2gmm <- weaveComplex(graph, disease ~ gmm, mode = "coverage")
 
 }

@@ -25,8 +25,9 @@
         resource,
         BugSigDB = .process_bugsigdb,
         ChocoPhlAn = .process_chocophlan,
+        GM = .process_complex_modules,
         GO = .process_go,
-        TIGRfams = .process_tigrfams,
+        TIGRFAMs = .process_tigrfams,
         WoL = .process_wol
     )
     # Read file content

@@ -1,25 +1,8 @@
 
-#library(mia)
-
-#data("Tengeler2020", package = "mia")
-
-#tse <- Tengeler2020
-
-#res <- gsub(".*\\|", "", getFullTaxonomyLabels(rowData(tse)))
-#res <- gsub("[a-z]__", "", res)
-
-#graph <- ariadne()
-
-#tax2gmm <- weaveComplexModules(graph, taxname ~ gmm, k = 3, init = res[1:20])
-
-#gmm2tax <- weaveComplexModules(graph, gmm ~ taxname, k = 2)
-
-#exp1 <- weaveComplexModules(graph, taxname ~ gmm, k = 3, init = res[1:5])
-
-
 #' @importFrom igraph as_data_frame
-.weave_complex <- function(graph, by, k, init, prune, output.format, mode,
-    threshold, verbose, timeout, ...){
+S7::method(weaveComplex, igraph) <- function(graph, by, k = 1, include = NULL,
+    exclude = NULL, init = NULL, prune = TRUE, output.format = "long",
+    mode = "presence", threshold = 1, verbose = TRUE, timeout = 1e6, ...){
     # Check mode
     mode <- match.arg(mode, c("presence", "coverage"))
     # Check threshold
@@ -35,8 +18,7 @@
     is.mod <- by.vars %in% mod.names
     # Check that exactly one module name is specified
     if( sum(is.mod) != 1L ){
-        stop("Either source or target variable must be a module name.",
-            call. = FALSE)
+        stop("Exactly one side of 'by' must be a module name.", call. = FALSE)
     }
     
     var.idx <- c(mod = which(is.mod), orig = which(!is.mod))
@@ -45,12 +27,12 @@
     orig.name <- by.vars[var.idx[["orig"]]]
     
     edge_df <- as_data_frame(graph, what = "edges")
-    feat.name <- paste(edge_df$to[edge_df$from == mod.name], collapse = "+")
-    url <- unique(edge_df$url[edge_df$from == mod.name])
+    feat.name <- edge_df$to[edge_df$from == mod.name]
+    url <- edge_df$url[edge_df$from == mod.name]
     
     x <- readLines(url)
-    linkmaps <- .process_complex_modules(x)
-
+    linkmaps <- .process_complex_modules(x, output.format = "list")
+    
     if( var.idx[["mod"]] == 1L ){
         init <- unique(linkmaps[["complex2feature"]][["feature"]])
     }
@@ -59,8 +41,9 @@
         paste(collapse = "~") |>
         as.formula()
     
-    feature2orig <- .weave_path(
-        graph, inner_by, k, init, prune, "long", verbose, timeout, ...
+    feature2orig <- weavePath(
+        graph, inner_by, k, include, exclude,
+        init, prune, "long", verbose, timeout, ...
     )
     
     feature2orig <- feature2orig[ , var.idx]
@@ -124,7 +107,9 @@
 }
 
 
-.process_complex_modules <- function(x, br = "///", AND = ",", OR = "\t"){
+#' @importFrom MultiFactor MultiFactor weave
+.process_complex_modules <- function(
+    x, br = "///", AND = ",", OR = "\t", output.format = "linkmap"){
     # Identify break lines
     v_br <- x == br
     # Split content by breaks, excluding break lines themselves
@@ -149,7 +134,7 @@
     feature_complex <- unlist(feature_list, use.names = FALSE)
     feature <- strsplit(feature_complex, ",")
     # Create and return structured list of data frames
-    modules <- list(
+    out <- list(
         module2component = data.frame(module, component = module_component),
         component2complex = data.frame(
             component = rep(module_component, lengths(feature_list)),
@@ -160,5 +145,9 @@
             feature = unlist(feature, use.names = FALSE)
         )
     )
-    return(modules)
+    if( output.format == "linkmap" ){
+        mf <- MultiFactor(out)
+        out <- weave(mf, module ~ feature)
+    }
+    return(out)
 }
