@@ -79,6 +79,7 @@
 .endpoint_table <- function(endpoint){
   
     endpoint <- switch(endpoint,
+        Rhea = "https://sparql.rhea-db.org/",
         UniProt = "https://sparql.uniprot.org/"
     )
     

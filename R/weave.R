@@ -139,6 +139,7 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
         linkmaps[[paste0(g$from, "2", g$to)]] <- linkmap
         # Update init
         init <- if( prune ) unique(linkmap[[g$to]]) else NULL
+        print(head(init))
     }
     # Construct MultiFactor from linkmaps
     mf <- MultiFactor(linkmaps)
@@ -205,14 +206,13 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
         
         df <- data.frame(
             x = gsub("^[^:]*:", "", kegg.link),
-            y = gsub("^[^:]*:", "", names(kegg.link)),
-            row.names = NULL
+            y = gsub("^[^:]*:", "", names(kegg.link))
         )
         
         if( !is.null(init) ){
-            df <- df[df[[g$from]] %in% init, ]
+            df <- df[df[[1L]] %in% init, ]
         }
-    
+        
     }else if( g$source == "OTT" ){
         
         g$from <- from

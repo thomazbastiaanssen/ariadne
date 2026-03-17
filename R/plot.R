@@ -98,15 +98,10 @@ S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1,
         ) +
         geom_node_point(aes(alpha = alpha), size = 5, colour = "darkorange") +
         geom_node_text(aes(label = name, alpha = alpha), vjust = 1.8, size = 4) +
-        scale_edge_colour_manual(
-            values = path_colours,
-            breaks = path_names,
-            labels = path_names,
-            name = "Paths"
-        ) +
+        scale_edge_colour_manual(values = path_colours) +
         scale_alpha(range = c(alpha_min, 1), guide = "none") +
         theme_void() +
-        theme(legend.position = "bottom")
+        theme(legend.position = "none")
     
     return(p)
 }

@@ -32,6 +32,7 @@ NULL
 #' @importFrom httr2 request req_perform resp_body_json
 #' @importFrom igraph read_graph as_data_frame graph_from_data_frame
 #' @importFrom tools R_user_dir
+#' @importFrom dplyr bind_rows
 ariadne <- function(versions = NULL){
     # Initialise database
     db <- R_user_dir("ariadne", "data")
@@ -72,32 +73,19 @@ ariadne <- function(versions = NULL){
         node_dfs[[key]] <- graph_df$vertices
     }
     # Build and clean edge data
-    edge_df <- do.call(rbind, edge_dfs)
-    edge_df$source <- gsub("\\.gml.*$", "", rownames(edge_df))
-    rownames(edge_df) <- NULL
+    edge_df <- bind_rows(edge_dfs, .id = "source")
+    edge_df$source <- sub(".gml", "", edge_df$source, fixed = TRUE)
+    edge_df <- edge_df[c("from", "to", "source", "url")]
     # Build and clean node data
-    node_df <- do.call(rbind, node_dfs)
-    node_df$source <- gsub("\\.gml.*$", "", rownames(node_df))
+    node_df <- bind_rows(node_dfs, .id = "source")
+    node_df$source <- sub(".gml", "", node_df$source, fixed = TRUE)
+    node_df <- node_df[c("name", "specific", "source")]
     rownames(node_df) <- NULL
-    node_df$id <- NULL
     # Widen database-specific names
     node_df <- reshape(
         node_df, idvar = "name", timevar = "source", direction = "wide"
     )
-    names(node_df) <- gsub("specific.", "", names(node_df), fixed = TRUE)
-    # Retrieve database-specific names
-    spec.from <- .generic2specific(edge_df, node_df, "from")
-    spec.to <- .generic2specific(edge_df, node_df, "to")
-    # Build resource paths
-    paths <- mapply(
-        FUN = .build_path,
-        from = spec.from,
-        to = spec.to,
-        repo = edge_df$source,
-        USE.NAMES = FALSE
-    )
-    # Add urls to edge data
-    edge_df$url <- as.vector(paths)
+    names(node_df) <- sub("specific.", "", names(node_df), fixed = TRUE)
     # Build final resource graph
     graph <- graph_from_data_frame(edge_df, vertices = node_df)
     return(graph)
@@ -111,66 +99,4 @@ ariadne <- function(versions = NULL){
     
     specific <- nodes[cbind(idx, idy)]
     return(specific)
-}
-
-###
-
-# This is temporary while ariadne.db is not online
-meta <- list(
-    BugSigDB = "https://zenodo.org/records/15272273/files/",
-    ChocoPhlAn = "https://zenodo.org/records/17100034/files/",
-    GM = "https://github.com/omixer/omixer-rpmR/raw/refs/heads/main/inst/extdata/",
-    GO = "https://current.geneontology.org/ontology/external2go/",
-    KEGG = "https://www.genome.jp/kegg/",
-    TIGRfams = "https://ftp.ncbi.nlm.nih.gov/hmm/TIGRFAMs/release_15.0/",
-    UniProt = "https://www.uniprot.org/",
-    WoL = "https://ftp.microbio.me/pub/wol-20April2021/"
-)
-
-meta <- data.frame(
-    name = names(meta),
-    repo = unlist(meta, use.names = FALSE)
-)
-
-###
-
-# Build path to resource
-.build_path <- function(from, to, repo){
-    
-    FUN <- switch(
-        repo,
-        BugSigDB = function(from, to, repo){
-            paste0(repo, "bugsigdb_signatures_mixed_", to, ".gmt")
-        },
-        ChocoPhlAn = function(from, to, repo){
-            paste0(repo, "map_", from, "_", to, ".txt.gz")
-        },
-        GM = function(from, to, repo){
-            if( from == "gmm" ){
-                file_name <- "GMMs.v1.07.txt"
-            }else if( from == "gbm" ){
-                file_name <- "GBMs.v1.0.txt"
-            }
-            paste0(repo, file_name)
-        },
-        GO = function(from, to, repo){
-            paste0(repo, from, "2", to)
-        },
-        TIGRfams = function(from, to, repo){
-            paste0(repo, from, "_", to, "_LINK")
-        },
-        WoL = function(from, to, repo){
-            # Account for exceptions
-            prefix <- ifelse(to == "all", "go", to)
-            prefix <- ifelse(to == "ko", "kegg", prefix)
-            prefix <- ifelse(to == "protein", "metacyc", prefix)
-            # Create path
-            paste0(repo, "function/", prefix, "/", to, ".map.xz")
-        },
-        function(from, to, repo) NA
-    )
-    
-    base_url <- meta$repo[match(repo, meta$name)]
-    url <- FUN(from, to, base_url)
-    return(url)
 }

@@ -146,8 +146,10 @@ S7::method(weaveComplex, igraph) <- function(graph, by, k = 1, include = NULL,
         )
     )
     if( output.format == "linkmap" ){
-        mf <- MultiFactor(out)
-        out <- weave(mf, module ~ feature)
+        out <- out |>
+            MultiFactor() |>
+            weave(module ~ feature) |>
+            data.frame()
     }
     return(out)
 }
