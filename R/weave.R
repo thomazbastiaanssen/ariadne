@@ -139,7 +139,6 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
         linkmaps[[paste0(g$from, "2", g$to)]] <- linkmap
         # Update init
         init <- if( prune ) unique(linkmap[[g$to]]) else NULL
-        print(head(init))
     }
     # Construct MultiFactor from linkmaps
     mf <- MultiFactor(linkmaps)
@@ -223,24 +222,26 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
         
         df <- .queryOTT(spec.from, spec.to, init, timeout, ...)
     
-    }else if( g$source == "UniProt" ){
-        
+    }else if( g$source %in% c("Rhea", "UniProt") ){
+        # Variable original order matters
         g$from <- from
         g$to <- to
-        
+        # Use specific names for SPARQL queries
         spec.from <- node_df[node_df$name == g$from, g$source]
         spec.to <- node_df[node_df$name == g$to, g$source]
-        
-        spec.from <- ifelse(startsWith(spec.from, "uniref"), "uniref", spec.from)
-        spec.to <- ifelse(startsWith(spec.to, "uniref"), "uniref", spec.to)
-        
+        # Query SPARQL endpoint
         df <- .querySPARQL(spec.from, spec.to, g$source, init, timeout, ...)
+        # Trim IRI prefixes
         df[] <- lapply(df, function(col) gsub("http.+/", "", col))
-        
-        if( spec.to == "uniref" ){
+        # Filter uniref ids
+        if( spec.to %in% c("uniref", "BioCyc") ){
             df <- df[grepl(g$to, df[[spec.to]], ignore.case = TRUE), ]
             rownames(df) <- NULL
         }
+    }
+    # Check that result is not empty
+    if( nrow(df) == 0L ){
+        stop("Bindings were depleted.", call. = FALSE)
     }
     # Add edge names
     colnames(df) <- c(g$from, g$to)

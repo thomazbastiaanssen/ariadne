@@ -7,7 +7,7 @@
     
     out.list <- bplapply(ranges, function(i){
         x <- init[i[1]:i[2]]
-        query <- .composeSPARQL(from, to, x)
+        query <- .composeSPARQL(from, to, endpoint, x)
         resp <- .sendSPARQL(query, endpoint, timeout)
     })
     
@@ -40,13 +40,16 @@
 }
 
 
-.composeSPARQL <- function(from, to, init) {
+.composeSPARQL <- function(from, to, endpoint, init) {
     
     preface <- "
-        PREFIX up: <http://purl.uniprot.org/core/>
-        PREFIX uniref: <http://purl.uniprot.org/uniref/>
-        PREFIX taxon: <http://purl.uniprot.org/taxonomy/>
+        PREFIX enzyme: <http://purl.uniprot.org/enzyme/>
+        PREFIX protein: <http://purl.uniprot.org/uniprot/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX rh: <http://rdf.rhea-db.org/>
+        PREFIX taxon: <http://purl.uniprot.org/taxonomy/>
+        PREFIX uniref: <http://purl.uniprot.org/uniref/>
+        PREFIX up: <http://purl.uniprot.org/core/>
     "
 
     clause <- paste0("
@@ -62,7 +65,7 @@
         clause <- paste0(
             clause,
             "VALUES ?", spec.from, " {\n",
-                paste0(.iri_table(init, from), collapse = " "), "\n",
+                paste0(.iri_table(init, from, endpoint), collapse = " "), "\n",
             "}\n"
         )
     }
@@ -114,12 +117,15 @@
     "
     
     uniprotkb2enzyme <- "
-        ?uniprotkb ( up:enzyme | up:domain/up:enzyme | up:component/up:enzyme ) ?enzyme.
+        ?uniprotkb (up:enzyme|up:domain/up:enzyme|up:component/up:enzyme) ?enzyme.
     "
     
     uniref2enzyme <- paste0(uniref2uniprotkb, uniprotkb2enzyme)
     
-    ext <- spterms[!spterms %in% c("uniref", "uniprotkb", "taxname", "taxid", "enzyme")]
+    internals <- c(
+        "uniref", "uniprotkb", "taxname", "taxid", "enzyme", "rhea", "chebi"
+    )
+    ext <- setdiff(spterms, internals)
 
     uniprotkb2external <- paste0("
         ?uniprotkb a up:Protein.
@@ -128,6 +134,39 @@
     ")
     
     uniref2external <- paste0(uniref2uniprotkb, uniprotkb2external)
+    
+    uniprotkb2rhea <- "
+        ?uniprotkb up:annotation/up:catalyticActivity/up:catalyzedReaction ?rhea.
+    "
+    
+    uniref2rhea <- paste0(uniref2uniprotkb, uniprotkb2rhea)
+    
+    rhea2chebi <- "
+        ?rhea rdfs:subClassOf rh:Reaction.
+        ?rhea rh:side/rh:contains/rh:compound ?compound.
+        # chebi is small molecule, reactive part of macromolecule or polymer
+        ?compound (rh:chebi|(rh:reactivePart/rh:chebi)|rh:underlyingChebi) ?chebi.
+    "
+    
+    rhea2enzyme <- "
+        ?rhea rdfs:subClassOf rh:Reaction.
+        ?rhea rh:ec ?enzyme.
+    "
+    
+    rhea2external <- paste0("
+        ?master rdfs:subClassOf rh:Reaction.
+        {
+            ?master rdfs:seeAlso ?", ext, ".
+            BIND(?master as ?rhea)
+        }
+        UNION
+        {
+            ?master rh:directionalReaction|rh:bidirectionalReaction ?alter.
+            ?directionalReaction rdfs:seeAlso ?", ext, ".
+            BIND(?alter as ?rhea)
+        }
+        FILTER(CONTAINS(str(?", ext, "), '", ext, "'))
+    ")
     
     key <- paste(rev(sort(spterms)), collapse = "2")
     
@@ -139,33 +178,44 @@
         uniref2uniprotkb = uniref2uniprotkb,
         uniref2enzyme = uniref2enzyme,
         uniprotkb2enzyme = uniprotkb2enzyme,
+        uniprotkb2rhea = uniprotkb2rhea,
+        uniref2rhea = uniref2rhea,
+        rhea2chebi = rhea2chebi,
+        rhea2enzyme = rhea2enzyme,
         "external"
     )
     
-    if( triple == "external" && "uniprotkb" %in% spterms ){
-        triple <- uniprotkb2external
-    }else if( triple == "external" && "uniref" %in% spterms ){
-        triple <- uniref2external
+    if( triple == "external" ){
+      
+        internal <- setdiff(spterms, ext)
+        
+        triple <- switch(
+            internal,
+            uniprotkb = uniprotkb2external,
+            uniref = uniref2external,
+            rhea = rhea2external
+        )
     }
     
     return(triple)
 }
 
 
-.iri_table <- function(x, from) {
+.iri_table <- function(x, from, endpoint) {
     
     iri <- switch(
         from,
-        uniprotkb = "up",
+        uniprotkb = "protein",
         uniref = "uniref",
         taxid = "taxon",
         taxname = "",
         enzyme = "enzyme",
+        rhea = "rh",
         "external"
     )
-
+    
     if( iri == "external" ){
-        iri <- .get_external_iri(from)
+        iri <- .get_external_iri(from, endpoint)
         x <- paste0("<", iri, x, ">")
     }else if( iri == "" ){
         x <- paste0("'", x, "'")
@@ -177,21 +227,33 @@
 }
 
 
-.get_external_iri <- function(ext, limit = 10) {
+.get_external_iri <- function(ext, endpoint, limit = 10) {
     
-    query <- paste0("
+    uniprot_query <- paste0("
         PREFIX up: <http://purl.uniprot.org/core/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         SELECT DISTINCT ?entry
         WHERE {
             ?protein a up:Protein.
             ?protein rdfs:seeAlso ?entry.
-            ?entry up:database <http://purl.uniprot.org/database/", ext, ">.\n",
-        "}
-        LIMIT ", limit
-    )
+            ?entry up:database <http://purl.uniprot.org/database/", ext, ">.
+    ")
     
-    iri_list <- .sendSPARQL(query, "UniProt", 1e6)
+    rhea_query <- paste0("
+        PREFIX rh: <http://rdf.rhea-db.org/
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        SELECT DISTINCT ?entry
+        WHERE {
+            ?rhea rdfs:subClassOf rh:Reaction.
+            ?rhea rdfs:seeAlso ?entry.
+            FILTER CONTAINS(str(?entry), '", ext, "')
+    ")
+    
+    query <- switch(endpoint, Rhea = rhea_query, UniProt = uniprot_query)
+    
+    query <- paste0(query, "} LIMIT ", limit)
+    
+    iri_list <- .sendSPARQL(query, endpoint, 1e6)
     iri_list <- unlist(iri_list, use.names = FALSE)
     iri_list <- gsub("([^/]+)$", "", iri_list)
     iri <- unique(iri_list)
