@@ -95,6 +95,12 @@
     
     spterms <- c(from, to)
     
+    internals <- c(
+        "uniref", "uniprotkb", "taxname", "taxid", "enzyme", "rhea", "chebi"
+    )
+    
+    ext <- setdiff(spterms, internals)
+    
     uniref2taxid <- "
         # Bind UniRef ids to cluster members
         ?uniref up:member ?member.
@@ -123,11 +129,6 @@
     
     uniref2enzyme <- paste0(uniref2uniprotkb, uniprotkb2enzyme)
     
-    internals <- c(
-        "uniref", "uniprotkb", "taxname", "taxid", "enzyme", "rhea", "chebi"
-    )
-    ext <- setdiff(spterms, internals)
-
     uniprotkb2external <- paste0("
         ?uniprotkb a up:Protein.
         ?uniprotkb rdfs:seeAlso ?", ext, ".

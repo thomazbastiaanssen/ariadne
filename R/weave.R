@@ -232,6 +232,9 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
         # Use specific names for SPARQL queries
         spec.from <- node_df[node_df$name == g$from, g$source]
         spec.to <- node_df[node_df$name == g$to, g$source]
+        # Replace uniref50/90/100 with uniref
+        spec.from <- ifelse(startsWith(spec.from, "uniref"), "uniref", spec.from)
+        spec.to <- ifelse(startsWith(spec.to, "uniref"), "uniref", spec.to)
         # Query SPARQL endpoint
         df <- .querySPARQL(spec.from, spec.to, g$source, init, timeout, ...)
         # Filter special cases
