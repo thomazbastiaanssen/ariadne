@@ -165,6 +165,7 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
     edge_df <- graph_df$edges
     node_df <- graph_df$vertices
     
+    is.init <- !is.null(init)
     is.source <- edge_df$source == repo
     
     idx <- which(
@@ -188,7 +189,7 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
         
         cached <- .cache_resource(g$url, g$source, g$from, g$to)
         
-        if( !is.null(init) ){
+        if( is.init ){
             
             df <- cached |>
                 open_dataset() |>
@@ -208,7 +209,7 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
             y = gsub("^[^:]*:", "", names(kegg.link))
         )
         
-        if( !is.null(init) ){
+        if( is.init ){
             df <- df[df[[1L]] %in% init, ]
         }
         
@@ -226,24 +227,53 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
         # Variable original order matters
         g$from <- from
         g$to <- to
+        # Add special IRI prefixes
+        init <- if( is.init ) .add_iri(init, g$source, g$from) else init
         # Use specific names for SPARQL queries
         spec.from <- node_df[node_df$name == g$from, g$source]
         spec.to <- node_df[node_df$name == g$to, g$source]
         # Query SPARQL endpoint
         df <- .querySPARQL(spec.from, spec.to, g$source, init, timeout, ...)
-        # Trim IRI prefixes
-        df[] <- lapply(df, function(col) gsub("http.+/", "", col))
-        # Filter uniref ids
+        # Filter special cases
         if( spec.to %in% c("uniref", "BioCyc") ){
             df <- df[grepl(g$to, df[[spec.to]], ignore.case = TRUE), ]
             rownames(df) <- NULL
         }
+        # Strip special IRI prefixes
+        df[[spec.from]] <- .strip_iri(df[[spec.from]], g$from)
+        df[[spec.to]] <- .strip_iri(df[[spec.to]], g$to)
     }
     # Check that result is not empty
     if( nrow(df) == 0L ){
-        stop("Bindings were depleted.", call. = FALSE)
+        stop("Bindings depleted.", call. = FALSE)
     }
     # Add edge names
     colnames(df) <- c(g$from, g$to)
     return(df)
+}
+
+
+.add_iri <- function(x, repo, from){
+    if( from %in% c("ecocyc", "metacyc") ){
+        prefix <- ifelse(
+            repo == "UniProt",
+            switch(from, metacyc = "MetaCyc", ecocyc = "EcoCyc"),
+            toupper(from)
+        )
+        x <- paste0(prefix, ":", x)
+    }else if( from %in% c("chebi", "go") ){
+        x <- paste0(toupper(from), "_", x)
+    }
+    return(x)
+}
+
+.strip_iri <- function(x, name){
+    
+    y <- sub("http.+/", "", x)
+    
+    if( !grepl("uniref", name, fixed = TRUE) ){
+        y <- sub(paste0("^", name, "[:_]"), "", y, ignore.case = TRUE)
+    }
+    
+    return(y)
 }

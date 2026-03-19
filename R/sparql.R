@@ -44,6 +44,7 @@
     
     preface <- "
         PREFIX enzyme: <http://purl.uniprot.org/enzyme/>
+        PREFIX obo: <http://purl.obolibrary.org/obo/>
         PREFIX protein: <http://purl.uniprot.org/uniprot/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX rh: <http://rdf.rhea-db.org/>
@@ -162,7 +163,7 @@
         UNION
         {
             ?master rh:directionalReaction|rh:bidirectionalReaction ?alter.
-            ?directionalReaction rdfs:seeAlso ?", ext, ".
+            ?alter rdfs:seeAlso ?", ext, ".
             BIND(?alter as ?rhea)
         }
         FILTER(CONTAINS(str(?", ext, "), '", ext, "'))
@@ -205,6 +206,7 @@
     
     iri <- switch(
         from,
+        chebi = "obo",
         uniprotkb = "protein",
         uniref = "uniref",
         taxid = "taxon",
@@ -240,7 +242,7 @@
     ")
     
     rhea_query <- paste0("
-        PREFIX rh: <http://rdf.rhea-db.org/
+        PREFIX rh: <http://rdf.rhea-db.org/>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         SELECT DISTINCT ?entry
         WHERE {
@@ -250,7 +252,6 @@
     ")
     
     query <- switch(endpoint, Rhea = rhea_query, UniProt = uniprot_query)
-    
     query <- paste0(query, "} LIMIT ", limit)
     
     iri_list <- .sendSPARQL(query, endpoint, 1e6)
