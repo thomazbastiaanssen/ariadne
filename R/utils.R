@@ -21,19 +21,8 @@
 #' a unique combination of the two.
 NULL
 
-# Reduce taxcols of rowData to taxstring in metaphlan format
-#' @importFrom SummarizedExperiment rowData
-getFullTaxonomyLabels <- function(tse){
-    # Add taxrank prefixes to taxcols of rowData
-    tax <- .add_prefix_to_taxtable(tse)
-    # Collapse taxcols to taxstring in metaphlan format
-    tax <- apply(tax, 1L, paste, collapse = "|")
-    # Remove empty taxranks
-    tax <- gsub("(?:\\|[a-z]__)+$", "", tax)
-    return(tax)
-}
 
-
+#' @export
 #' @importFrom stringr fixed str_detect str_split
 #' @importFrom SummarizedExperiment rowData colData rowData<- colData<- assays
 #' @importFrom TreeSummarizedExperiment TreeSummarizedExperiment
@@ -45,12 +34,12 @@ processGeneFamilies <- function(se){
     gene.linkmap <- as.data.frame(
         str_split(rownames(se), fixed("|"), n = 2, simplify = TRUE)
     )
-    names(gene.linkmap) <- c("GeneID", "Taxon")
+    names(gene.linkmap) <- c("uniref90", "taxname")
     # Split genus and species
     tax.linkmap <- as.data.frame(
-        str_split(gene.linkmap$Taxon, fixed("."), n = 2, simplify = TRUE),
+        str_split(gene.linkmap$taxname, fixed("."), n = 2, simplify = TRUE),
     )
-    names(tax.linkmap) <- c("Genus", "Species")
+    names(tax.linkmap) <- c("genus", "species")
     # Convert SE to TreeSE
     tse <- TreeSummarizedExperiment(
         assays = assays(se),
@@ -58,4 +47,25 @@ processGeneFamilies <- function(se){
         colData = colData(se)
     )
     return(tse)
+}
+
+#' @export
+appendModules <- function(x, modules, by = "row.names"){
+    
+    if( is.data.frame(modules) && ncol(modules) == 2L ){
+        modules <- table(modules)
+        modules <- modules == 1
+    }
+    
+    if( by == "row.names" ){
+        idx <- match(rownames(x), rownames(modules))
+    }else{
+        idx <- match(x[[by]], rownames(modules))
+    }
+    
+    modules <- modules[idx, , drop = FALSE]
+    modules[is.na(modules)] <- FALSE
+    
+    out <- cbind(x, modules)
+    return(out)
 }

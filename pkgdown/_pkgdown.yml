@@ -6,10 +6,8 @@ reference:
   - weavePath
   - searchPath
   - plotPath
-  - getModules
-  - addModules
 - title: Other
 - contents:
-  - getFullTaxonomyLabels
+  - appendModules
   - processGeneFamilies
   - butyrate

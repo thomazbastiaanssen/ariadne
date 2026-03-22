@@ -16,11 +16,3 @@ weavePath <- S7::new_generic("weavePath", "graph")
 #' @export
 #' @rdname weavePath
 weaveComplex <- S7::new_generic("weaveComplex", "graph")
-
-#' @export
-#' @rdname getModules
-getModules <- S7::new_generic("getModules", "x")
-
-#' @export
-#' @rdname getModules
-addModules <- S7::new_generic("addModules", "x")

@@ -117,14 +117,25 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
     }
     # Set timeout for downloads
     options(timeout = timeout)
+    # Initialise list of linkmaps
+    linkmaps <- list()
+    # For stratified input
+    if( is.data.frame(init) && ncol(init) == 2L ){
+        # Remove first step in the path
+        path_by <- as.formula(paste0(colnames(init)[2L], "~", all.vars(by)[2L]))
+        # Add init linkmap to linkmaps
+        linkmaps[["init"]] <- init
+        # Extract initial values for second step
+        init <- init[[2L]]
+    }else{
+        path_by <- by
+    }
     # Select unique input
     init <- unique(init)
     # Retrieve edges and nodes data
     graph_df <- as_data_frame(graph, what = "both")
     # Draw kth path from source to target
-    path_df <- .draw_path(graph, by, k, include, exclude)
-    # Initialise list of linkmaps
-    linkmaps <- list()
+    path_df <- .draw_path(graph, path_by, k, include, exclude)
     # Perform step of path
     for( i in seq_len(nrow(path_df)) ){
         # Retrieve step
@@ -186,17 +197,18 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
     g <- edge_df[idx, , drop = FALSE]
     
     if( g$source %in% c("BugSigDB", "ChocoPhlAn", "GM", "GO", "TIGRFAMs", "WoL")){
-        
+        # Get file path to cached resource
         cached <- .cache_resource(g$url, g$source, g$from, g$to)
-        
+        # If initial values are given
         if( is.init ){
-            
+            # Filter linkmap before importing
             df <- cached |>
                 open_dataset() |>
                 filter(!!sym(from) %in% init) |>
                 collect() |>
                 as.data.frame()
         }else{
+            # Read linkmap from parquet
             df <- read_parquet(cached)
         }
         
@@ -210,7 +222,7 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
         )
         
         if( is.init ){
-            df <- df[df[[1L]] %in% init, ]
+            df <- df[df[[1L]] %in% init, , drop = FALSE]
         }
         
     }else if( g$source == "OTT" ){
@@ -232,9 +244,6 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
         # Use specific names for SPARQL queries
         spec.from <- node_df[node_df$name == g$from, g$source]
         spec.to <- node_df[node_df$name == g$to, g$source]
-        # Replace uniref50/90/100 with uniref
-        spec.from <- ifelse(startsWith(spec.from, "uniref"), "uniref", spec.from)
-        spec.to <- ifelse(startsWith(spec.to, "uniref"), "uniref", spec.to)
         # Query SPARQL endpoint
         df <- .querySPARQL(spec.from, spec.to, g$source, init, timeout, ...)
         # Filter special cases

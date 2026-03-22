@@ -39,16 +39,12 @@ Imports:
     igraph,
     KEGGREST,
     methods,
-    mia,
     MultiFactor,
     S7,
     rlang,
     rotl,
     Matrix,
-    stringr,
-    SummarizedExperiment,
     tools,
-    TreeSummarizedExperiment,
     utils
 Suggests:
     BiocStyle,
@@ -56,9 +52,12 @@ Suggests:
     curatedMetagenomicData,
     ggplot2,
     knitr,
+    mia,
     miaViz,
     remotes,
     rmarkdown,
+    SummarizedExperiment,
+    TreeSummarizedExperiment,
     testthat (>= 3.0.0)
 Remotes:
     github::Minotau-R/MultiFactor
