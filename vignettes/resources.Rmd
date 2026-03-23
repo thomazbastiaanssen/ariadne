@@ -30,3 +30,45 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r}
+library(ariadne)
+# library(ariadne.db)
+library(igraph)
+library(dplyr)
+library(ggplot2)
+```
+
+
+```{r}
+graph <- ariadne()
+
+plotPath(graph)
+```
+
+```{r}
+graph_df <- as_data_frame(graph, what = "both")
+edge_df <- graph_df$edges
+node_df <- graph_df$vertices
+```
+
+
+```{r}
+df <- edge_df |>
+    group_by(source) |>
+    summarise(edges = n(), nodes = n_distinct(c(from, to)))
+
+df
+```
+
+
+```{r}
+for( resource in df$source ){
+    
+    res_df <- edge_df[edge_df$source == resource, c("from", "to")]
+    res_graph <- graph_from_data_frame(res_df)
+    
+    p <- plotPath(res_graph) + ggtitle(resource)
+    print(p)
+}
+```
+

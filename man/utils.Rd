@@ -2,15 +2,28 @@
 % Please edit documentation in R/utils.R
 \name{utils}
 \alias{utils}
+\alias{processGeneFamilies}
+\alias{appendModules}
 \title{Utility functions}
-\arguments{
-\item{tse}{A
-\code{\link[TreeSummarizedExperiment:TreeSummarizedExperiment-constructor]{TreeSummarizedExperiment}}
-object.}
+\usage{
+processGeneFamilies(se)
 
+appendModules(x, modules, by = "row.names")
+}
+\arguments{
 \item{se}{A
 \code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment}}
 object.}
+
+\item{x}{The rowData or colData of a
+\code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment}}
+object.}
+
+\item{modules}{\code{data.frame}. A linkmap returned by weavePath or
+weaveComplex.}
+
+\item{by}{\code{Character scalar} A string specifying a variable of \code{x}
+to append \code{modules}. (Default: \code{"row.names"})}
 }
 \value{
 \code{as.linkmap} returns a linkmap \code{data.frame} where the first and

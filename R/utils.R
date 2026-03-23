@@ -7,13 +7,19 @@
 #' in other packages dealing with annotation mappings. \code{as.linkmap}
 #' converts a list of named vectors to a linkmap data.frame.
 #' 
-#' @param tse A
-#'   \code{\link[TreeSummarizedExperiment:TreeSummarizedExperiment-constructor]{TreeSummarizedExperiment}}
-#'   object.
-#' 
 #' @param se A
 #'   \code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment}}
 #'   object.
+#' 
+#' @param x The rowData or colData of a
+#'   \code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment}}
+#'   object.
+#' 
+#' @param modules \code{data.frame}. A linkmap returned by weavePath or
+#'   weaveComplex.
+#' 
+#' @param by \code{Character scalar} A string specifying a variable of \code{x}
+#'   to append \code{modules}. (Default: \code{"row.names"})
 #' 
 #' @returns
 #' \code{as.linkmap} returns a linkmap \code{data.frame} where the first and
@@ -23,6 +29,7 @@ NULL
 
 
 #' @export
+#' @rdname utils
 #' @importFrom SummarizedExperiment rowData
 #' @importFrom stringr fixed str_detect str_split
 processGeneFamilies <- function(se){
@@ -46,6 +53,7 @@ processGeneFamilies <- function(se){
 
 
 #' @export
+#' @rdname utils
 appendModules <- function(x, modules, by = "row.names"){
     # Check args
     if( !by %in% c("row.names", colnames(x)) ){
