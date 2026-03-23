@@ -41,8 +41,8 @@ mapping step. (Default: \code{NULL})}
 \item{prune}{\code{Logical scalar}. Should the values from each step be used
 prune the following step. (Default: \code{TRUE})}
 
-\item{output.format}{\code{Character scalar}. The output format, either
-linkmap (\code{"long"}) or matrix (\code{"wide"}). (Default: \code{"long"})}
+\item{use.names}{\code{Logical scalar}. Should feature names be used in the
+output instead of feature identifiers. either (Default: \code{TRUE})}
 
 \item{mode}{\code{Character scalar}. The mode of the output, either as
 \code{"presence"} or \code{"coverage"} information. Only for

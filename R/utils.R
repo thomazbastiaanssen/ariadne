@@ -23,9 +23,8 @@ NULL
 
 
 #' @export
+#' @importFrom SummarizedExperiment rowData
 #' @importFrom stringr fixed str_detect str_split
-#' @importFrom SummarizedExperiment rowData colData rowData<- colData<- assays
-#' @importFrom TreeSummarizedExperiment TreeSummarizedExperiment
 processGeneFamilies <- function(se){
     # Select rows with non-null taxa
     se <- se[str_detect(rownames(se), fixed("|")), ]
@@ -40,22 +39,20 @@ processGeneFamilies <- function(se){
         str_split(gene.linkmap$taxname, fixed("."), n = 2, simplify = TRUE),
     )
     names(tax.linkmap) <- c("genus", "species")
-    # Convert SE to TreeSE
-    tse <- TreeSummarizedExperiment(
-        assays = assays(se),
-        rowData = cbind(rowData(se), gene.linkmap, tax.linkmap),
-        colData = colData(se)
-    )
-    return(tse)
+    # Bind gene and tax linkmaps
+    rowData(se) <- cbind(rowData(se), gene.linkmap, tax.linkmap)
+    return(se)
 }
+
 
 #' @export
 appendModules <- function(x, modules, by = "row.names"){
-    
-    if( is.data.frame(modules) && ncol(modules) == 2L ){
-        modules <- table(modules)
-        modules <- modules == 1
+    # Check args
+    if( !by %in% c("row.names", colnames(x)) ){
+        stop("'by' must be 'row.names' or a variable of 'x'.", call. = FALSE)
     }
+    # Convert linkmap to wide format
+    modules <- table(modules) == 1
     
     if( by == "row.names" ){
         idx <- match(rownames(x), rownames(modules))

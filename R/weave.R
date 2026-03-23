@@ -26,8 +26,8 @@
 #' @param prune \code{Logical scalar}. Should the values from each step be used
 #'   prune the following step. (Default: \code{TRUE})
 #' 
-#' @param output.format \code{Character scalar}. The output format, either
-#'   linkmap (\code{"long"}) or matrix (\code{"wide"}). (Default: \code{"long"})
+#' @param use.names \code{Logical scalar}. Should feature names be used in the
+#'   output instead of feature identifiers. either (Default: \code{TRUE})
 #' 
 #' @param mode \code{Character scalar}. The mode of the output, either as
 #'   \code{"presence"} or \code{"coverage"} information. Only for
@@ -100,10 +100,8 @@ NULL
 #' @importFrom igraph as_data_frame
 #' @importFrom MultiFactor MultiFactor weave
 S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
-    exclude = NULL, init = NULL, prune = TRUE, output.format = "long",
-    verbose = TRUE, timeout = 1e6, ...){
-    # Check shared character args
-    output.format <- match.arg(output.format, c("long", "wide"))
+    exclude = NULL, init = NULL, prune = TRUE, use.names = TRUE, verbose = TRUE,
+    timeout = 1e6, ...){
     # Check shared numeric args
     if( !is.numeric(timeout) || length(timeout) != 1L || timeout <= 0 ){
         stop("'timeout' must be a positive number", call. = FALSE)
@@ -121,8 +119,12 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
     linkmaps <- list()
     # For stratified input
     if( is.data.frame(init) && ncol(init) == 2L ){
+        # Retrieve init variable names
+        init_vars <- colnames(init)
         # Remove first step in the path
-        path_by <- as.formula(paste0(colnames(init)[2L], "~", all.vars(by)[2L]))
+        path_by <- as.formula(paste0(init_vars[2L], "~", all.vars(by)[2L]))
+        # Print stratification
+        if( verbose ) message(init_vars[1L], " stratified by ", init_vars[2L])
         # Add init linkmap to linkmaps
         linkmaps[["init"]] <- init
         # Extract initial values for second step
@@ -155,14 +157,28 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
     mf <- MultiFactor(linkmaps)
     # Weave desired linkmap from MultiFactor
     out <- weave(mf, by)
-    # Convert to wide format
-    if( output.format == "wide" ){
-        # Convert to adjacency matrix
-        out <- table(out) == 1
-        # Remove dimnames
-        names(dimnames(out)) <- NULL
-    }
+    # Add feature names
+    out <- if( use.names ) .id2name(graph_df, out) else out
     return(out)
+}
+
+
+.id2name <- function(graph_df, linkmap){
+    
+    node_df <- graph_df$vertices
+    target <- colnames(linkmap)[2L]
+    
+    url <- node_df$url[node_df$name == target]
+    
+    if( length(url) == 1L ){
+        
+        name.linkmap <- read.table(url, sep = "\t")
+        
+        idx <- match(linkmap[[2L]], name.linkmap[[1L]])
+        linkmap[[2L]] <- name.linkmap[idx, 2L]
+    }
+    
+    return(linkmap)
 }
 
 

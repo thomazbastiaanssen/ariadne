@@ -100,54 +100,6 @@ tax2ec <- weavePath(
 head(tax2ec)
 ```
 
-
-
-
-```{r}
-library(curatedMetagenomicData)
-
-# Download dataset
-genes <- curatedMetagenomicData(
-    "GopalakrishnanV_2018.gene_families",
-    rownames = "NCBI",
-    dryrun = FALSE
-)
-
-genes <- genes[[1]]
-
-tse <- processGeneFamilies(se)
-
-tse
-```
-
-```{r}
-# Map modules to taxa
-uniref2gmm <- weaveComplex()
-```
-
-
-```{r}
-genes <- curatedMetagenomicData(
-    "GopalakrishnanV_2018.",
-    rownames = "NCBI",
-    dryrun = FALSE
-)
-```
-
-
-## Module analysis
-
-```{r}
-# Collect all module names
-altExp(tse, "modules") <- SummarizedExperiment(list("modules" = gmm))
-
-# Find top 5 modules by average count
-top.mods <- getTop(
-    altExp(tse),
-    assay.type = "modules"
-)
-```
-
 # Resources
 
 ## Citation

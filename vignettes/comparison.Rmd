@@ -36,17 +36,18 @@ library(mia)
 library(miaViz)
 ```
 
-## Functional module analysis at gene level
+## Functional module analysis
 
 ```{r}
 # Load gene family experiment
 genes <- curatedMetagenomicData(
-    "SankaranarayananK_2015.gene_families",
-    dryrun = FALSE
+    "SankaranarayananK_2015.gene_families", dryrun = FALSE
 )
 
+genes <- genes[[1]]
+
 # Process experiment
-genes <- processGeneFamilies(genes[[1]])
+genes <- processGeneFamilies(genes)
 
 # Print experiment
 genes
@@ -96,9 +97,7 @@ tse
 
 ```{r}
 altExp(tse, "modules") <- agglomerateByModule(
-    tse,
-    by = 1L,
-    group = names(rowData(tse))[9:81]
+    tse, by = 1, group = unique(tax2gmm$gmm)
 )
 
 top.mods <- altExp(tse, "modules") |>
@@ -119,7 +118,8 @@ plotAbundance(
     tse[top.mods, ],
     assay.type = "relative_abundance",
     as.relative = TRUE,
-    order.col.by = "disease"
+    order.col.by = "disease",
+    col.var = "disease"
 )
 ```
 

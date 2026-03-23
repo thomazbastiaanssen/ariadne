@@ -33,6 +33,7 @@ NULL
 #' @importFrom igraph read_graph as_data_frame graph_from_data_frame
 #' @importFrom tools R_user_dir
 #' @importFrom dplyr bind_rows
+#' @importFrom stats reshape
 ariadne <- function(versions = NULL){
     # Initialise database
     db <- R_user_dir("ariadne", "data")
@@ -75,17 +76,22 @@ ariadne <- function(versions = NULL){
     # Build and clean edge data
     edge_df <- bind_rows(edge_dfs, .id = "source")
     edge_df$source <- sub(".gml", "", edge_df$source, fixed = TRUE)
-    edge_df <- edge_df[c("from", "to", "source", "url")]
+    edge_df <- edge_df[ , c("from", "to", "source", "url")]
     # Build and clean node data
     node_df <- bind_rows(node_dfs, .id = "source")
     node_df$source <- sub(".gml", "", node_df$source, fixed = TRUE)
-    node_df <- node_df[c("name", "specific", "source")]
+    node_df$url[node_df$url == "NA"] <- NA
+    # Remove rownames and store node urls
     rownames(node_df) <- NULL
+    node_urls <- unique(node_df[c("name", "url")])
     # Widen database-specific names
     node_df <- reshape(
-        node_df, idvar = "name", timevar = "source", direction = "wide"
+        node_df, idvar = "name", timevar = "source",
+        direction = "wide", drop = c("id", "url")
     )
+    # Clean colnames and add back node urls
     names(node_df) <- sub("specific.", "", names(node_df), fixed = TRUE)
+    node_df  <- merge(node_df, node_urls, by = "name", all.x = TRUE)
     # Build final resource graph
     graph <- graph_from_data_frame(edge_df, vertices = node_df)
     return(graph)

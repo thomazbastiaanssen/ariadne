@@ -1,7 +1,7 @@
 
 #' @importFrom igraph as_data_frame
 S7::method(weaveComplex, igraph) <- function(graph, by, k = 1, include = NULL,
-    exclude = NULL, init = NULL, prune = TRUE, output.format = "long",
+    exclude = NULL, init = NULL, prune = TRUE, use.names = TRUE,
     mode = "presence", threshold = 1, verbose = TRUE, timeout = 1e6, ...){
     # Check mode
     mode <- match.arg(mode, c("presence", "coverage"))
@@ -26,7 +26,9 @@ S7::method(weaveComplex, igraph) <- function(graph, by, k = 1, include = NULL,
     mod.name <- by.vars[var.idx[["mod"]]]
     orig.name <- by.vars[var.idx[["orig"]]]
     
-    edge_df <- as_data_frame(graph, what = "edges")
+    graph_df <- as_data_frame(graph, what = "both")
+    edge_df <- graph_df$edges
+
     feat.name <- edge_df$to[edge_df$from == mod.name]
     url <- edge_df$url[edge_df$from == mod.name]
     
@@ -43,7 +45,7 @@ S7::method(weaveComplex, igraph) <- function(graph, by, k = 1, include = NULL,
     
     feature2orig <- weavePath(
         graph, inner_by, k, include, exclude,
-        init, prune, "long", verbose, timeout, ...
+        init, prune, FALSE, verbose, timeout, ...
     )
     
     feature2orig <- feature2orig[ , var.idx]
@@ -67,19 +69,18 @@ S7::method(weaveComplex, igraph) <- function(graph, by, k = 1, include = NULL,
     out <- out |>
         as.matrix() |>
         t()
-    # If long format is set
-    if( output.format == "long" ){
-        # Find indices of non-null values
-        idx <- which(out > 0, arr.ind = TRUE)
-        # Convert to linkmap
-        out <- data.frame(
-            x = rownames(out)[idx[ , 1]],
-            y = colnames(out)[idx[ , 2]],
-            row.names = NULL
-        )
-        # Add colnames
-        colnames(out) <- c(orig.name, mod.name)
-    }
+    # Find indices of non-null values
+    idx <- which(out > 0, arr.ind = TRUE)
+    # Convert to linkmap
+    out <- data.frame(
+        x = rownames(out)[idx[ , 1L]],
+        y = colnames(out)[idx[ , 2L]],
+        row.names = NULL
+    )
+    # Add colnames
+    colnames(out) <- c(orig.name, mod.name)
+    # Add feature names
+    out <- if( use.names ) .id2name(graph_df, out) else out
     return(out)
 }
 
