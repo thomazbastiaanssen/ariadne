@@ -10,7 +10,7 @@ Authors@R:
     person(given = "Leo", family = "Lahti", role = c("aut"),
           email = "leo.lahti@iki.fi",
           comment = c(ORCID = "0000-0001-5537-637X")))
-Title: Module INtegration by On-demand Translation of Annotations using R
+Title: Assembling Relational Information Across the Database NEtwork
 Description:
     ariadne provides a rapid and robust approach to incorporate taxonomic and
     functional module analyses into your bioinformatic workflow. Despite the
@@ -61,8 +61,8 @@ Suggests:
     TreeSummarizedExperiment,
     testthat (>= 3.0.0)
 Remotes:
+    github::Minotau-R/ariadne.db,
     github::Minotau-R/MultiFactor
-    github::Minotau-R/ariadne.db
 URL: https://github.com/Minotau-R/ariadne
 BugReports: https://github.com/Minotau-R/ariadne/issues
 Roxygen: list(markdown = TRUE)
