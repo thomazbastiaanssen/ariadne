@@ -185,6 +185,8 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
         name.linkmap <- data.frame(
             x = names(name.vec), y = name.vec, row.names = NULL
         )
+    }else{
+        return(linkmap)
     }
     # Find matches
     idx <- match(linkmap[[2L]], name.linkmap[[1L]])

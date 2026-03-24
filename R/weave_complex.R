@@ -1,4 +1,7 @@
 
+#' @name weaveComplex.igraph
+#' @rdname weavePath
+
 #' @importFrom igraph as_data_frame
 S7::method(weaveComplex, igraph) <- function(graph, by, k = 1, include = NULL,
     exclude = NULL, init = NULL, prune = TRUE, use.names = TRUE,

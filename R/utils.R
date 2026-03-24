@@ -33,7 +33,7 @@ NULL
 
 #' @export
 #' @rdname utils
-#' @importFrom SummarizedExperiment rowData
+#' @importFrom SummarizedExperiment rowData rowData<-
 #' @importFrom stringr fixed str_detect str_split
 processGeneFamilies <- function(se){
     # Select rows with non-null taxa

@@ -2,6 +2,7 @@
 
 #' @importFrom BiocFileCache BiocFileCache bfcquery bfcadd
 #' @importFrom tools R_user_dir
+#' @importFrom utils download.file
 #' @importFrom arrow write_parquet
 .cache_resource <- function(url, resource, from, to) {
     # Initialise cache

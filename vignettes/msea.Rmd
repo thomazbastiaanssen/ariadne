@@ -17,7 +17,7 @@ output:
 date: "`r doc_date()`"
 package: "`r pkg_ver('ariadne')`"
 vignette: >
-    %\VignetteIndexEntry{ariadne}
+    %\VignetteIndexEntry{MSEA}
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8}
 ---

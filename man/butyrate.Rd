@@ -4,9 +4,8 @@
 \alias{butyrate}
 \title{Dataset of butyrate producers}
 \format{
-A \code{data.frame} with 16 features (rows) characterised across 6 taxonomic
-ranks (columns). One feature was identified at the Species level, whereas all
-the others at the Genus level.
+A linkmap with 16 butyrate-producing microbial features characterised at the
+genus or species level.
 }
 \usage{
 data("butyrate", package = "ariadne")

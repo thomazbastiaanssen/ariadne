@@ -1,6 +1,6 @@
 #' Search path between resources
 #' 
-#' @name searchPath
+#' @name searchPath.igraph
 #' @rdname searchPath
 #' 
 #' @description
@@ -120,27 +120,6 @@ S7::method(searchPath, igraph) <- function(
         source = edges
     )
     return(path_df)
-}
-
-
-.exclude_gm <- function(graph, by.vars){
-    
-    mod.names <- c("gbm", "gmm")
-    # Identify module name
-    is.mod <- by.vars %in% mod.names
-    
-    mod.idx <- which(mod.name %in% by.vars)
-    is.mod <- length(mod.idx) != 0L
-    
-    edge_df <- as_data_frame(graph, what = "edges")
-    feat.name <- paste(edge_df$to[edge_df$from == mod.name], collapse = "+")
-    
-    if( is.mod ){
-        after <- ifelse(mod.idx == length(by.vars), mod.idx - 1, mod.idx)
-        by.vars <- append(by.vars, feat.name, after = after)
-    }
-    
-    return(by.vars)
 }
 
 

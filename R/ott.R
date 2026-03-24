@@ -1,27 +1,4 @@
 
-# ott, ncbi, gbif, worms, if, irmng, taxname
-# silva
-
-# Query from ncbi ids
-# ncbi_ids <- c(562, 1423, 1280)
-# ott_ids <- .queryOTT(from = "ncbi", to = "ott", ncbi_ids, 1e6)
-# tax_names <- .queryOTT(ncbi_ids, from = "ncbi", to = "taxname")
-
-# Qeury from ott ids
-#ott_ids <- c(474506, 1084928, 1090496)
-#ncbi_ids <- .queryOTT(ott_ids, from = "ott", to = "ncbi")
-#tax_names <- .queryOTT(ott_ids, from = "ott", to = "taxname")
-
-# Query silva ids
-#silva_ids <- .queryOTT(ott_ids, from = "ott", to = "silva")
-# silva_ids <- .queryOTT(ncbi_ids, from = "ncbi", to = "silva")
-
-# Query from taxnames
-#names <- c("s__Escherichia coli", "s__Bacillus subtilis", "s__Staphylococcus aureus")
-#ott_ids <- .queryOTT(names, from = "taxname", to = "ott")
-#silva_ids <- .queryOTT(names, from = "taxname", to = "silva")
-
-
 #' @importFrom BiocParallel bplapply
 .queryOTT <- function(from, to, init, timeout, ...){
     # Remove rank prefixes

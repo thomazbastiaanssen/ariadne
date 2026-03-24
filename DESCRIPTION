@@ -29,6 +29,7 @@ Encoding: UTF-8
 Depends:
     R (>= 4.1)
 Imports:
+    ariadne.db,
     arrow,
     BiocFileCache,
     BiocParallel,
@@ -39,7 +40,6 @@ Imports:
     igraph,
     KEGGREST,
     Matrix,
-    methods,
     MultiFactor,
     S7,
     rlang,
@@ -53,7 +53,6 @@ Suggests:
     BiocStyle,
     bugsigdbr,
     curatedMetagenomicData,
-    ggplot2,
     knitr,
     mia,
     miaViz,
@@ -63,6 +62,7 @@ Suggests:
     testthat (>= 3.0.0)
 Remotes:
     github::Minotau-R/MultiFactor
+    github::Minotau-R/ariadne.db
 URL: https://github.com/Minotau-R/ariadne
 BugReports: https://github.com/Minotau-R/ariadne/issues
 Roxygen: list(markdown = TRUE)
