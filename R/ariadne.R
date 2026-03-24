@@ -23,8 +23,8 @@
 #' 
 #' @seealso
 #' 
-#' \link[ariadne.db]{ariadne.db}
-#' \url{https://zenodo.org/records/18788725}{Link to Zenodo}
+#' ariadne.db: \url{https://github.com/Minotau-R/ariadne.db}
+#' Zenodo: \url{https://zenodo.org/records/18788725}
 #' 
 NULL
 

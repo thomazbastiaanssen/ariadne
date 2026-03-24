@@ -24,7 +24,7 @@
 #' @param as \code{Character scalar} A string specifying whether target ids or
 #'   names should be appended to \code{x}. (Default: \code{"ids"})
 #' 
-#' @returns
+#' @return
 #' \code{as.linkmap} returns a linkmap \code{data.frame} where the first and
 #' second columns contains \code{keys} and \code{values} and each row represents
 #' a unique combination of the two.

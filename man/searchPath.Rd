@@ -2,7 +2,6 @@
 % Please edit documentation in R/AllGenerics.R, R/search.R
 \name{searchPath}
 \alias{searchPath}
-\alias{searchPath.igraph}
 \title{Search path between resources}
 \usage{
 searchPath(graph, ...)

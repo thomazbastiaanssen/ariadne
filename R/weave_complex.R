@@ -1,5 +1,5 @@
 
-#' @name weaveComplex.igraph
+#' @name weaveComplex
 #' @rdname weavePath
 
 #' @importFrom igraph as_data_frame

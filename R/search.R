@@ -1,6 +1,6 @@
 #' Search path between resources
 #' 
-#' @name searchPath.igraph
+#' @name searchPath
 #' @rdname searchPath
 #' 
 #' @description

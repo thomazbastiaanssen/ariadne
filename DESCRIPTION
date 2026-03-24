@@ -29,7 +29,6 @@ Encoding: UTF-8
 Depends:
     R (>= 4.1)
 Imports:
-    ariadne.db,
     arrow,
     BiocFileCache,
     BiocParallel,
@@ -61,7 +60,6 @@ Suggests:
     TreeSummarizedExperiment,
     testthat (>= 3.0.0)
 Remotes:
-    github::Minotau-R/ariadne.db,
     github::Minotau-R/MultiFactor
 URL: https://github.com/Minotau-R/ariadne
 BugReports: https://github.com/Minotau-R/ariadne/issues

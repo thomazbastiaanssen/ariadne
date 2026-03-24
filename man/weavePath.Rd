@@ -3,7 +3,6 @@
 \name{weavePath}
 \alias{weavePath}
 \alias{weaveComplex}
-\alias{weaveComplex.igraph}
 \title{Weave path between resources}
 \usage{
 weavePath(graph, ...)
