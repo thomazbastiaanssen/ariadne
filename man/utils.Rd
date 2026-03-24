@@ -8,7 +8,7 @@
 \usage{
 processGeneFamilies(se)
 
-appendModules(x, modules, by = "row.names")
+appendModules(x, modules, by = "row.names", as = "ids")
 }
 \arguments{
 \item{se}{A
@@ -24,6 +24,9 @@ weaveComplex.}
 
 \item{by}{\code{Character scalar} A string specifying a variable of \code{x}
 to append \code{modules}. (Default: \code{"row.names"})}
+
+\item{as}{\code{Character scalar} A string specifying whether target ids or
+names should be appended to \code{x}. (Default: \code{"ids"})}
 }
 \value{
 \code{as.linkmap} returns a linkmap \code{data.frame} where the first and

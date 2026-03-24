@@ -21,6 +21,9 @@
 #' @param by \code{Character scalar} A string specifying a variable of \code{x}
 #'   to append \code{modules}. (Default: \code{"row.names"})
 #' 
+#' @param as \code{Character scalar} A string specifying whether target ids or
+#'   names should be appended to \code{x}. (Default: \code{"ids"})
+#' 
 #' @returns
 #' \code{as.linkmap} returns a linkmap \code{data.frame} where the first and
 #' second columns contains \code{keys} and \code{values} and each row represents
@@ -54,13 +57,18 @@ processGeneFamilies <- function(se){
 
 #' @export
 #' @rdname utils
-appendModules <- function(x, modules, by = "row.names"){
+appendModules <- function(x, modules, by = "row.names", as = "ids"){
     # Check args
     if( !by %in% c("row.names", colnames(x)) ){
         stop("'by' must be 'row.names' or a variable of 'x'.", call. = FALSE)
     }
+    if( !as %in% c("ids", "names") ){
+        stop("'as' must be either 'ids' or 'rownames'.", call. = FALSE)
+    }
+    # Choose between ids and names
+    target_col <- switch(as, ids = 2L, names = 3L)
     # Convert linkmap to wide format
-    modules <- table(modules) == 1
+    modules <- table(modules[c(1L, target_col)]) == 1
     
     if( by == "row.names" ){
         idx <- match(rownames(x), rownames(modules))

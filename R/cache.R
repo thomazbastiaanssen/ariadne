@@ -83,8 +83,8 @@
     linkmap <- as.data.frame(do.call(rbind, x))
     # Trim prefix ending with :
     linkmap <- data.frame(
-        x = gsub("^[^:]*:", "", linkmap[, 1]),
-        y = gsub("^[^:]*:", "", linkmap[, 2])
+        x = gsub("^[^:]*:", "", linkmap[, 1L]),
+        y = gsub("^[^:]*:", "", linkmap[, 2L])
     )
     return(linkmap)
 }

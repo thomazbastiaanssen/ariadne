@@ -89,7 +89,7 @@ tse
 ```{r}
 rowData(tse)$taxname <- sub("^.*(g__.+)\\|(s__.+)$", "\\1.\\2", rownames(tse))
 
-rowData(tse) <- appendModules(rowData(tse), tax2gmm, by = "taxname")
+rowData(tse) <- appendModules(rowData(tse), tax2gmm, by = "taxname", as = "names")
 
 tse
 ```
@@ -97,7 +97,7 @@ tse
 
 ```{r}
 altExp(tse, "modules") <- agglomerateByModule(
-    tse, by = 1, group = unique(tax2gmm$gmm)
+    tse, by = 1, group = unique(tax2gmm$gmm.name)
 )
 
 top.mods <- altExp(tse, "modules") |>

@@ -158,26 +158,45 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
     # Weave desired linkmap from MultiFactor
     out <- weave(mf, by)
     # Add feature names
-    out <- if( use.names ) .id2name(graph_df, out) else out
+    out <- if( use.names ) .id2name(graph_df, out, verbose) else out
     return(out)
 }
 
 
-.id2name <- function(graph_df, linkmap){
+#' @importFrom utils read.table
+#' @importFrom KEGGREST keggList
+.id2name <- function(graph_df, linkmap, verbose){
     
     node_df <- graph_df$vertices
     target <- colnames(linkmap)[2L]
     
     url <- node_df$url[node_df$name == target]
     
-    if( length(url) == 1L ){
+    if( !is.na(url) ){
         
         name.linkmap <- read.table(url, sep = "\t")
         
-        idx <- match(linkmap[[2L]], name.linkmap[[1L]])
-        linkmap[[2L]] <- name.linkmap[idx, 2L]
+    }else if( target %in% node_df$KEGG[!is.na(node_df$KEGG)] ){
+        # Get vector of feature names
+        name.vec <- keggList(target)
+        # Maintain only first name
+        name.vec <- sub(";.*", "", name.vec)
+        # Convert to linkmap
+        name.linkmap <- data.frame(
+            x = names(name.vec), y = name.vec, row.names = NULL
+        )
     }
+    # Find matches
+    idx <- match(linkmap[[2L]], name.linkmap[[1L]])
     
+    unmatched <- is.na(idx)
+    
+    if( verbose && any(unmatched) ){
+        warning("Names for ", sum(unmatched), " ", target, " ids not found.",
+            call. = FALSE)
+    }
+    # Map ids to names
+    linkmap[paste0(target, ".name")] <- as.factor(name.linkmap[idx, 2L])
     return(linkmap)
 }
 

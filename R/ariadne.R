@@ -31,12 +31,9 @@ NULL
 #' @export
 #' @importFrom httr2 request req_perform resp_body_json
 #' @importFrom igraph read_graph as_data_frame graph_from_data_frame
-#' @importFrom tools R_user_dir
 #' @importFrom dplyr bind_rows
 #' @importFrom stats reshape
 ariadne <- function(versions = NULL){
-    # Initialise database
-    db <- R_user_dir("ariadne", "data")
     # Define database url
     url <- "https://zenodo.org/api/records/18788725"
     # Send request to database
@@ -61,13 +58,8 @@ ariadne <- function(versions = NULL){
         # Retrieve current key and url
         key <- keys[i]
         url <- urls[i]
-        # Download file
-        file_path <- file.path(db, key)
-        request(url) |>
-            req_perform(path = file_path)
-        # Import graph from file
-        file_path <- file.path(db, key)
-        graph <- read_graph(file_path, format = "gml")
+        # Fetch graph from ariadne.db
+        graph <- read_graph(url, format = "gml")
         graph_df <- as_data_frame(graph, what = "both")
         # Store edge and node data
         edge_dfs[[key]] <- graph_df$edges

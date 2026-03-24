@@ -80,7 +80,7 @@ S7::method(weaveComplex, igraph) <- function(graph, by, k = 1, include = NULL,
     # Add colnames
     colnames(out) <- c(orig.name, mod.name)
     # Add feature names
-    out <- if( use.names ) .id2name(graph_df, out) else out
+    out <- if( use.names ) .id2name(graph_df, out, verbose) else out
     return(out)
 }
 

@@ -93,7 +93,7 @@ tax2ec <- weavePath(
     graph,
     taxname ~ ec,
     include = "uniref90",
-    init = tax.labs,
+    init = tax.labs[1:5],
     factor = 8
 )
 

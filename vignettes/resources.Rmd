@@ -32,7 +32,6 @@ knitr::opts_chunk$set(
 
 ```{r}
 library(ariadne)
-# library(ariadne.db)
 library(igraph)
 library(dplyr)
 library(ggplot2)
@@ -46,7 +45,7 @@ plotPath(graph)
 ```
 
 ```{r}
-graph_df <- as_data_frame(graph, what = "both")
+graph_df <- igraph::as_data_frame(graph, what = "both")
 edge_df <- graph_df$edges
 node_df <- graph_df$vertices
 ```
