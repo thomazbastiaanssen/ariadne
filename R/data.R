@@ -6,7 +6,7 @@
 #' provides a set of butyrate producers that were significantly increased or
 #' reduced in the patient group.
 #' 
-#' @format
+#' @returns
 #' A linkmap with 16 butyrate-producing microbial features characterised at the
 #' genus or species level.
 #' 
@@ -17,7 +17,13 @@
 #' population-based microbiome studies." The Lancet Microbe 5.9 (2024).
 #' \url{https://doi.org/10.1016/S2666-5247(24)00079-X}
 #' 
-#' @usage data("butyrate", package = "ariadne")
+#' @examples
+#' 
+#' # Import linkmap
+#' data("butyrate", package = "ariadne")
+#' 
+#' # Print some pairs
+#' head(butyrate)
 #' 
 #' @importFrom utils data
 #'

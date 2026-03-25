@@ -71,3 +71,13 @@ for( resource in df$source ){
 }
 ```
 
+# Reproducibility
+
+R session information:
+
+```{r reproduce, echo=FALSE}
+# Session info
+options(width = 120)
+sessionInfo()
+```
+

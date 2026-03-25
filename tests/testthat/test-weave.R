@@ -13,12 +13,14 @@ test_that("weave", {
         "'include' and 'exclude' cannot overlap."
     )
     
-    expect_warning(
-        weavePath(graph, ko ~ ec, k = 1, use.names = TRUE),
-        "Names for 3 ec ids not found."
+    ko2gmm <- weavePath(graph, ko ~ gmm, use.names = TRUE)
+    expect_equal(ncol(ko2gmm), 3L)
+    
+    ko2gmm <- weavePath(graph, ko ~ gmm, use.names = FALSE)
+    expect_equal(ncol(ko2gmm), 2L)
+    
+    expect_error(
+        weaveComplex(graph, gmm ~ gbm),
+        "Exactly one side of 'by' must be a module name."
     )
-    
-    
-    #weaveComplex(graph,  ~ gmm)
-    
 })

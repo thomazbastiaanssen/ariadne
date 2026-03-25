@@ -10,7 +10,4 @@ test_that("search", {
             searchPath(graph, ko ~ ec)
         )
     )
-    
-    #searchPath(graph,)
-    
 })

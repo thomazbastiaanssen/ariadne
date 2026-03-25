@@ -39,6 +39,7 @@ Imports:
     igraph,
     KEGGREST,
     Matrix,
+    methods,
     MultiFactor,
     rlang,
     rotl,

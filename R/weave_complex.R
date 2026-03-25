@@ -2,6 +2,7 @@
 #' @export
 #' @rdname weavePath
 #' @importFrom igraph as_data_frame
+#' @importFrom stats as.formula
 setMethod("weaveComplex", signature = c(graph = "igraph"),
     function(graph, by, k = 1, include = NULL, exclude = NULL, init = NULL,
     prune = TRUE, use.names = TRUE, mode = "presence", threshold = 1,

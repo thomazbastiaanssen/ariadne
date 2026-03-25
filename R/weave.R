@@ -97,6 +97,7 @@ NULL
 #' @export
 #' @rdname weavePath
 #' @importFrom igraph as_data_frame
+#' @importFrom stats as.formula
 #' @importFrom MultiFactor MultiFactor weave
 setMethod("weavePath", signature = c(graph = "igraph"),
     function(graph, by, k = 1, include = NULL, exclude = NULL, init = NULL,
