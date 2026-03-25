@@ -10,7 +10,7 @@
 #' @param versions \code{Character list}. A named list of resource versions to
 #' load. Latest versions are used if not specified. (Default: \code{NULL})
 #' 
-#' @return
+#' @returns
 #' An igraph object with the ariadne resource graph.
 #' 
 #' @examples

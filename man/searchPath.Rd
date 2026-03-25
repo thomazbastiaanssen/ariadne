@@ -2,12 +2,17 @@
 % Please edit documentation in R/AllGenerics.R, R/search.R
 \name{searchPath}
 \alias{searchPath}
-\title{Search path between resources}
+\alias{searchPath,igraph-method}
+\title{Search paths between resources}
 \usage{
 searchPath(graph, ...)
+
+\S4method{searchPath}{igraph}(graph, by, k = 1, include = NULL, exclude = NULL)
 }
 \arguments{
 \item{graph}{An igraph object.}
+
+\item{...}{Unused.}
 
 \item{by}{A formula specifying the path to search.}
 
@@ -21,7 +26,7 @@ searchPath(graph, ...)
 (Default: \code{NULL})}
 }
 \value{
-NULL, message
+A message
 }
 \description{
 \code{searchPath} allows to search the first k-th shortest paths between

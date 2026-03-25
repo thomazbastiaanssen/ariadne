@@ -1,18 +1,22 @@
 
-igraph <- S7::new_S3_class("igraph")
+setOldClass("igraph")
 
 #' @export
 #' @rdname searchPath
-searchPath <- S7::new_generic("searchPath", "graph")
+setGeneric("searchPath", signature = c("graph"), function(graph, ...)
+    standardGeneric("searchPath"))
 
 #' @export
 #' @rdname plotPath
-plotPath <- S7::new_generic("plotPath", "graph")
+setGeneric("plotPath", signature = c("graph"), function(graph, ...)
+    standardGeneric("plotPath"))
 
 #' @export
 #' @rdname weavePath
-weavePath <- S7::new_generic("weavePath", "graph")
+setGeneric("weavePath", signature = c("graph"), function(graph, ...)
+    standardGeneric("weavePath"))
 
 #' @export
 #' @rdname weavePath
-weaveComplex <- S7::new_generic("weaveComplex", "graph")
+setGeneric("weaveComplex", signature = c("graph"), function(graph, ...)
+    standardGeneric("weaveComplex"))

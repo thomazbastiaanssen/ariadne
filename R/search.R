@@ -1,7 +1,4 @@
-#' Search path between resources
-#' 
-#' @name searchPath
-#' @rdname searchPath
+#' Search paths between resources
 #' 
 #' @description
 #' \code{searchPath} allows to search the first k-th shortest paths between
@@ -20,8 +17,10 @@
 #' @param exclude \code{Character vector}. Nodes to avoid in the path.
 #'   (Default: \code{NULL})
 #' 
-#' @return
-#' NULL, message
+#' @param ... Unused.
+#' 
+#' @returns
+#' A message
 #' 
 #' @examples
 #' 
@@ -37,12 +36,15 @@
 #' # Search first 5 paths excluding uniref50 and uniref100
 #' searchPath(graph, taxname ~ ko, k = 5, exclude = c("uniref50", "uniref100"))
 #' 
+#' @name searchPath
 NULL
 
 
+#' @export
+#' @rdname searchPath
 #' @importFrom igraph E V k_shortest_paths
-S7::method(searchPath, igraph) <- function(
-    graph, by, k = 1, include = NULL, exclude = NULL){
+setMethod("searchPath", signature = c(graph = "igraph"),
+    function(graph, by, k = 1, include = NULL, exclude = NULL){
     # Initialise message
     msg <- c()
     # Print paths up to k
@@ -63,7 +65,7 @@ S7::method(searchPath, igraph) <- function(
     # Send message
     message(msg)
     invisible(NULL)
-}
+})
 
 
 #' @importFrom igraph k_shortest_paths E<- V<-

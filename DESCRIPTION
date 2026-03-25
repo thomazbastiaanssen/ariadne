@@ -40,7 +40,6 @@ Imports:
     KEGGREST,
     Matrix,
     MultiFactor,
-    S7,
     rlang,
     rotl,
     stats,
@@ -50,7 +49,6 @@ Imports:
     utils
 Suggests:
     BiocStyle,
-    bugsigdbr,
     curatedMetagenomicData,
     knitr,
     mia,

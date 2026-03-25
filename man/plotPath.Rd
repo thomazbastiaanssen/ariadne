@@ -2,12 +2,24 @@
 % Please edit documentation in R/AllGenerics.R, R/plot.R
 \name{plotPath}
 \alias{plotPath}
+\alias{plotPath,igraph-method}
 \title{Plot paths between resources}
 \usage{
 plotPath(graph, ...)
+
+\S4method{plotPath}{igraph}(
+  graph,
+  by = NULL,
+  k = 1,
+  include = NULL,
+  exclude = NULL,
+  focus = FALSE
+)
 }
 \arguments{
 \item{graph}{An igraph object.}
+
+\item{...}{Unused.}
 
 \item{by}{A formula specifying the path to plot. (Default: \code{NULL})}
 
@@ -24,7 +36,7 @@ plotPath(graph, ...)
 should be plotted. (Default: \code{FALSE})}
 }
 \value{
-A ggplot2 object
+A ggplot2 object.
 }
 \description{
 \code{plotPath} provides a visual of a graph and the selected path.

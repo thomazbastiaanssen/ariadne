@@ -3,11 +3,43 @@
 \name{weavePath}
 \alias{weavePath}
 \alias{weaveComplex}
-\title{Weave path between resources}
+\alias{weavePath,igraph-method}
+\alias{weaveComplex,igraph-method}
+\title{Weave paths between resources}
 \usage{
 weavePath(graph, ...)
 
 weaveComplex(graph, ...)
+
+\S4method{weavePath}{igraph}(
+  graph,
+  by,
+  k = 1,
+  include = NULL,
+  exclude = NULL,
+  init = NULL,
+  prune = TRUE,
+  use.names = TRUE,
+  verbose = TRUE,
+  timeout = 1e+06,
+  ...
+)
+
+\S4method{weaveComplex}{igraph}(
+  graph,
+  by,
+  k = 1,
+  include = NULL,
+  exclude = NULL,
+  init = NULL,
+  prune = TRUE,
+  use.names = TRUE,
+  mode = "presence",
+  threshold = 1,
+  verbose = TRUE,
+  timeout = 1e+06,
+  ...
+)
 }
 \arguments{
 \item{graph}{An igraph object.}
@@ -44,6 +76,12 @@ prune the following step. (Default: \code{TRUE})}
 \item{use.names}{\code{Logical scalar}. Should feature names be used in the
 output instead of feature identifiers. either (Default: \code{TRUE})}
 
+\item{verbose}{\code{Logical scalar}. Should messages be printed in the
+console. (Default: \code{TRUE})}
+
+\item{timeout}{\code{Numeric scalar}. The timeout for downloading resources.
+(Default: \code{1e6})}
+
 \item{mode}{\code{Character scalar}. The mode of the output, either as
 \code{"presence"} or \code{"coverage"} information. Only for
 \code{weaveComplex}. (Default: \code{"presence"})}
@@ -51,16 +89,9 @@ output instead of feature identifiers. either (Default: \code{TRUE})}
 \item{threshold}{\code{Numeric scalar}. The coverage threshold to infer
 presence, between 0 and 1. Only for \code{weaveComplex}.
 (Default: \code{1})}
-
-\item{verbose}{\code{Logical scalar}. Should messages be printed in the
-console. (Default: \code{TRUE})}
-
-\item{timeout}{\code{Numeric scalar}. The timeout for downloading resources.
-(Default: \code{1e6})}
 }
 \value{
-A two-column data.frame (x-to-y linkmap) or an x-by-y matrix (presence or
-coverage).
+A two-column data.frame (x-to-y linkmap).
 }
 \description{
 \code{weavePath} and \code{weaveComplex} bridge the path between resources,

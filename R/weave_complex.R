@@ -1,11 +1,11 @@
 
-#' @name weaveComplex
+#' @export
 #' @rdname weavePath
-
 #' @importFrom igraph as_data_frame
-S7::method(weaveComplex, igraph) <- function(graph, by, k = 1, include = NULL,
-    exclude = NULL, init = NULL, prune = TRUE, use.names = TRUE,
-    mode = "presence", threshold = 1, verbose = TRUE, timeout = 1e6, ...){
+setMethod("weaveComplex", signature = c(graph = "igraph"),
+    function(graph, by, k = 1, include = NULL, exclude = NULL, init = NULL,
+    prune = TRUE, use.names = TRUE, mode = "presence", threshold = 1,
+    verbose = TRUE, timeout = 1e6, ...){
     # Check mode
     mode <- match.arg(mode, c("presence", "coverage"))
     # Check threshold
@@ -85,7 +85,7 @@ S7::method(weaveComplex, igraph) <- function(graph, by, k = 1, include = NULL,
     # Add feature names
     out <- if( use.names ) .id2name(graph_df, out, verbose) else out
     return(out)
-}
+})
 
 
 #' @importFrom Matrix Matrix crossprod colSums

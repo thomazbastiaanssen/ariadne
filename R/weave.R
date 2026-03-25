@@ -1,7 +1,4 @@
-#' Weave path between resources
-#' 
-#' @name weavePath
-#' @rdname weavePath
+#' Weave paths between resources
 #' 
 #' @description
 #' \code{weavePath} and \code{weaveComplex} bridge the path between resources,
@@ -55,9 +52,7 @@
 #'   (Default: \code{3})
 #' }
 #' 
-#' @return
-#' A two-column data.frame (x-to-y linkmap) or an x-by-y matrix (presence or
-#' coverage).
+#' @returns A two-column data.frame (x-to-y linkmap).
 #' 
 #' @examples
 #' 
@@ -94,14 +89,19 @@
 #' # Obtain results in terms of coverage
 #' dis2gmm <- weaveComplex(graph, disease ~ gmm, mode = "coverage")
 #' 
+#' @name weavePath
+#' @aliases weaveComplex
 NULL
 
 
+#' @export
+#' @rdname weavePath
 #' @importFrom igraph as_data_frame
 #' @importFrom MultiFactor MultiFactor weave
-S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
-    exclude = NULL, init = NULL, prune = TRUE, use.names = TRUE, verbose = TRUE,
-    timeout = 1e6, ...){
+setMethod("weavePath", signature = c(graph = "igraph"),
+    function(graph, by, k = 1, include = NULL, exclude = NULL, init = NULL,
+    prune = TRUE, use.names = TRUE, verbose = TRUE, timeout = 1e6, ...){
+    
     # Check shared numeric args
     if( !is.numeric(timeout) || length(timeout) != 1L || timeout <= 0 ){
         stop("'timeout' must be a positive number", call. = FALSE)
@@ -160,7 +160,7 @@ S7::method(weavePath, igraph) <- function(graph, by, k = 1, include = NULL,
     # Add feature names
     out <- if( use.names ) .id2name(graph_df, out, verbose) else out
     return(out)
-}
+})
 
 
 #' @importFrom utils read.table

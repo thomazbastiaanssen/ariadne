@@ -1,8 +1,5 @@
 #' Plot paths between resources
 #'
-#' @name plotPath
-#' @rdname plotPath
-#' 
 #' @description
 #' \code{plotPath} provides a visual of a graph and the selected path.
 #' 
@@ -22,8 +19,9 @@
 #' @param focus \code{Logical scalar}. Whether the edges and nodes in the path
 #'   should be plotted. (Default: \code{FALSE})
 #' 
-#' @return
-#' A ggplot2 object
+#' @param ... Unused.
+#' 
+#' @returns A ggplot2 object.
 #' 
 #' @examples
 #' 
@@ -39,14 +37,18 @@
 #' # Plot first 5 paths excluding uniref50 and uniref100
 #' plotPath(graph, taxname ~ ko, k = 5, exclude = c("uniref50", "uniref100"))
 #' 
+#' @name plotPath
 NULL
 
+#' @export
+#' @rdname plotPath
 #' @importFrom igraph as_data_frame graph_from_data_frame ends E<- V<-
 #' @importFrom ggplot2 aes scale_alpha theme_void theme
 #' @importFrom ggraph ggraph geom_edge_link geom_node_point geom_node_text
 #'   scale_edge_colour_manual
-S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1,
-    include = NULL, exclude = NULL, focus = FALSE){
+setMethod("plotPath", signature = c(graph = "igraph"),
+    function(graph, by = NULL, k = 1, include = NULL, exclude = NULL,
+    focus = FALSE){
     # Check args
     if( !is.logical(focus) || length(focus) != 1L ){
         stop("'focus' must be TRUE or FALSE.", call. = FALSE)
@@ -63,7 +65,6 @@ S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1,
     edge_df$name <- ""
     edge_df$alpha <- 1
     node_df$alpha <- 1
-    
     alpha_min <- 1
     
     if( !is.null(by) ){
@@ -104,7 +105,7 @@ S7::method(plotPath, igraph) <- function(graph, by = NULL, k = 1,
         theme(legend.position = "none")
     
     return(p)
-}
+})
 
 
 # Get edge keys from edges data
