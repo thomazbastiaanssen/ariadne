@@ -12,7 +12,6 @@
     })
     
     out <- do.call(rbind, out.list)
-    colnames(out) <- c(from, to)
     return(out)
 }
 
