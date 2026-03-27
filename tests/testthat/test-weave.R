@@ -16,8 +16,8 @@ test_that("weave", {
     ko2gmm <- weavePath(graph, ko ~ gmm, use.names = TRUE)
     expect_equal(ncol(ko2gmm), 3L)
     
-    ko2gmm <- weavePath(graph, ko ~ gmm, use.names = FALSE)
-    expect_equal(ncol(ko2gmm), 2L)
+    ko2gbm <- weavePath(graph, ko ~ gbm, use.names = FALSE)
+    expect_equal(ncol(ko2gbm), 2L)
     
     expect_error(
         weaveComplex(graph, gmm ~ gbm),
