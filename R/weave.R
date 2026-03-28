@@ -217,17 +217,17 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     edge_df <- graph_df$edges
     node_df <- graph_df$vertices
     
-    is.init <- !is.null(init)
-    is.source <- edge_df$source == repo
+    is_init <- !is.null(init)
+    is_source <- edge_df$source == repo
     
     idx <- which(
-        edge_df$from == from & edge_df$to == to & is.source
+        edge_df$from == from & edge_df$to == to & is_source
     )
     
     if( length(idx) == 0L ){
         
         idx <- which(
-            edge_df$from == to & edge_df$to == from & is.source
+            edge_df$from == to & edge_df$to == from & is_source
         )
     }
     # Only one edge match allowed
@@ -235,7 +235,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     # Retrieve matched edge (only one)
     g <- edge_df[idx, , drop = FALSE]
     # Check edges where init is necessary
-    if( !is.init &&
+    if( !is_init &&
         (g$source == "OTT" || (g$source == "KEGG" && from == "genes")) ){
         stop("'init' must be provided for ", g$from, " queries to ", g$source,
             ".", call. = FALSE)
@@ -245,13 +245,11 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     spec.to <- node_df[node_df$name == to, g$source]
     # Retrieve linkmap from corresponding resource
     if( g$source %in% c("BugSigDB", "ChocoPhlAn", "GM", "GO", "TIGRFAMs", "WoL")){
-        # Fix column order for file resources
-        from <- g$from
-        to <- g$to
         # Get file path to cached resource
-        cached <- .cache_resource(g$url, g$source, from, to)
+        cached <- .cache_resource(g$url, g$source, g$from, g$to)
+        df <- read_parquet(cached)
         # If initial values are given
-        if( is.init ){
+        if( is_init ){
             # Filter linkmap before importing
             df <- cached |>
                 open_dataset() |>
@@ -262,6 +260,9 @@ setMethod("weavePath", signature = c(graph = "igraph"),
             # Read linkmap from parquet
             df <- read_parquet(cached)
         }
+        # Replace colnames with specifics
+        from <- g$from
+        to <- g$to
     # Query KEGGREST API
     }else if( g$source == "KEGG" ){
         # List external databases
@@ -271,7 +272,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
         # Use initial values as input for genes db
         orig <- if( "genes" %in% c(from, to) ) init else spec.from
         # Add prefix to external from ids
-        if( is.init && from %in% ext ) orig <- paste0(spec.from, ":", orig)
+        if( is_init && from %in% ext ) orig <- paste0(spec.from, ":", orig)
         # Send query to keggLink
         kegg_link <- kegg_fun(spec.to, orig)
         # Convert to data.frame
@@ -280,7 +281,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
         if( from != "genes") df$x <- sub("^[^:]*:", "", df$x)
         if( to != "genes" ) df$y <- sub("^[^:]*:", "", df$y)
         # Use initial values to filter output
-        if( is.init ) df <- df[df[[1L]] %in% init, , drop = FALSE]
+        if( is_init ) df <- df[df[[1L]] %in% init, , drop = FALSE]
     # Query Open Tree Taxonomy API
     }else if( g$source == "OTT" ){
         # Send OTT query (init must be vector)
@@ -288,7 +289,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     # Query SPARQL endpoint
     }else if( g$source %in% c("Rhea", "UniProt") ){
         # Add special IRI prefixes
-        if( is.init ) init <- .add_iri(init, g$source, from)
+        if( is_init ) init <- .add_iri(init, g$source, from)
         # Query SPARQL endpoint
         df <- .querySPARQL(spec.from, spec.to, g$source, init, timeout, ...)
         # Filter special cases
