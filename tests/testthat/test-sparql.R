@@ -3,7 +3,8 @@ test_that("sparql", {
     
     expect_error(
         .get_batches(seq(100), 20, 2, 2),
-        "Query limit was reached (25 > 20). Increase 'factor', 'batch.size' or 'workers' and try again."
+        "Query limit was reached (25 > 20). Increase 'factor', 'batch.size' or 'workers' and try again.",
+        fixed = TRUE
     )
     
     ranges <- .get_batches(seq(100), 20, 2, 6)
