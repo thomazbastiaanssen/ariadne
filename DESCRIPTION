@@ -23,7 +23,7 @@ Description:
     TreeSummarizedExperiment.
 biocViews:
     Software, DataImport, Metabolomics, Metagenomics, Microbiome, Annotation,
-    Pathways, Visualization
+    Pathways, Visualization, Network, GraphAndNetwork
 License: Artistic-2.0
 Encoding: UTF-8
 Depends:

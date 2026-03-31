@@ -3,9 +3,11 @@ reference:
 - title: Main functions
 - contents:
   - ariadne
-  - weavePath
   - searchPath
   - plotPath
+  - addResource
+  - weavePath
+  - weaveComplex
 - title: Other
 - contents:
   - appendModules

@@ -244,27 +244,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     spec.from <- node_df[node_df$name == from, g$source]
     spec.to <- node_df[node_df$name == to, g$source]
     # Retrieve linkmap from corresponding resource
-    if( g$source %in% c("BugSigDB", "ChocoPhlAn", "GM", "GO", "TIGRFAMs", "WoL")){
-        # Get file path to cached resource
-        cached <- .cache_resource(g$url, g$source, g$from, g$to)
-        df <- read_parquet(cached)
-        # If initial values are given
-        if( is_init ){
-            # Filter linkmap before importing
-            df <- cached |>
-                open_dataset() |>
-                filter(!!sym(from) %in% init) |>
-                collect() |>
-                as.data.frame()
-        }else{
-            # Read linkmap from parquet
-            df <- read_parquet(cached)
-        }
-        # Replace colnames with specifics
-        from <- g$from
-        to <- g$to
-    # Query KEGGREST API
-    }else if( g$source == "KEGG" ){
+    if( g$source == "KEGG" ){
         # List external databases
         ext <- c("chebi", "geneid", "proteinid", "pubchem", "uniprotkb")
         # Select function based on id types
@@ -300,6 +280,26 @@ setMethod("weavePath", signature = c(graph = "igraph"),
         # Strip special IRI prefixes
         df[[1L]] <- .strip_iri(df[[1L]], from)
         df[[2L]] <- .strip_iri(df[[2L]], to)
+    # Fetch linkmap from file
+    }else{
+        # Get file path to cached resource
+        cached <- .cache_resource(g$url, g$source, g$from, g$to)
+        df <- read_parquet(cached)
+        # If initial values are given
+        if( is_init ){
+            # Filter linkmap before importing
+            df <- cached |>
+                open_dataset() |>
+                filter(!!sym(from) %in% init) |>
+                collect() |>
+                as.data.frame()
+        }else{
+            # Read linkmap from parquet
+            df <- read_parquet(cached)
+        }
+        # Replace colnames with specifics
+        from <- g$from
+        to <- g$to
     }
     # Check that result is not empty
     if( nrow(df) == 0L ) stop("Bindings depleted.", call. = FALSE)

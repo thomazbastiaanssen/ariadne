@@ -12,6 +12,12 @@ setGeneric("plotPath", signature = c("graph"), function(graph, ...)
     standardGeneric("plotPath"))
 
 #' @export
+#' @rdname addResource
+setGeneric("addResource", signature = c("graph"), function(graph, ...)
+    standardGeneric("addResource"))
+
+
+#' @export
 #' @rdname weavePath
 setGeneric("weavePath", signature = c("graph"), function(graph, ...)
     standardGeneric("weavePath"))

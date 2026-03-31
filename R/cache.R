@@ -1,29 +1,26 @@
 
 
-#' @importFrom BiocFileCache BiocFileCache bfcquery bfcadd
+#' @importFrom BiocFileCache BiocFileCache bfcquery
 #' @importFrom tools R_user_dir
 #' @importFrom utils download.file
 #' @importFrom arrow write_parquet
-.cache_resource <- function(url, resource, from, to) {
+.cache_resource <- function(url, res.name, from, to) {
     # Initialise cache
     cache <- R_user_dir("ariadne", "cache")
     bfc <- BiocFileCache(cache, ask = FALSE)
     # Build resource name
-    rname <- file.path(resource, basename(url))
+    rname <- file.path(res.name, basename(url))
     # Check if preprocessed file is cached
     cached <- bfcquery(bfc, rname)$rpath
     # Return preprocessed file if available
-    if (length(cached) > 0L) return(cached[1])
+    if( length(cached) > 0L ) return(cached[1])
     # Find path for cache subdir
     path <- file.path(cache, rname)
-    subdir <- dirname(path)
-    # Create subdir if absent
-    if (!dir.exists(subdir)) dir.create(subdir, recursive = TRUE)
     # Download raw file
     download.file(url, path)
     # Select function based on resource
     FUN <- switch(
-        resource,
+        res.name,
         BugSigDB = .process_bugsigdb,
         ChocoPhlAn = .process_chocophlan,
         GM = .process_complex_modules,
@@ -37,15 +34,27 @@
     linkmap <- FUN(x)
     # Add colnames
     colnames(linkmap) <- c(from, to)
-    # Store preprocessed data
-    write_parquet(linkmap, path)
-    # Cache the preprocessed file using URL as resource name
-    bfcadd(
-        bfc, rname = rname, fpath = path, fname = "exact", action = "asis"
-    )
+    # Store linkmap in cache as parquet file
+    .add2cache(linkmap, rname, path, bfc)
     # Return path to cached preprocessed file
     cached <- bfcquery(bfc, rname)$rpath
     return(cached)
+}
+
+
+#' @importFrom arrow write_parquet
+#' @importFrom BiocFileCache bfcadd
+.add2cache <- function(x, rname, fpath, bfc){
+    # Define resource subdir of cache dir
+    subdir <- dirname(fpath)
+    # Create subdir if absent
+    if( !dir.exists(subdir) ) dir.create(subdir, recursive = TRUE)
+    # Store preprocessed data
+    write_parquet(x, fpath)
+    # Cache the preprocessed file using URL as resource name
+    bfcadd(
+        bfc, rname = rname, fpath = fpath, fname = "exact", action = "asis"
+    )
 }
 
 
@@ -56,13 +65,13 @@
     keys <- vapply(line.content, `[`, 1L, FUN.VALUE = character(1L))
     # Extract values
     values <- lapply(line.content, `[`, -1L)
+    # Remove GO id prefix ending with :
+    keys <- gsub("GO:", "", keys, fixed = TRUE)
     # Create linkmap
     linkmap <- data.frame(
         x = rep(keys, lengths(values, use.names = FALSE)),
         y = unlist(values, recursive = TRUE, use.names = FALSE)
     )
-    # Remove GO id prefix ending with :
-    linkmap$x <- gsub("GO:", "", linkmap$x, fixed = TRUE)
     return(linkmap)
 }
 
