@@ -163,7 +163,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
 })
 
 
-#' @importFrom utils read.table
+#' @importFrom data.table fread
 #' @importFrom KEGGREST listDatabases keggList
 .id2name <- function(graph_df, linkmap, verbose){
     
@@ -174,7 +174,8 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     
     if( !is.na(url) ){
         
-        name.linkmap <- read.table(url, sep = "\t")
+        name.linkmap <- fread(url, header = FALSE)
+        print(name.linkmap)
         
     }else if( target %in% c(listDatabases(), "network") ){
         # Use gene ids as input if target is genes
@@ -202,7 +203,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
             call. = FALSE)
     }
     # Map ids to names
-    linkmap[paste0(target, ".name")] <- as.factor(name.linkmap[idx, 2L])
+    linkmap[paste0(target, ".name")] <- as.factor(name.linkmap[idx, ][[2L]])
     return(linkmap)
 }
 

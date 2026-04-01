@@ -7,19 +7,19 @@
 \usage{
 addResource(graph, ...)
 
-\S4method{addResource}{igraph}(graph, file, res.name = "Custom", sep = "\\t", force = FALSE, ...)
+\S4method{addResource}{igraph}(graph, file, res.name = "Custom", force = FALSE, ...)
 }
 \arguments{
 \item{graph}{An igraph object.}
 
-\item{...}{Additional arguments passed to \code{read.table}.}
+\item{...}{Additional arguments passed to \code{\link[data.table:fread]{fread}}.}
 
 \item{file}{\code{Character scalar}. The path to a local or remote file that
 stores the linkmap between two features. It must be a table with two named
 columns (features) and each row representing a binding between features.}
 
-\item{sep}{\code{Character scalar}. The string to separate the columns of
-\code{file}. (Default: \code{"\t"})}
+\item{res.name}{\code{Character scalar}. The name of the resource that will
+appear in the output graph. (Default: \code{"Custom"})}
 
 \item{force}{\code{Logical scalar}. Whether \code{file} should overwrite any
 previously cached files with the same name. (Default: \code{FALSE})}
@@ -35,15 +35,26 @@ An igraph object.
 # Retrieve resource graph
 graph <- ariadne()
 
-# Plot fifth path from ko to ec
-graph <- addResource(graph, "")
+# Set URL to custom resource
+url <- "https://ftp.ebi.ac.uk/pub/databases/amr_portal/releases/2025-12/"
+url <- paste0(url, "genotype.csv.gz")
 
-# Plot first path including uniref90
-# searchPath(graph, taxname ~ ko, include = "uniref90")
+# Add resource to ariadne graph
+graph <- addResource(
+    graph,
+    url,
+    res.name = "AMR",
+    select = c("taxon_id", "antibiotic_ontology"),
+    col.names = c("taxid", "aro")
+)
+
+# Search for newly added path
+searchPath(graph, taxid ~ aro)
 
 # Plot first 5 paths excluding uniref50 and uniref100
-# plotPath(graph, taxname ~ ko, k = 5, exclude = c("uniref50", "uniref100"))
+plotPath(graph, taxid ~ aro, focus = TRUE)
 
-# weavePath()
+# Find antibiotics related to E. coli (NCBI 562)
+tax2aro <- weavePath(graph, taxid ~ aro, init = 562)
 
 }

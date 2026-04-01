@@ -24,9 +24,9 @@
         BugSigDB = .process_bugsigdb,
         ChocoPhlAn = .process_chocophlan,
         GM = .process_complex_modules,
-        GO = .process_go,
-        TIGRFAMs = .process_tigrfams,
-        WoL = .process_wol
+        WoL = .process_wol,
+        TIGRFAMs = ,
+        GO = function(x) process_one2one(x, header = FALSE)
     )
     # Read file content
     x <- readLines(path)
@@ -58,6 +58,21 @@
 }
 
 
+# from to args?
+#' @importFrom data.table fread
+.process_one2one <- function(x, ...){
+    # Read linkmap
+    linkmap <- fread(text = x, ...)
+    # Remove id prefix ending with : (for GO resources)
+    linkmap$V1 <- sub("^[^:]*:", "", linkmap$V1)
+    # Remove GO prefix (for GO and TIGRFAMs resources)
+    linkmap$V2 <- sub("GO:", "", linkmap$V2, fixed = TRUE)
+    # Select appropriate columns (for TIGRFAMs resources)
+    linkmap <- linkmap[ , c(1L, 2L)]
+    return(linkmap)
+}
+
+
 .process_chocophlan <- function(x){
     # Split elements in each line by tab
     line.content <- strsplit(x, "\t", fixed = TRUE)
@@ -79,38 +94,6 @@
 .process_wol <- function(x){
     linkmap <- .process_chocophlan(x)
     linkmap$x <- paste0("UniRef90_", linkmap$x)
-    return(linkmap)
-}
-
-
-.process_go <- function(x){
-    # Remove header
-    x <- x[!startsWith(x, "!")]
-    # Split entries into keys and values
-    x <- sub("^(\\S+).*?(\\S+)$", "\\1 \\2", x)
-    x <- strsplit(x, " ", fixed = TRUE)
-    # Create linkmap
-    linkmap <- as.data.frame(do.call(rbind, x))
-    # Trim prefix ending with :
-    linkmap <- data.frame(
-        x = gsub("^[^:]*:", "", linkmap[, 1L]),
-        y = gsub("^[^:]*:", "", linkmap[, 2L])
-    )
-    return(linkmap)
-}
-
-
-.process_tigrfams <- function(x){
-    # Split elements in each line by tab
-    line.content <- strsplit(x, "\t", fixed = TRUE)
-    # Extract keys
-    keys <- vapply(line.content, `[`, 1L, FUN.VALUE = character(1L))
-    # Extract values
-    values <- vapply(line.content, `[`, 2L, FUN.VALUE = character(1L))
-    # Remove id prefix ending with :
-    values <- gsub("^[^:]*:", "", values)
-    # Create linkmap
-    linkmap <- data.frame(x = keys, y = values)
     return(linkmap)
 }
 

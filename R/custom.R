@@ -9,13 +9,13 @@
 #'   stores the linkmap between two features. It must be a table with two named
 #'   columns (features) and each row representing a binding between features.
 #' 
-#' @param sep \code{Character scalar}. The string to separate the columns of
-#'   \code{file}. (Default: \code{"\t"})
+#' @param res.name \code{Character scalar}. The name of the resource that will
+#'   appear in the output graph. (Default: \code{"Custom"})
 #' 
 #' @param force \code{Logical scalar}. Whether \code{file} should overwrite any
 #'   previously cached files with the same name. (Default: \code{FALSE})
 #' 
-#' @param ... Additional arguments passed to \code{read.table}.
+#' @param ... Additional arguments passed to \code{\link[data.table:fread]{fread}}.
 #' 
 #' @returns An igraph object.
 #' 
@@ -24,16 +24,27 @@
 #' # Retrieve resource graph
 #' graph <- ariadne()
 #' 
-#' # Plot fifth path from ko to ec
-#' graph <- addResource(graph, "")
+#' # Set URL to custom resource
+#' url <- "https://ftp.ebi.ac.uk/pub/databases/amr_portal/releases/2025-12/"
+#' url <- paste0(url, "genotype.csv.gz")
 #' 
-#' # Plot first path including uniref90
-#' # searchPath(graph, taxname ~ ko, include = "uniref90")
+#' # Add resource to ariadne graph
+#' graph <- addResource(
+#'     graph,
+#'     url,
+#'     res.name = "AMR",
+#'     select = c("taxon_id", "antibiotic_ontology"),
+#'     col.names = c("taxid", "aro")
+#' )
+#' 
+#' # Search for newly added path
+#' searchPath(graph, taxid ~ aro)
 #' 
 #' # Plot first 5 paths excluding uniref50 and uniref100
-#' # plotPath(graph, taxname ~ ko, k = 5, exclude = c("uniref50", "uniref100"))
+#' plotPath(graph, taxid ~ aro, focus = TRUE)
 #' 
-#' # weavePath()
+#' # Find antibiotics related to E. coli (NCBI 562)
+#' tax2aro <- weavePath(graph, taxid ~ aro, init = 562)
 #' 
 #' @name addResource
 NULL
@@ -44,9 +55,9 @@ NULL
 #' @importFrom BiocFileCache BiocFileCache bfcquery
 #' @importFrom tools R_user_dir
 #' @importFrom dplyr bind_rows
-#' @importFrom utils read.table
+#' @importFrom data.table fread
 setMethod("addResource", signature = c(graph = "igraph"),
-    function(graph, file, res.name = "Custom", sep = "\t", force = FALSE, ...){
+    function(graph, file, res.name = "Custom", force = FALSE, ...){
     # Break graph into edges and nodes
     graph_df <- as_data_frame(graph, what = "both")
     edge_df <- graph_df$edges
@@ -66,7 +77,7 @@ setMethod("addResource", signature = c(graph = "igraph"),
     # Find path for cache subdir
     path <- file.path(cache, rname)
     # Import linkmap
-    linkmap <- read.table(file, sep = sep, header = TRUE, ...)
+    linkmap <- fread(file, ...)
     # Check that linkmap has two columns
     if( ncol(linkmap) != 2L ){
         stop("'file' must point to a two-column linkmap.", call. = FALSE)

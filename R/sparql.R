@@ -16,7 +16,7 @@
 }
 
 
-#' @importFrom utils read.csv
+#' @importFrom data.table fread
 #' @importFrom httr2 request req_headers req_timeout req_perform
 #'   resp_body_string req_body_form
 .sendSPARQL <- function(query, endpoint, timeout) {
@@ -31,10 +31,7 @@
     # Get response
     resp <- req_perform(req)
     # Parse CSV content into data frame
-    linkmap <- read.csv(
-        text = resp_body_string(resp),
-        stringsAsFactors = FALSE
-    )
+    linkmap <- fread(text = resp_body_string(resp), header = TRUE)
     return(linkmap)
 }
 
