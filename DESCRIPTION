@@ -40,6 +40,7 @@ Imports:
     igraph,
     KEGGREST,
     Matrix,
+    methods,
     MultiFactor,
     rlang,
     rotl,
@@ -56,6 +57,7 @@ Suggests:
     miaViz,
     remotes,
     rmarkdown,
+    R.utils,
     TreeSummarizedExperiment,
     testthat (>= 3.0.0)
 Remotes:

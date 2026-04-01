@@ -26,7 +26,7 @@
         GM = .process_complex_modules,
         WoL = .process_wol,
         TIGRFAMs = ,
-        GO = function(x) process_one2one(x, header = FALSE)
+        GO = function(x) .process_one2one(x, header = FALSE)
     )
     # Read file content
     x <- readLines(path)

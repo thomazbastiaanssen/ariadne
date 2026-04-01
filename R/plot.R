@@ -86,7 +86,7 @@ setMethod("plotPath", signature = c(graph = "igraph"),
     # Create a vector for edge alpha: 1 if marked, else 0 (transparent)
     if( focus ){
         E(graph)$alpha <- ifelse(E(graph)$mark != 0, 1, 0)
-        connected_nodes <- unique(c(ends(graph, E(graph)[mark != 0])))
+        connected_nodes <- unique(c(ends(graph, E(graph)[.data$mark != 0])))
         V(graph)$alpha <- ifelse(V(graph)$name %in% connected_nodes, 1, 0)
         alpha_min <- 0
     }
