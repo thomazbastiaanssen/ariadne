@@ -112,17 +112,20 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
 }
 
 
+#' @importFrom readr read_lines
 #' @importFrom MultiFactor MultiFactor weave
 .process_complex_modules <- function(
-    x, br = "///", AND = ",", OR = "\t", output.format = "linkmap"){
+    x, br = "///", AND = ",", OR = "\t", output.format = "linkmap", ...){
+    # Read file content
+    x <- read_lines(x, ...)
     # Identify break lines
     v_br <- x == br
     # Split content by breaks, excluding break lines themselves
-    line.content <- split(x[!v_br], cumsum(v_br)[!v_br])
+    line_content <- split(x[!v_br], cumsum(v_br)[!v_br])
     # Extract keys (first line of each block)
-    keys <- vapply(line.content, `[`, 1L, FUN.VALUE = "", USE.NAMES = FALSE)
+    keys <- vapply(line_content, `[`, 1L, FUN.VALUE = "", USE.NAMES = FALSE)
     # Extract values (all lines except first in each block)
-    values <- lapply(line.content, `[`, -1L)
+    values <- lapply(line_content, `[`, -1L)
     # Replace tabs with spaces in keys, repeated for each value line
     module <- gsub("\t.*", "", rep(keys, lengths(values, use.names = FALSE)))
     # Create unique module_component identifiers

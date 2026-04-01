@@ -42,6 +42,7 @@ Imports:
     Matrix,
     methods,
     MultiFactor,
+    readr,
     rlang,
     rotl,
     stats,

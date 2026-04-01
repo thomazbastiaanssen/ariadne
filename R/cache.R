@@ -16,22 +16,37 @@
     if( length(cached) > 0L ) return(cached[1])
     # Find path for cache subdir
     path <- file.path(cache, rname)
-    # Download raw file
-    download.file(url, path)
     # Select function based on resource
     FUN <- switch(
         res.name,
-        BugSigDB = .process_bugsigdb,
-        ChocoPhlAn = .process_chocophlan,
-        GM = .process_complex_modules,
-        WoL = .process_wol,
-        TIGRFAMs = ,
-        GO = function(x) .process_one2one(x, header = FALSE)
+        ChocoPhlAn = function(x) .process_one2many(
+            x, FUN = function(keys) sub("GO:", "", keys, fixed = TRUE)
+        ),
+        WoL = function(x) {
+            # Download temporary file (xz not supported by read_lines)
+            temp_xz <- tempfile(fileext = ".xz")
+            download.file(x, temp_xz, mode = "wb", quiet = TRUE)
+            # Process temporary file
+            .process_one2many(
+                temp_xz, FUN = function(keys) paste0("UniRef90_", keys)
+            )
+        },
+        BugSigDB = function(x) .process_one2many(
+            x, nonval.cols = c(1L, 2L), skip = 1L, FUN = function(keys){
+                # Remove module prefix
+                keys <- sub("bsdb:", "", keys, fixed = TRUE)
+                # Remove module description
+                keys <- sub("_.*$", "", keys)
+            }
+        ),
+        TIGRFAMs = function(x) .process_one2one(
+            x, header = FALSE, select = c(1L, 2L)
+        ),
+        GO = function(x) .process_one2one(x, header = FALSE),
+        GM = .process_complex_modules
     )
-    # Read file content
-    x <- readLines(path)
     # Preprocess data
-    linkmap <- FUN(x)
+    linkmap <- FUN(url)
     # Add colnames
     colnames(linkmap) <- c(from, to)
     # Store linkmap in cache as parquet file
@@ -62,55 +77,28 @@
 #' @importFrom data.table fread
 .process_one2one <- function(x, ...){
     # Read linkmap
-    linkmap <- fread(text = x, ...)
+    linkmap <- fread(x, ...)
     # Remove id prefix ending with : (for GO resources)
     linkmap$V1 <- sub("^[^:]*:", "", linkmap$V1)
     # Remove GO prefix (for GO and TIGRFAMs resources)
     linkmap$V2 <- sub("GO:", "", linkmap$V2, fixed = TRUE)
-    # Select appropriate columns (for TIGRFAMs resources)
-    linkmap <- linkmap[ , c(1L, 2L)]
     return(linkmap)
 }
 
 
-.process_chocophlan <- function(x){
+#' @importFrom readr read_lines
+.process_one2many <- function(
+    x, key.col = 1L, nonval.cols = key.col, FUN = identity, ...){
+    # Read file content
+    x <- read_lines(x, ...)
     # Split elements in each line by tab
-    line.content <- strsplit(x, "\t", fixed = TRUE)
+    line_content <- strsplit(x, "\t", fixed = TRUE)
     # Extract keys
-    keys <- vapply(line.content, `[`, 1L, FUN.VALUE = character(1L))
+    keys <- vapply(line_content, `[`, key.col, FUN.VALUE = character(1L))
     # Extract values
-    values <- lapply(line.content, `[`, -1L)
-    # Remove GO id prefix ending with :
-    keys <- gsub("GO:", "", keys, fixed = TRUE)
-    # Create linkmap
-    linkmap <- data.frame(
-        x = rep(keys, lengths(values, use.names = FALSE)),
-        y = unlist(values, recursive = TRUE, use.names = FALSE)
-    )
-    return(linkmap)
-}
-
-
-.process_wol <- function(x){
-    linkmap <- .process_chocophlan(x)
-    linkmap$x <- paste0("UniRef90_", linkmap$x)
-    return(linkmap)
-}
-
-
-.process_bugsigdb <- function(x){
-    # Remove header
-    x <- x[-1L]
-    # Split elements in each line by tab
-    line.content <- strsplit(x, "\t", fixed = TRUE)
-    # Extract keys
-    keys <- vapply(line.content, `[`, 1L, FUN.VALUE = character(1L))
-    # Remove module prefix
-    keys <- sub("bsdb:", "", keys, fixed = TRUE)
-    # Remove module description
-    keys <- sub("_.*$", "", keys)
-    # Extract values
-    values <- lapply(line.content, `[`, -c(1L, 2L))
+    values <- lapply(line_content, `[`, -nonval.cols)
+    # Apply custom processing function
+    keys <- FUN(keys)
     # Create linkmap
     linkmap <- data.frame(
         x = rep(keys, lengths(values, use.names = FALSE)),

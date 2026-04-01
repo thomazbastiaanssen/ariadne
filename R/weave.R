@@ -175,7 +175,6 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     if( !is.na(url) ){
         
         name.linkmap <- fread(url, header = FALSE)
-        print(name.linkmap)
         
     }else if( target %in% c(listDatabases(), "network") ){
         # Use gene ids as input if target is genes
