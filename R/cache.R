@@ -1,21 +1,17 @@
 
 
-#' @importFrom BiocFileCache BiocFileCache bfcquery
-#' @importFrom tools R_user_dir
+#' @importFrom BiocFileCache bfcquery
 #' @importFrom utils download.file
 #' @importFrom arrow write_parquet
 .cache_resource <- function(url, res.name, from, to) {
     # Initialise cache
-    cache <- R_user_dir("ariadne", "cache")
-    bfc <- BiocFileCache(cache, ask = FALSE)
+    bfc <- .init_cache()
     # Build resource name
     rname <- file.path(res.name, basename(url))
     # Check if preprocessed file is cached
     cached <- bfcquery(bfc, rname)$rpath
     # Return preprocessed file if available
     if( length(cached) > 0L ) return(cached[1])
-    # Find path for cache subdir
-    path <- file.path(cache, rname)
     # Select function based on resource
     FUN <- switch(
         res.name,
@@ -50,16 +46,31 @@
     # Add colnames
     colnames(linkmap) <- c(from, to)
     # Store linkmap in cache as parquet file
-    .add2cache(linkmap, rname, path, bfc)
+    .add2cache(linkmap, rname, bfc)
     # Return path to cached preprocessed file
     cached <- bfcquery(bfc, rname)$rpath
     return(cached)
 }
 
 
+#' @importFrom BiocFileCache BiocFileCache
+#' @importFrom tools R_user_dir
+.init_cache <- function(){
+    # Define cache dir
+    cache <- R_user_dir("ariadne", "cache")
+    # Initialise cache
+    bfc <- BiocFileCache(cache, ask = FALSE)
+    return(bfc)
+}
+
+
 #' @importFrom arrow write_parquet
-#' @importFrom BiocFileCache bfcadd
-.add2cache <- function(x, rname, fpath, bfc){
+#' @importFrom BiocFileCache bfccache bfcadd
+.add2cache <- function(x, rname, bfc){
+    # Find path for cache subdir
+    fpath <- bfc |>
+        bfccache() |>
+        file.path(rname)
     # Define resource subdir of cache dir
     subdir <- dirname(fpath)
     # Create subdir if absent

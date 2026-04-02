@@ -52,8 +52,7 @@ NULL
 #' @export
 #' @rdname addResource
 #' @importFrom igraph as_data_frame graph_from_data_frame
-#' @importFrom BiocFileCache BiocFileCache bfcquery
-#' @importFrom tools R_user_dir
+#' @importFrom BiocFileCache bfcquery
 #' @importFrom dplyr bind_rows
 #' @importFrom data.table fread
 setMethod("addResource", signature = c(graph = "igraph"),
@@ -63,8 +62,7 @@ setMethod("addResource", signature = c(graph = "igraph"),
     edge_df <- graph_df$edges
     node_df <- graph_df$vertices
     # Initialise cache
-    cache <- R_user_dir("ariadne", "cache")
-    bfc <- BiocFileCache(cache, ask = FALSE)
+    bfc <- .init_cache()
     # Build resource name
     rname <- file.path(res.name, basename(file))
     # Check if preprocessed file is cached
@@ -74,8 +72,6 @@ setMethod("addResource", signature = c(graph = "igraph"),
         stop("This link for ", res.name, " already exists. Set 'force' to TRUE",
             " to overwrite it.", call. = FALSE)
     }
-    # Find path for cache subdir
-    path <- file.path(cache, rname)
     # Import linkmap
     linkmap <- fread(file, ...)
     # Check that linkmap has two columns
@@ -115,7 +111,7 @@ setMethod("addResource", signature = c(graph = "igraph"),
     # Add resource-specific names
     node_df[node_df$name %in% cus_vars, res.name] <- cus_vars
     # Store linkmap in cache as parquet file
-    .add2cache(linkmap, rname, path, bfc)
+    .add2cache(linkmap, rname, bfc)
     # Combine edges and nodes data into graph
     graph <- graph_from_data_frame(edge_df, vertices = node_df)
     return(graph)
