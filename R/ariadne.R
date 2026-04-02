@@ -14,7 +14,6 @@
 #' An igraph object with the ariadne resource graph.
 #' 
 #' @examples
-#' 
 #' # Import ariadne resource graph
 #' graph <- ariadne()
 #' 

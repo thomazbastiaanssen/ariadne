@@ -1,15 +1,71 @@
-#' Utility functions
-#' @name utils
-#' @rdname utils
+#' Process HUMAnN3 gene families
+#' 
+#' @name processGeneFamilies
+#' @rdname processGeneFamilies
 #' 
 #' @description
-#' These utility functions are used throughout the package and may be relevant
-#' in other packages dealing with annotation mappings. \code{as.linkmap}
-#' converts a list of named vectors to a linkmap data.frame.
+#' processGeneFamilies prepares a SummarizedExperiment object containing the
+#' HUMAnN3 gene families, such as those provided by curatedMetagenomicData, so
+#' its feature-wise information on genes and taxa are added to the rowData. This
+#' makes ariadne interoperable with HUMAnN3 gene families data.
 #' 
-#' @param se A
+#' @param x A
 #'   \code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment}}
 #'   object.
+#' 
+#' @returns
+#' An object of the same type as \code{x} with four additional columns in the
+#' rowData: uniref90, taxname, genus and species.
+#' 
+#' @examples
+#' library(curatedMetagenomicData)
+#' 
+#' # Import gene families
+#' genes <- curatedMetagenomicData(
+#'     "AsnicarF_2017.gene_families",
+#'     dryrun = FALSE
+#' )
+#' 
+#' # Extract experiment from list
+#' genes <- genes[[1]]
+#' 
+#' # Process gene families
+#' genes <- processGeneFamilies(genes)
+#' 
+#' # Print head of rowData
+#' head(rowData(genes, use.names = FALSE))
+#' 
+#' @export
+#' @importFrom SummarizedExperiment rowData rowData<-
+#' @importFrom stringr fixed str_detect str_split
+processGeneFamilies <- function(x){
+    # Select rows with non-null taxa
+    x <- x[str_detect(rownames(x), fixed("|")), ]
+    x <- x[str_detect(rownames(x), "unclassified", negate = TRUE), ]
+    # Split gene and taxonomy
+    gene.linkmap <- as.data.frame(
+        str_split(rownames(x), fixed("|"), n = 2, simplify = TRUE)
+    )
+    names(gene.linkmap) <- c("uniref90", "taxname")
+    # Split genus and species
+    tax.linkmap <- as.data.frame(
+        str_split(gene.linkmap$taxname, fixed("."), n = 2, simplify = TRUE),
+    )
+    names(tax.linkmap) <- c("genus", "species")
+    # Bind gene and tax linkmaps
+    rowData(x) <- cbind(rowData(x), gene.linkmap, tax.linkmap)
+    return(x)
+}
+
+#' Append linkmaps to SummarizedExperiment side information
+#' 
+#' @name appendModules
+#' @rdname appendModules
+#' 
+#' @description
+#' appendModules allows to add the output of weavePath or complexPath to the
+#' rowData or colData of a SummarizedExperiment (SE) object. This makes ariadne
+#' interoperable with SE-based data analysis.
 #' 
 #' @param x The rowData or colData of a
 #'   \code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment}}
@@ -24,39 +80,42 @@
 #' @param as \code{Character scalar} A string specifying whether target ids or
 #'   names should be appended to \code{x}. (Default: \code{"ids"})
 #' 
-#' @return
-#' \code{as.linkmap} returns a linkmap \code{data.frame} where the first and
-#' second columns contains \code{keys} and \code{values} and each row represents
-#' a unique combination of the two.
-NULL
-
-
+#' @returns
+#' An object of the same type as \code{x} with additional columns, each
+#' containing information on membership of a feature to a certain module.
+#' 
+#' @examples
+#' library(mia)
+#' 
+#' # Import dataset
+#' data("Tengeler2020", package = "mia")
+#' tse <- Tengeler2020
+#' 
+#' # Load resource graph
+#' graph <- ariadne()
+#' 
+#' # Retrieve taxon names
+#' tax.labs <- getTaxonomyLabels(tse, make.unique = FALSE)
+#' tax.labs <- sub("^.+:", "", tax.labs)
+#' 
+#' # Add taxon labels to rowData
+#' rowData(tse)$taxname <- tax.labs
+#' 
+#' # Weave path starting from initial values
+#' tax2bugsig <- weavePath(graph, taxname ~ bugsig, init = tax.labs)
+#' 
+#' # Add BugSig modules to rowData
+#' rowData(tse) <- appendModules(rowData(tse), tax2bugsig, by = "taxname")
+#' 
+#' # Use module names instead of ids (currently not available for bugsig)
+#' # rowData(tse) <- appendModules(
+#' #     rowData(tse), tax2bugsig, by = "taxname", as = "names"
+#' # )
+#' 
+#' # Print first ten colnames of rowData
+#' head(names(rowData(tse)), 10)
+#' 
 #' @export
-#' @rdname utils
-#' @importFrom SummarizedExperiment rowData rowData<-
-#' @importFrom stringr fixed str_detect str_split
-processGeneFamilies <- function(se){
-    # Select rows with non-null taxa
-    se <- se[str_detect(rownames(se), fixed("|")), ]
-    se <- se[str_detect(rownames(se), "unclassified", negate = TRUE), ]
-    # Split gene and taxonomy
-    gene.linkmap <- as.data.frame(
-        str_split(rownames(se), fixed("|"), n = 2, simplify = TRUE)
-    )
-    names(gene.linkmap) <- c("uniref90", "taxname")
-    # Split genus and species
-    tax.linkmap <- as.data.frame(
-        str_split(gene.linkmap$taxname, fixed("."), n = 2, simplify = TRUE),
-    )
-    names(tax.linkmap) <- c("genus", "species")
-    # Bind gene and tax linkmaps
-    rowData(se) <- cbind(rowData(se), gene.linkmap, tax.linkmap)
-    return(se)
-}
-
-
-#' @export
-#' @rdname utils
 appendModules <- function(x, modules, by = "row.names", as = "ids"){
     # Check args
     if( !by %in% c("row.names", colnames(x)) ){

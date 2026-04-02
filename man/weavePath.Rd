@@ -98,7 +98,6 @@ A two-column data.frame (x-to-y linkmap).
 fetching and combining the necessary data from the ariadne database.
 }
 \examples{
-
 library(mia)
 
 # Import dataset

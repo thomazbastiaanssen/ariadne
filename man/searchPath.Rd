@@ -26,14 +26,13 @@ searchPath(graph, ...)
 (Default: \code{NULL})}
 }
 \value{
-A message
+A message.
 }
 \description{
 \code{searchPath} allows to search the first k-th shortest paths between
 resources.
 }
 \examples{
-
 # Retrieve resource graph
 graph <- ariadne()
 

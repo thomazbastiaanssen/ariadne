@@ -20,10 +20,9 @@
 #' @param ... Unused.
 #' 
 #' @returns
-#' A message
+#' A message.
 #' 
 #' @examples
-#' 
 #' # Retrieve resource graph
 #' graph <- ariadne()
 #' 
@@ -123,20 +122,3 @@ setMethod("searchPath", signature = c(graph = "igraph"),
     )
     return(path_df)
 }
-
-
-.generate_path_comb <- function(k, j){
-    # Find minimum number of paths per neighbour
-    num_paths <- rep(ceiling(k^(1 / j)), j)
-    # Generate all combinations of path indices
-    comb_indices <- expand.grid(lapply(num_paths, function(n) seq_len(n)))
-    # Calculate the max and total per row
-    comb_points <- list(apply(comb_indices, 1L, max), rowSums(comb_indices))
-    # Sort indices by max and sum values
-    comb_indices <- comb_indices[do.call(order, comb_points), , drop = FALSE]
-    rownames(comb_indices) <- NULL
-    # Select the k-th combination of paths
-    path_comb <- comb_indices[k, ]
-    return(path_comb)
-}
-

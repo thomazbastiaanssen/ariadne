@@ -1,6 +1,6 @@
 ---
-title: "Resources"
-author: 
+title: "Database"
+author:
   - name: Giulio Benedetti
     affiliation: University of Turku
     email: giulio.benedetti@utu.fi
@@ -17,11 +17,21 @@ output:
 date: "`r doc_date()`"
 package: "`r pkg_ver('ariadne')`"
 vignette: >
-    %\VignetteIndexEntry{Resources}
+    %\VignetteIndexEntry{Database}
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8}
 ---
 
+The way that ariadne retrieves and combines relational data is informed by its
+companion data package [ariadne.db](https://github.com/Minotau-R/ariadne.db),
+which contains information about the feature types and mappings available from
+a handful of popular databases. From here on, we will refer to those databases
+as _resources_ to distinguish them from the ariadne database itself.
+
+The relational information of each resource is described by a graph, where nodes
+and edges represent feature types and mappings between them, respectively. In
+ariadne.db, these graphs are stored in the Graph Modelling Language (GML), which
+is a standard format for relational data.
 
 ```{r, include=FALSE}
 knitr::opts_chunk$set(
@@ -30,17 +40,23 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r}
+```{r lib, message=FALSE, warning=FALSE}
 library(ariadne)
 library(igraph)
 library(dplyr)
 library(ggplot2)
 ```
 
+When `ariadne` is executed, the graph for each resource is retrieved from the
+database release on [Zenodo](https://zenodo.org/records/18788726) and combined
+into a single igraph object. Some resources have multiple versions, which can
+be selected through the argument `versions`. This defaults to the latest version found in the database.
 
 ```{r}
+# Import resource graph
 graph <- ariadne()
 
+# Plot resource graph
 plotPath(graph)
 ```
 
@@ -58,7 +74,6 @@ df <- edge_df |>
 
 df
 ```
-
 
 ```{r}
 for( resource in df$source ){

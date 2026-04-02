@@ -18,7 +18,6 @@
 #' \url{https://doi.org/10.1016/S2666-5247(24)00079-X}
 #' 
 #' @examples
-#' 
 #' # Import linkmap
 #' data("butyrate", package = "ariadne")
 #' 

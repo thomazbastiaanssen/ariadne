@@ -31,7 +31,6 @@ An igraph object.
 \code{addResource} includes a user-defined resource to the ariadne graph.
 }
 \examples{
-
 # Retrieve resource graph
 graph <- ariadne()
 

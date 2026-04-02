@@ -55,7 +55,6 @@
 #' @returns A two-column data.frame (x-to-y linkmap).
 #' 
 #' @examples
-#' 
 #' library(mia)
 #' 
 #' # Import dataset

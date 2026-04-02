@@ -1,6 +1,6 @@
 ---
-title: "# ariadne: module integration by on-demand translation of annotations using R"
-author: 
+title: "ariadne: module integration by on-demand translation of annotations using R"
+author:
   - name: Giulio Benedetti
     affiliation: University of Turku
     email: giulio.benedetti@utu.fi

@@ -8,7 +8,7 @@ reference:
   - addResource
   - weavePath
   - weaveComplex
-- title: Other
+- title: Utility functions
 - contents:
   - appendModules
   - processGeneFamilies

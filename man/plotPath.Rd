@@ -42,7 +42,6 @@ A ggplot2 object.
 \code{plotPath} provides a visual of a graph and the selected path.
 }
 \examples{
-
 # Retrieve resource graph
 graph <- ariadne()
 
