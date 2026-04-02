@@ -1,5 +1,5 @@
 Package: ariadne
-Version: 0.1.0
+Version: 0.2.1
 Authors@R: 
     c(person(given = "Giulio", family = "Benedetti", role = c("aut", "cre"),
           email = "giulio.benedetti@utu.fi",
@@ -10,7 +10,7 @@ Authors@R:
     person(given = "Leo", family = "Lahti", role = c("aut"),
           email = "leo.lahti@iki.fi",
           comment = c(ORCID = "0000-0001-5537-637X")))
-Title: Module INtegration by On-demand Translation of Annotations using R
+Title: Assembling Relational Information Across the Database NEtwork
 Description:
     ariadne provides a rapid and robust approach to incorporate taxonomic and
     functional module analyses into your bioinformatic workflow. Despite the
@@ -23,32 +23,43 @@ Description:
     TreeSummarizedExperiment.
 biocViews:
     Software, DataImport, Metabolomics, Metagenomics, Microbiome, Annotation,
-    Pathways, Visualization
+    Pathways, Visualization, Network, GraphAndNetwork
 License: Artistic-2.0
 Encoding: UTF-8
 Depends:
     R (>= 4.1)
 Imports:
+    arrow,
     BiocFileCache,
     BiocParallel,
-    methods,
-    mia,
-    MultiFactor,
-    S7,
-    rlang,
+    data.table,
+    dplyr,
+    ggplot2,
+    ggraph,
+    httr2,
+    igraph,
+    KEGGREST,
     Matrix,
+    methods,
+    MultiFactor,
+    readr,
+    rlang,
+    rotl,
+    stats,
     stringr,
     SummarizedExperiment,
-    TreeSummarizedExperiment
+    tools,
+    utils
 Suggests:
     BiocStyle,
-    bugsigdbr,
     curatedMetagenomicData,
-    ggplot2,
     knitr,
+    mia,
     miaViz,
     remotes,
     rmarkdown,
+    R.utils,
+    TreeSummarizedExperiment,
     testthat (>= 3.0.0)
 Remotes:
     github::Minotau-R/MultiFactor

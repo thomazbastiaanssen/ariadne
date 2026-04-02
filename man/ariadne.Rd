@@ -2,33 +2,28 @@
 % Please edit documentation in R/ariadne.R
 \name{ariadne}
 \alias{ariadne}
-\title{Ariadne: On-demand annotation and module analysis}
-\usage{
-ariadne(x, .by)
-}
+\title{Build ariadne resource graph}
 \arguments{
-\item{x}{\code{Missing} (default) or \verb{Character vector} selecting any number of
-available relational database or module set.}
-
-\item{.by}{Either a \code{formula} or a \verb{Character vector} of length 2 with the
-names of the desired combination of feature types. See \code{MultiFactor}
-subset method, which is called internally.}
+\item{versions}{\code{Character list}. A named list of resource versions to
+load. Latest versions are used if not specified. (Default: \code{NULL})}
 }
 \value{
-if \code{x} is missing, print names of available databases. Otherwise,
-return a \code{MultiFactor} object of the selected database.
+An igraph object with the ariadne resource graph.
 }
 \description{
-Display available prepared relational databases.
+\code{ariadne} imports the resource graph hosted in ariadne.db companion data
+package.
 }
 \examples{
-ariadne()
-ariadne("Choco")
-ariadne("ChocoPhlAn", ko ~ uniref90)
-ariadne(c("ChocoPhlAn", "GBM"), GBM ~ uniref90)
+
+# Import ariadne resource graph
+graph <- ariadne()
+
+# Specify resource versions
+graph <- ariadne(versions = list(BugSigDB = "v1.2.0", WoL = "v2.0"))
+
 }
 \seealso{
-\code{\link[=importMapping]{importMapping()}}
-
-\code{\link[=importModules]{importModules()}}
+ariadne.db: \url{https://github.com/Minotau-R/ariadne.db}
+Zenodo: \url{https://zenodo.org/records/18788725}
 }

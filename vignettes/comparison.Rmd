@@ -17,7 +17,7 @@ output:
 date: "`r doc_date()`"
 package: "`r pkg_ver('ariadne')`"
 vignette: >
-    %\VignetteIndexEntry{ariadne}
+    %\VignetteIndexEntry{Comparison}
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8}
 ---
@@ -36,20 +36,16 @@ library(mia)
 library(miaViz)
 ```
 
-## Functional module analysis at gene level
+## Functional module analysis
 
 ```{r}
 # Load gene family experiment
 genes <- curatedMetagenomicData(
-    "SankaranarayananK_2015.gene_families",
-    dryrun = FALSE
+    "SankaranarayananK_2015.gene_families", dryrun = FALSE
 )
 
-# Extract experiment
 genes <- genes[[1]]
-```
 
-```{r}
 # Process experiment
 genes <- processGeneFamilies(genes)
 
@@ -58,125 +54,50 @@ genes
 ```
 
 ```{r}
-gmm <- importModules("GMM")
-# gmm <- gmm[1:30]
+tax2uniref <- rowData(genes)[c("taxname", "uniref90")] |>
+    data.frame(row.names = NULL)
+
+head(tax2uniref)
 ```
 
 ```{r}
-ko.uniref90 <- importMapping("ChocoPhlAn", ko ~ uniref90)
-```
+graph <- ariadne()
 
-
-```{r}
-rowData(genes)$Taxon <- gsub(".", "|", rowData(genes)$Taxon, fixed = TRUE)
-uniref90.tax <- split(rowData(genes)$Taxon, rowData(genes)$GeneID)
+searchPath(graph, uniref90 ~ gmm, k = 3)
 ```
 
 ```{r}
-modules <- mapModules(
-    gmm,
-    list(ko.uniref90, uniref90.tax),
-    mode = "andor",
-    remove.empty = TRUE
-)
+# Weave bindings between taxa and GMMs
+tax2gmm <- weaveComplex(graph, taxname ~ gmm, k = 2, init = tax2uniref)
+
+# Print some results
+head(tax2gmm)
 ```
 
 ```{r}
-genes <- addModules(
-    genes,
-    modules,
-    by = 1L,
-    group = "taxonomy"
-)
-```
-
-```{r}
-altExp(genes, "modules") <- agglomerateByModule(
-    genes,
-    by = 1L,
-    group = names(modules)
-)
-
-top.mods <- altExp(genes, "modules") |>
-    getTop(assay.type = "gene_families")
-```
-
-```{r}
-genes <- swapAltExp(
-    genes,
-    name = "modules",
-    saved = "features",
-    withColData = FALSE
-)
-```
-
-```{r}
-plotAbundance(
-    genes[top.mods, ],
-    assay.type = "gene_families",
-    as.relative = TRUE,
-    order.col.by = "disease"
-)
-```
-
-```{r}
-plotAbundanceDensity(
-    genes,
-    assay.type = "gene_families",
-    n = 5,
-    layout = "density",
-    colour.by = "disease"
-)
-```
-
-
-## Functional module analysis at taxon level
-
-```{r}
-# Load relative abundance experiment
 tse <- curatedMetagenomicData(
-    pattern = "SankaranarayananK_2015.relative_abundance",
-    dryrun = FALSE,
-    counts = TRUE,
-    rownames = "short"
+    "SankaranarayananK_2015.relative_abundance",
+    rownames = "long",
+    dryrun = FALSE
 )
 
-# Extract experiment
 tse <- tse[[1]]
-```
 
-```{r}
 tse
 ```
 
 ```{r}
-gmm <- importModules("GMM")
-```
+rowData(tse)$taxname <- sub("^.*(g__.+)\\|(s__.+)$", "\\1.\\2", rownames(tse))
 
-```{r}
-ko.uniref90 <- importMapping("ChocoPhlAn", ko ~ uniref90)
-```
+rowData(tse) <- appendModules(rowData(tse), tax2gmm, by = "taxname", as = "names")
 
-```{r}
-modules <- mapModules(
-    gmm,
-    ko.uniref90,
-    mode = "andor",
-    uniprot = TRUE,
-    remove.empty = TRUE
-)
-```
-
-```{r}
-tse <- addModules(tse, modules)
+tse
 ```
 
 
 ```{r}
 altExp(tse, "modules") <- agglomerateByModule(
-    tse,
-    by = 1L,
-    group = names(modules)
+    tse, by = 1, group = unique(tax2gmm$gmm.name)
 )
 
 top.mods <- altExp(tse, "modules") |>
@@ -193,24 +114,31 @@ tse <- swapAltExp(
 ```
 
 ```{r}
-plotAbundanceDensity(
-    tse,
-    layout = "density",
-    n = 5,
+plotAbundance(
+    tse[top.mods, ],
     assay.type = "relative_abundance",
-    colour.by = "disease")
+    as.relative = TRUE,
+    order.col.by = "disease",
+    col.var = "disease"
+)
 ```
 
 ```{r}
-library(ggplot2)
-mse <- meltSE(tse, assay.type = "relative_abundance", add.col = TRUE)
-
-ggplot(mse, aes(x = SampleID, y = FeatureID, fill = relative_abundance)) +
-  geom_tile() +
-  theme(axis.text.x = element_blank(),
-        axis.ticks.x = element_blank())
-
+plotAbundanceDensity(
+    tse,
+    assay.type = "relative_abundance",
+    n = 5,
+    layout = "density",
+    colour.by = "disease"
+)
 ```
 
+# Reproducibility
 
+R session information:
 
+```{r reproduce, echo=FALSE}
+# Session info
+options(width = 120)
+sessionInfo()
+```

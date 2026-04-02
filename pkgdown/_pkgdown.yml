@@ -2,13 +2,14 @@ destination: docs
 reference:
 - title: Main functions
 - contents:
-  - importMapping
-  - importModules
-  - mapModules
-  - getModules
-  - addModules
+  - ariadne
+  - searchPath
+  - plotPath
+  - addResource
+  - weavePath
+  - weaveComplex
 - title: Other
 - contents:
-  - getFullTaxonomyLabels
+  - appendModules
   - processGeneFamilies
   - butyrate

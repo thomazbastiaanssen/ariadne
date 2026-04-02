@@ -7,36 +7,34 @@
 #' in other packages dealing with annotation mappings. \code{as.linkmap}
 #' converts a list of named vectors to a linkmap data.frame.
 #' 
-#' @param tse A
-#'   \code{\link[TreeSummarizedExperiment:TreeSummarizedExperiment-constructor]{TreeSummarizedExperiment}}
-#'   object.
-#' 
 #' @param se A
 #'   \code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment}}
 #'   object.
 #' 
-#' @returns
+#' @param x The rowData or colData of a
+#'   \code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment}}
+#'   object.
+#' 
+#' @param modules \code{data.frame}. A linkmap returned by weavePath or
+#'   weaveComplex.
+#' 
+#' @param by \code{Character scalar} A string specifying a variable of \code{x}
+#'   to append \code{modules}. (Default: \code{"row.names"})
+#' 
+#' @param as \code{Character scalar} A string specifying whether target ids or
+#'   names should be appended to \code{x}. (Default: \code{"ids"})
+#' 
+#' @return
 #' \code{as.linkmap} returns a linkmap \code{data.frame} where the first and
 #' second columns contains \code{keys} and \code{values} and each row represents
 #' a unique combination of the two.
 NULL
 
-# Reduce taxcols of rowData to taxstring in metaphlan format
-#' @importFrom SummarizedExperiment rowData
-getFullTaxonomyLabels <- function(tse){
-    # Add taxrank prefixes to taxcols of rowData
-    tax <- .add_prefix_to_taxtable(tse)
-    # Collapse taxcols to taxstring in metaphlan format
-    tax <- apply(tax, 1L, paste, collapse = "|")
-    # Remove empty taxranks
-    tax <- gsub("(?:\\|[a-z]__)+$", "", tax)
-    return(tax)
-}
 
-
+#' @export
+#' @rdname utils
+#' @importFrom SummarizedExperiment rowData rowData<-
 #' @importFrom stringr fixed str_detect str_split
-#' @importFrom SummarizedExperiment rowData colData rowData<- colData<- assays
-#' @importFrom TreeSummarizedExperiment TreeSummarizedExperiment
 processGeneFamilies <- function(se){
     # Select rows with non-null taxa
     se <- se[str_detect(rownames(se), fixed("|")), ]
@@ -45,17 +43,42 @@ processGeneFamilies <- function(se){
     gene.linkmap <- as.data.frame(
         str_split(rownames(se), fixed("|"), n = 2, simplify = TRUE)
     )
-    names(gene.linkmap) <- c("GeneID", "Taxon")
+    names(gene.linkmap) <- c("uniref90", "taxname")
     # Split genus and species
     tax.linkmap <- as.data.frame(
-        str_split(gene.linkmap$Taxon, fixed("."), n = 2, simplify = TRUE),
+        str_split(gene.linkmap$taxname, fixed("."), n = 2, simplify = TRUE),
     )
-    names(tax.linkmap) <- c("Genus", "Species")
-    # Convert SE to TreeSE
-    tse <- TreeSummarizedExperiment(
-        assays = assays(se),
-        rowData = cbind(rowData(se), gene.linkmap, tax.linkmap),
-        colData = colData(se)
-    )
-    return(tse)
+    names(tax.linkmap) <- c("genus", "species")
+    # Bind gene and tax linkmaps
+    rowData(se) <- cbind(rowData(se), gene.linkmap, tax.linkmap)
+    return(se)
+}
+
+
+#' @export
+#' @rdname utils
+appendModules <- function(x, modules, by = "row.names", as = "ids"){
+    # Check args
+    if( !by %in% c("row.names", colnames(x)) ){
+        stop("'by' must be 'row.names' or a variable of 'x'.", call. = FALSE)
+    }
+    if( !as %in% c("ids", "names") ){
+        stop("'as' must be either 'ids' or 'rownames'.", call. = FALSE)
+    }
+    # Choose between ids and names
+    target_col <- switch(as, ids = 2L, names = 3L)
+    # Convert linkmap to wide format
+    modules <- table(modules[c(1L, target_col)]) == 1
+    
+    if( by == "row.names" ){
+        idx <- match(rownames(x), rownames(modules))
+    }else{
+        idx <- match(x[[by]], rownames(modules))
+    }
+    
+    modules <- modules[idx, , drop = FALSE]
+    modules[is.na(modules)] <- FALSE
+    
+    out <- cbind(x, modules)
+    return(out)
 }

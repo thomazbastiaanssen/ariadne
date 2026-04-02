@@ -1,0 +1,83 @@
+---
+title: "Resources"
+author: 
+  - name: Giulio Benedetti
+    affiliation: University of Turku
+    email: giulio.benedetti@utu.fi
+output:
+    BiocStyle::html_document:
+        fig_height: 7
+        fig_width: 10
+        toc: true
+        toc_float: true
+        toc_depth: 2
+        number_sections: true
+        self_contained: true
+        code_folding: show
+date: "`r doc_date()`"
+package: "`r pkg_ver('ariadne')`"
+vignette: >
+    %\VignetteIndexEntry{Resources}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+---
+
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r}
+library(ariadne)
+library(igraph)
+library(dplyr)
+library(ggplot2)
+```
+
+
+```{r}
+graph <- ariadne()
+
+plotPath(graph)
+```
+
+```{r}
+graph_df <- igraph::as_data_frame(graph, what = "both")
+edge_df <- graph_df$edges
+node_df <- graph_df$vertices
+```
+
+
+```{r}
+df <- edge_df |>
+    group_by(source) |>
+    summarise(edges = n(), nodes = n_distinct(c(from, to)))
+
+df
+```
+
+
+```{r}
+for( resource in df$source ){
+    
+    res_df <- edge_df[edge_df$source == resource, c("from", "to")]
+    res_graph <- graph_from_data_frame(res_df)
+    
+    p <- plotPath(res_graph) + ggtitle(resource)
+    print(p)
+}
+```
+
+# Reproducibility
+
+R session information:
+
+```{r reproduce, echo=FALSE}
+# Session info
+options(width = 120)
+sessionInfo()
+```
+

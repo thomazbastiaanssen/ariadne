@@ -48,153 +48,57 @@ information into popular standardised containers, such as TreeSummarizedExperime
 ## Installation
 
 ```{r install, eval=FALSE}
-if (!requireNamespace("BiocManager", quietly = TRUE))
+if( !requireNamespace("BiocManager", quietly = TRUE) ){
     install.packages("BiocManager")
+}
 
 BiocManager::install("ariadne")
 ```
 
-Here, the terms "module" and "signature" are used in place of each other.
+## Explore ariadne graph
 
 ```{r}
 library(ariadne)
+
+# 
+graph <- ariadne()
+
+#
+plotPath(graph)
+```
+
+```{r}
+searchPath(graph, taxname ~ ec, k = 10)
+```
+
+```{r}
+plotPath(graph, taxname ~ ec, include = "uniref90", focus = TRUE)
+```
+
+```{r}
 library(mia)
-library(miaViz)
-library(curatedMetagenomicData)
 
 # Import dataset
 data("Tengeler2020", package = "mia")
 tse <- Tengeler2020
 
-
+# Retrieve taxon names
+tax.labs <- getTaxonomyLabels(tse, make.unique = FALSE)
+tax.labs <- sub("^.+:", "", tax.labs)
 ```
 
-## Retrieve functional modules
-
-```{r cmd-cache, cache = TRUE}
-# Prepare mapping
-map <- ariadne( c("ChocoPhlAn", "GBM"), GBM ~ uniref90 )
-
-# Download ko2uniref LinkMap from repo
-map <- importMapping(map, dry.run = FALSE)
-
-# Download example data
-id <- "2021-10-14.GopalakrishnanV_2018.gene_families"
-
-se <- curatedMetagenomicData(id, counts = TRUE, dryrun = FALSE)[[1L]]
-
-tse <- TreeSummarizedExperiment::TreeSummarizedExperiment(
-  assays = list(counts = assay(se)), 
-  colData = colData(se))
-
-x <- SummarizedExperiment::assay(tse)
-
-# subset for speed
-x <- x[grep("s__Bacteroides", row.names(x), fixed = TRUE),]
-
-```
 
 ```{r}
-# Map modules to taxa
-gbms <- mapModules(
-    map, x, x.type = "uniref90", x.stratified = "|"
+tax2ec <- weavePath(
+    graph,
+    taxname ~ ec,
+    include = "uniref90",
+    init = tax.labs,
+    factor = 8
 )
+
+head(tax2ec)
 ```
-
-
-## Module analysis
-
-```{r}
-# Collect all module names
-altExp(tse, "modules") <- SummarizedExperiment(list("modules" = gbms))
-
-# Find top 5 modules by average count
-top.mods <- getTop(
-    altExp(tse),
-    assay.type = "modules"
-)
-```
-
-```{r include=FALSE}
-# Add arg to agglomerateByModule to remove.empty
-# keep <- rowSums(assay(tse.mod)) > 0
-# tse.mod <- tse.mod[keep, ]
-```
-
-Make some plots
-
-```{r}
-tse <- swapAltExp(
-    tse,
-    name = "modules",
-    saved = "features",
-    withColData = TRUE
-)
-```
-
-
-```{r}
-# plotAbundance(
-#     tse[top.mods, ],
-#     assay.type = "modules",
-#     as.relative = TRUE,
-#     col.by = "disease",
-#     order.col.by = "disease",
-#     add.legend = FALSE
-# )
-```
-
-
-```{r}
-plotAbundanceDensity(
-    tse,
-    layout = "density",
-    n = 5,
-    assay.type = "modules",
-    colour.by = "disease"
-)
-```
-
-```{r}
-library(ggplot2)
-
-mse <- meltSE(tse, assay.type = "modules", add.col = TRUE)
-
-ggplot(mse, aes(x = SampleID, y = FeatureID, fill = modules)) +
-    geom_tile() +
-    #facet_wrap(. ~ patient_status) +
-    scale_fill_gradient2(low = "white", high = "red") +
-    labs(x = "Samples") +
-    theme(axis.text = element_blank(),
-          axis.title.y = element_blank(),
-          axis.ticks.x = element_blank())
-```
-
-```{r}
-# Heatmap(assay(tse))
-```
-
-## Microbe-set enrichment analysis
-
-
-```{r}
-# library(rstatix)
-
-# df <- meltSE(tse, assay.type = "counts", add.col = TRUE)
-
-# df |>
-#   group_by(FeatureID) |>
-#   t_test(counts ~ patient_status) |>
-#   filter(!is.na(p)) |>
-#   adjust_pvalue(method = "fdr") |>
-#   filter(p < 0.05) |>
-#   select(FeatureID, p, p.adj)
-```
-
-```{r}
-# my.list
-```
-
 
 # Resources
 

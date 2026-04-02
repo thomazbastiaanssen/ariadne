@@ -3,13 +3,9 @@
 \name{butyrate}
 \alias{butyrate}
 \title{Dataset of butyrate producers}
-\format{
-A \code{data.frame} with 16 features (rows) characterised across 6 taxonomic
-ranks (columns). One feature was identified at the Species level, whereas all
-the others at the Genus level.
-}
-\usage{
-data("butyrate", package = "ariadne")
+\value{
+A linkmap with 16 butyrate-producing microbial features characterised at the
+genus or species level.
 }
 \description{
 \code{butyrate} is derived from two observational, population-based
@@ -17,6 +13,15 @@ microbiome studies on the associations between butyrate-producing gut
 bacteria and the risk of hospitalisation due to infectious diseases. It
 provides a set of butyrate producers that were significantly increased or
 reduced in the patient group.
+}
+\examples{
+
+# Import linkmap
+data("butyrate", package = "ariadne")
+
+# Print some pairs
+head(butyrate)
+
 }
 \references{
 Kullberg, Robert FJ, et al.
