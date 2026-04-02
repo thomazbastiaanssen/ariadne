@@ -36,8 +36,7 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
     feat.name <- edge_df$to[edge_df$from == mod.name]
     url <- edge_df$url[edge_df$from == mod.name]
     
-    x <- readLines(url)
-    linkmaps <- .process_complex_modules(x, output.format = "list")
+    linkmaps <- .process_complex_modules(url, output.format = "list")
     
     if( var.idx[["mod"]] == 1L ){
         init <- unique(linkmaps[["complex2feature"]][["feature"]])
