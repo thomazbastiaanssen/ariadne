@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Module INtegration by On-demand Translation of Annotations using R • ariadne</title>
+<title>Assembling Relational Information Across the Database NEtwork • ariadne</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="bootstrap-toc.css">
 <script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script><meta property="og:title" content="Module INtegration by On-demand Translation of Annotations using R">
+<script src="pkgdown.js"></script><meta property="og:title" content="Assembling Relational Information Across the Database NEtwork">
 <meta property="og:description" content="ariadne provides a rapid and robust approach to incorporate taxonomic and functional module analyses into your bioinformatic workflow. Despite the presence of specialised bioinformatic tools, on-demand functional annotation of taxonomic features directly in R has remained challenging. To make this simple, ariadne offers tools to rapidly annotate features with taxonomic or functional modules based on online resources (BugSigDB, ChocoPhlAn, Web of Life and UniProt). In addition, we provide tools to incorporate, analyse and visualise module information into popular standardised containers, such as TreeSummarizedExperiment.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">ariadne</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.1</span>
       </span>
     </div>
 
@@ -58,12 +58,15 @@
     <li>
       <a href="articles/msea.html">MSEA</a>
     </li>
+    <li>
+      <a href="articles/resources.html">Resources</a>
+    </li>
   </ul>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/thomazbastiaanssen/ariadne/" class="external-link">
+  <a href="https://github.com/Minotau-R/ariadne/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
 
   </a>
@@ -82,10 +85,11 @@
   <div class="contents col-md-9">
 
 <div class="section level1">
-<div class="page-header"><h1 id="ariadne-on-demand-annotation-and-module-analysis">ariadne: on-demand annotation and module analysis<a class="anchor" aria-label="anchor" href="#ariadne-on-demand-annotation-and-module-analysis"></a>
+<div class="page-header"><h1 id="ariadne-assembling-relational-information-across-the-database-network">ariadne: assembling relational information across the database network<a class="anchor" aria-label="anchor" href="#ariadne-assembling-relational-information-across-the-database-network"></a>
 </h1></div>
-<p><a href="https://github.com/thomazbastiaanssen/ariadne/issues" class="external-link"><img src="https://img.shields.io/github/issues/thomazbastiaanssen/ariadne" alt="issues"></a> <a href="https://github.com/thomazbastiaanssen/ariadne/pulls" class="external-link"><img src="https://img.shields.io/github/issues-pr/thomazbastiaanssen/ariadne" alt="pulls"></a> <a href="https://github.com/thomazbastiaanssen/ariadne/actions" class="external-link"><img src="https://github.com/thomazbastiaanssen/ariadne/workflows/build/badge.svg" alt="R-CMD-check"></a> <a href="https://app.codecov.io/gh/thomazbastiaanssen/ariadne?branch=devel" class="external-link"><img src="https://codecov.io/gh/thomazbastiaanssen/ariadne/branch/devel/graph/badge.svg" alt="codecov"></a> <a href="https://www.codefactor.io/repository/github/thomazbastiaanssen/ariadne" class="external-link"><img src="https://www.codefactor.io/repository/github/thomazbastiaanssen/ariadne/badge" alt="codefactor"></a></p>
-<p>The goal of ariadne is to make annotation and module analysis straightforward.</p>
+<p><a href="https://github.com/Minotau-R/ariadne/issues" class="external-link"><img src="https://img.shields.io/github/issues/Minotau-R/ariadne" alt="issues"></a> <a href="https://github.com/Minotau-R/ariadne/pulls" class="external-link"><img src="https://img.shields.io/github/issues-pr/Minotau-R/ariadne" alt="pulls"></a> <a href="https://github.com/Minotau-R/ariadne/actions" class="external-link"><img src="https://github.com/Minotau-R/ariadne/workflows/build/badge.svg" alt="R-CMD-check"></a> <a href="https://codecov.io/gh/Minotau-R/ariadne" class="external-link"><img src="https://codecov.io/gh/Minotau-R/ariadne/graph/badge.svg?token=8P7EK6T6WX" alt="codecov"></a> <a href="https://www.codefactor.io/repository/github/minotau-r/ariadne" class="external-link"><img src="https://www.codefactor.io/repository/github/minotau-r/ariadne/badge" alt="CodeFactor"></a></p>
+<p>ariadne is a multi-purpose R package that integrates relational knowledge from various biological databases. It provides tools to navigate resource graphs, find and visualise paths between features and link them across different omics by leveraging the resource network hosted in the companion package <a href="https://github.com/Minotau-R/ariadne.db" class="external-link">ariadne.db</a>.</p>
+<p>Example applications: - explore relations across omics using curated knowledge, fetched automatically and efficiently using SPARQL and parquet - stratify microbes by BugSig, Gut Metabolic or Gut Brain modules for functional or microbe-set enrichment analysis - converge features from different taxonomies (NCBI, SILVA, OTT, etc.)</p>
 </div>
 <div class="section level1">
 <h1 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
@@ -93,8 +97,8 @@
 <div class="section level2">
 <h2 id="installation-instructions">Installation instructions<a class="anchor" aria-label="anchor" href="#installation-instructions"></a>
 </h2>
-<p>In the future, we intend to submit ariadne to Bioconductor. For now, the package as follows:</p>
-<pre><code><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"thomazbastiaanssen/ariadne"</span><span class="op">)</span></span></code></pre>
+<p>In the future, we intend to submit ariadne to Bioconductor. For now, the package can be installed with:</p>
+<pre><code><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"Minotau-R/ariadne"</span><span class="op">)</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="code-of-conduct">Code of Conduct<a class="anchor" aria-label="anchor" href="#code-of-conduct"></a>
@@ -104,11 +108,10 @@
 <div class="section level2">
 <h2 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>
 </h2>
-<p>ariadne results from the joint effort of the larger bioinformatics community. In particular, this software is mainly related to the following packages:</p>
+<p>ariadne results from the joint effort of the larger bioinformatics community. In particular, this software is related to the following packages:</p>
 <ul>
+<li><a href="https://github.com/Minotau-R/MultiFactor/" class="external-link"><em>MultiFactor</em></a></li>
 <li><a href="https://bioconductor.org/packages/release/bioc/html/mia.html" class="external-link"><em>mia</em></a></li>
-<li><a href="https://github.com/thomazbastiaanssen/anansi/" class="external-link"><em>anansi</em></a></li>
-<li><a href="https://www.bioconductor.org/packages/release/bioc/html/TreeSummarizedExperiment.html" class="external-link"><em>TreeSummarizedExperiment</em></a></li>
 </ul>
 </div>
 </div>
@@ -119,8 +122,8 @@
     <div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/thomazbastiaanssen/ariadne/" class="external-link">Browse source code</a></li>
-<li><a href="https://github.com/thomazbastiaanssen/ariadne/issues" class="external-link">Report a bug</a></li>
+<li><a href="https://github.com/Minotau-R/ariadne/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/Minotau-R/ariadne/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
 
@@ -161,7 +164,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer>

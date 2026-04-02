@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ariadne</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.1</span>
       </span>
     </div>
 
@@ -57,12 +57,15 @@
     <li>
       <a href="../articles/msea.html">MSEA</a>
     </li>
+    <li>
+      <a href="../articles/resources.html">Resources</a>
+    </li>
   </ul>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/thomazbastiaanssen/ariadne/" class="external-link">
+  <a href="https://github.com/Minotau-R/ariadne/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
 
   </a>
@@ -88,9 +91,9 @@ Benedetti</h4>
 Turku<br><a class="author_email" href="mailto:#"></a><a href="mailto:giulio.benedetti@utu.fi" class="email">giulio.benedetti@utu.fi</a>
       </address>
                   
-            <h4 data-toc-skip class="date">23 September 2025</h4>
+            <h4 data-toc-skip class="date">2 April 2026</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/thomazbastiaanssen/ariadne/blob/devel/vignettes/comparison.Rmd" class="external-link"><code>vignettes/comparison.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/Minotau-R/ariadne/blob/devel/vignettes/comparison.Rmd" class="external-link"><code>vignettes/comparison.Rmd</code></a></small>
       <div class="hidden name"><code>comparison.Rmd</code></div>
 
     </div>
@@ -98,7 +101,10 @@ Turku<br><a class="author_email" href="mailto:#"></a><a href="mailto:giulio.bene
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/thomazbastiaanssen/ariadne" class="external-link">ariadne</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/Minotau-R/ariadne" class="external-link">ariadne</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; Registered S3 method overwritten by 'bit64':</span></span>
+<span><span class="co">#&gt;   method          from </span></span>
+<span><span class="co">#&gt;   print.bitstring tools</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/waldronlab/curatedMetagenomicData" class="external-link">curatedMetagenomicData</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading required package: SummarizedExperiment</span></span>
 <span><span class="co">#&gt; Loading required package: MatrixGenerics</span></span>
@@ -181,7 +187,7 @@ Turku<br><a class="author_email" href="mailto:#"></a><a href="mailto:giulio.bene
 <span><span class="co">#&gt;     strsplit</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://microbiome.github.io/mia/" class="external-link">mia</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading required package: MultiAssayExperiment</span></span>
-<span><span class="co">#&gt; This is mia version 1.17.9</span></span>
+<span><span class="co">#&gt; This is mia version 1.19.7</span></span>
 <span><span class="co">#&gt; - Online documentation and vignettes: https://microbiome.github.io/mia/</span></span>
 <span><span class="co">#&gt; - Online book 'Orchestrating Microbiome Analysis (OMA)': https://microbiome.github.io/OMA/docs/devel/</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/microbiome/miaViz" class="external-link">miaViz</a></span><span class="op">)</span></span>
@@ -192,25 +198,23 @@ Turku<br><a class="author_email" href="mailto:#"></a><a href="mailto:giulio.bene
 <span><span class="co">#&gt; The following object is masked from 'package:mia':</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     plotNMDS</span></span></code></pre></div>
-<div class="section level2">
-<h2 id="functional-module-analysis-at-gene-level">Functional module analysis at gene level<a class="anchor" aria-label="anchor" href="#functional-module-analysis-at-gene-level"></a>
-</h2>
+<div class="section level3">
+<h3 id="functional-module-analysis">Functional module analysis<a class="anchor" aria-label="anchor" href="#functional-module-analysis"></a>
+</h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load gene family experiment</span></span>
 <span><span class="va">genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/curatedMetagenomicData/man/curatedMetagenomicData.html" class="external-link">curatedMetagenomicData</a></span><span class="op">(</span></span>
-<span>    <span class="st">"SankaranarayananK_2015.gene_families"</span>,</span>
-<span>    dryrun <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>    <span class="st">"SankaranarayananK_2015.gene_families"</span>, dryrun <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Extract experiment</span></span>
-<span><span class="va">genes</span> <span class="op">&lt;-</span> <span class="va">genes</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Process experiment</span></span>
+<span><span class="va">genes</span> <span class="op">&lt;-</span> <span class="va">genes</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co"># Process experiment</span></span>
 <span><span class="va">genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/utils.html">processGeneFamilies</a></span><span class="op">(</span><span class="va">genes</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Print experiment</span></span>
 <span><span class="va">genes</span></span>
-<span><span class="co">#&gt; class: TreeSummarizedExperiment </span></span>
+<span><span class="co">#&gt; class: SummarizedExperiment </span></span>
 <span><span class="co">#&gt; dim: 1067991 37 </span></span>
 <span><span class="co">#&gt; metadata(0):</span></span>
 <span><span class="co">#&gt; assays(1): gene_families</span></span>
@@ -218,88 +222,61 @@ Turku<br><a class="author_email" href="mailto:#"></a><a href="mailto:giulio.bene
 <span><span class="co">#&gt;   UniRef90_A5ZT60|g__Blautia.s__Blautia_obeum ...</span></span>
 <span><span class="co">#&gt;   UniRef90_A0A2B7JUY7|g__Cutibacterium.s__Cutibacterium_acnes</span></span>
 <span><span class="co">#&gt;   UniRef90_W4UE92|g__Cutibacterium.s__Cutibacterium_acnes</span></span>
-<span><span class="co">#&gt; rowData names(4): GeneID Taxon Genus Species</span></span>
+<span><span class="co">#&gt; rowData names(4): uniref90 taxname genus species</span></span>
 <span><span class="co">#&gt; colnames(37): CA01 CA02 ... CA40 CA41</span></span>
-<span><span class="co">#&gt; colData names(23): study_name subject_id ... BMI smoker</span></span>
-<span><span class="co">#&gt; reducedDimNames(0):</span></span>
-<span><span class="co">#&gt; mainExpName: NULL</span></span>
-<span><span class="co">#&gt; altExpNames(0):</span></span>
-<span><span class="co">#&gt; rowLinks: NULL</span></span>
-<span><span class="co">#&gt; rowTree: NULL</span></span>
-<span><span class="co">#&gt; colLinks: NULL</span></span>
-<span><span class="co">#&gt; colTree: NULL</span></span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">gmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/importModules.html">importModules</a></span><span class="op">(</span><span class="st">"GMM"</span><span class="op">)</span></span>
-<span><span class="co"># gmm &lt;- gmm[1:30]</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ko.uniref90</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/importMapping.html">importMapping</a></span><span class="op">(</span></span>
-<span>    <span class="st">"ChocoPhlAn"</span>,</span>
-<span>    from <span class="op">=</span> <span class="st">"ko"</span>,</span>
-<span>    to <span class="op">=</span> <span class="st">"uniref90"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; Retrieving mappings from /github/home/.cache/R/ariadne/213819235d6a_map_ko_uniref90.txt.gz.</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">genes</span><span class="op">)</span><span class="op">$</span><span class="va">Taxon</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"."</span>, <span class="st">"|"</span>, <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">genes</span><span class="op">)</span><span class="op">$</span><span class="va">Taxon</span>, fixed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">uniref90.tax</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">genes</span><span class="op">)</span><span class="op">$</span><span class="va">Taxon</span>, <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">genes</span><span class="op">)</span><span class="op">$</span><span class="va">GeneID</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">modules</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mapModules.html">mapModules</a></span><span class="op">(</span></span>
-<span>    <span class="va">gmm</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">ko.uniref90</span>, <span class="va">uniref90.tax</span><span class="op">)</span>,</span>
-<span>    mode <span class="op">=</span> <span class="st">"andor"</span>,</span>
-<span>    remove.empty <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; 793 items were mapped to 63 modules.</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getModules.html">addModules</a></span><span class="op">(</span></span>
-<span>    <span class="va">genes</span>,</span>
-<span>    <span class="va">modules</span>,</span>
-<span>    by <span class="op">=</span> <span class="fl">1L</span>,</span>
-<span>    group <span class="op">=</span> <span class="st">"taxonomy"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/SingleCellExperiment/man/altExps.html" class="external-link">altExp</a></span><span class="op">(</span><span class="va">genes</span>, <span class="st">"modules"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://microbiome.github.io/mia/reference/agglomerate-methods.html" class="external-link">agglomerateByModule</a></span><span class="op">(</span></span>
-<span>    <span class="va">genes</span>,</span>
-<span>    by <span class="op">=</span> <span class="fl">1L</span>,</span>
-<span>    group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">modules</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
+<span><span class="co">#&gt; colData names(23): study_name subject_id ... BMI smoker</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tax2uniref</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">genes</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"taxname"</span>, <span class="st">"uniref90"</span><span class="op">)</span><span class="op">]</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>row.names <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">top.mods</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SingleCellExperiment/man/altExps.html" class="external-link">altExp</a></span><span class="op">(</span><span class="va">genes</span>, <span class="st">"modules"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="https://microbiome.github.io/mia/reference/summary.html" class="external-link">getTop</a></span><span class="op">(</span>assay.type <span class="op">=</span> <span class="st">"gene_families"</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SingleCellExperiment/man/swapAltExp.html" class="external-link">swapAltExp</a></span><span class="op">(</span></span>
-<span>    <span class="va">genes</span>,</span>
-<span>    name <span class="op">=</span> <span class="st">"modules"</span>,</span>
-<span>    saved <span class="op">=</span> <span class="st">"features"</span>,</span>
-<span>    withColData <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/miaViz/man/plotAbundance.html" class="external-link">plotAbundance</a></span><span class="op">(</span></span>
-<span>    <span class="va">genes</span><span class="op">[</span><span class="va">top.mods</span>, <span class="op">]</span>,</span>
-<span>    assay.type <span class="op">=</span> <span class="st">"gene_families"</span>,</span>
-<span>    as.relative <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>    order.col.by <span class="op">=</span> <span class="st">"disease"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="comparison_files/figure-html/unnamed-chunk-12-1.png" width="700"></p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/miaViz/man/plotAbundanceDensity.html" class="external-link">plotAbundanceDensity</a></span><span class="op">(</span></span>
-<span>    <span class="va">genes</span>,</span>
-<span>    assay.type <span class="op">=</span> <span class="st">"gene_families"</span>,</span>
-<span>    n <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>    layout <span class="op">=</span> <span class="st">"density"</span>,</span>
-<span>    colour.by <span class="op">=</span> <span class="st">"disease"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="comparison_files/figure-html/unnamed-chunk-13-1.png" width="700"></p>
-</div>
-<div class="section level2">
-<h2 id="functional-module-analysis-at-taxon-level">Functional module analysis at taxon level<a class="anchor" aria-label="anchor" href="#functional-module-analysis-at-taxon-level"></a>
-</h2>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Load relative abundance experiment</span></span>
-<span><span class="va">tse</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/curatedMetagenomicData/man/curatedMetagenomicData.html" class="external-link">curatedMetagenomicData</a></span><span class="op">(</span></span>
-<span>    pattern <span class="op">=</span> <span class="st">"SankaranarayananK_2015.relative_abundance"</span>,</span>
-<span>    dryrun <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>    counts <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>    rownames <span class="op">=</span> <span class="st">"short"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tax2uniref</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                              taxname            uniref90</span></span>
+<span><span class="co">#&gt; 1 g__Blautia.s__Ruminococcus_torques     UniRef90_A5KNK6</span></span>
+<span><span class="co">#&gt; 2        g__Blautia.s__Blautia_obeum     UniRef90_A5ZT60</span></span>
+<span><span class="co">#&gt; 3  g__Blautia.s__Ruminococcus_gnavus     UniRef90_A7B5X2</span></span>
+<span><span class="co">#&gt; 4      g__Dorea.s__Dorea_longicatena     UniRef90_A7B5X2</span></span>
+<span><span class="co">#&gt; 5  g__Blautia.s__Ruminococcus_gnavus     UniRef90_A7B5W7</span></span>
+<span><span class="co">#&gt; 6 g__Blautia.s__Ruminococcus_torques UniRef90_A0A174AVZ1</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ariadne.html">ariadne</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/searchPath.html">searchPath</a></span><span class="op">(</span><span class="va">graph</span>, <span class="va">uniref90</span> <span class="op">~</span> <span class="va">gmm</span>, k <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Path 1:</span></span>
+<span><span class="co">#&gt; uniref90 -(WoL)-&gt; ko -(GM)-&gt; gmm</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Path 2:</span></span>
+<span><span class="co">#&gt; uniref90 -(ChocoPhlAn)-&gt; ko -(GM)-&gt; gmm</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Path 3:</span></span>
+<span><span class="co">#&gt; uniref90 -(UniProt)-&gt; ec -(KEGG)-&gt; ko -(GM)-&gt; gmm</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Weave bindings between taxa and GMMs</span></span>
+<span><span class="va">tax2gmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/weavePath.html">weaveComplex</a></span><span class="op">(</span><span class="va">graph</span>, <span class="va">taxname</span> <span class="op">~</span> <span class="va">gmm</span>, k <span class="op">=</span> <span class="fl">2</span>, init <span class="op">=</span> <span class="va">tax2uniref</span><span class="op">)</span></span>
+<span><span class="co">#&gt; taxname stratified by uniref90</span></span>
+<span><span class="co">#&gt; uniref90 -(ChocoPhlAn)-&gt; ko</span></span>
+<span><span class="co">#&gt; ko -(GM)-&gt; gmm</span></span>
+<span></span>
+<span><span class="co"># Print some results</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tax2gmm</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                                          taxname    gmm</span></span>
+<span><span class="co">#&gt; 1 g__Bacteroides.s__Bacteroides_cellulosilyticus MF0001</span></span>
+<span><span class="co">#&gt; 2            g__Bacteroides.s__Bacteroides_dorei MF0001</span></span>
+<span><span class="co">#&gt; 3         g__Bacteroides.s__Bacteroides_fragilis MF0001</span></span>
+<span><span class="co">#&gt; 4  g__Bacteroides.s__Bacteroides_fragilis_CAG_47 MF0001</span></span>
+<span><span class="co">#&gt; 5     g__Bacteroides.s__Bacteroides_intestinalis MF0001</span></span>
+<span><span class="co">#&gt; 6         g__Bacteroides.s__Bacteroides_sartorii MF0001</span></span>
+<span><span class="co">#&gt;                   gmm.name</span></span>
+<span><span class="co">#&gt; 1 arabinoxylan degradation</span></span>
+<span><span class="co">#&gt; 2 arabinoxylan degradation</span></span>
+<span><span class="co">#&gt; 3 arabinoxylan degradation</span></span>
+<span><span class="co">#&gt; 4 arabinoxylan degradation</span></span>
+<span><span class="co">#&gt; 5 arabinoxylan degradation</span></span>
+<span><span class="co">#&gt; 6 arabinoxylan degradation</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tse</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/curatedMetagenomicData/man/curatedMetagenomicData.html" class="external-link">curatedMetagenomicData</a></span><span class="op">(</span></span>
+<span>    <span class="st">"SankaranarayananK_2015.relative_abundance"</span>,</span>
+<span>    rownames <span class="op">=</span> <span class="st">"long"</span>,</span>
+<span>    dryrun <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $`2021-03-31.SankaranarayananK_2015.relative_abundance`</span></span>
@@ -309,17 +286,19 @@ Turku<br><a class="author_email" href="mailto:#"></a><a href="mailto:giulio.bene
 <span><span class="co">#&gt;   k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Carnobacteriaceae|g__Granulicatella|s__Granulicatella_elegans</span></span>
 <span><span class="co">#&gt;   k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Sutterellaceae|g__Sutterella|s__Sutterella_parvirubra</span></span>
 <span></span>
-<span><span class="co"># Extract experiment</span></span>
-<span><span class="va">tse</span> <span class="op">&lt;-</span> <span class="va">tse</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tse</span></span>
+<span><span class="va">tse</span> <span class="op">&lt;-</span> <span class="va">tse</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span></span>
+<span><span class="va">tse</span></span>
 <span><span class="co">#&gt; class: TreeSummarizedExperiment </span></span>
 <span><span class="co">#&gt; dim: 365 37 </span></span>
 <span><span class="co">#&gt; metadata(0):</span></span>
 <span><span class="co">#&gt; assays(1): relative_abundance</span></span>
-<span><span class="co">#&gt; rownames(365): species:[Ruminococcus] torques species:[Ruminococcus]</span></span>
-<span><span class="co">#&gt;   gnavus ... species:Staphylococcus capitis species:Malassezia</span></span>
-<span><span class="co">#&gt;   restricta</span></span>
+<span><span class="co">#&gt; rownames(365):</span></span>
+<span><span class="co">#&gt;   k__Bacteria|p__Firmicutes|c__Clostridia|o__Clostridiales|f__Lachnospiraceae|g__Blautia|s__Ruminococcus_torques</span></span>
+<span><span class="co">#&gt;   k__Bacteria|p__Firmicutes|c__Clostridia|o__Clostridiales|f__Lachnospiraceae|g__Blautia|s__Ruminococcus_gnavus</span></span>
+<span><span class="co">#&gt;   ...</span></span>
+<span><span class="co">#&gt;   k__Bacteria|p__Firmicutes|c__Bacilli|o__Bacillales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_capitis</span></span>
+<span><span class="co">#&gt;   k__Eukaryota|p__Basidiomycota|c__Malasseziomycetes|o__Malasseziales|f__Malasseziaceae|g__Malassezia|s__Malassezia_restricta</span></span>
 <span><span class="co">#&gt; rowData names(7): superkingdom phylum ... genus species</span></span>
 <span><span class="co">#&gt; colnames(37): CA01 CA02 ... CA40 CA41</span></span>
 <span><span class="co">#&gt; colData names(23): study_name subject_id ... BMI smoker</span></span>
@@ -330,56 +309,142 @@ Turku<br><a class="author_email" href="mailto:#"></a><a href="mailto:giulio.bene
 <span><span class="co">#&gt; rowTree: 1 phylo tree(s) (10430 leaves)</span></span>
 <span><span class="co">#&gt; colLinks: NULL</span></span>
 <span><span class="co">#&gt; colTree: NULL</span></span></code></pre></div>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">gmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/importModules.html">importModules</a></span><span class="op">(</span><span class="st">"GMM"</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ko.uniref90</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/importMapping.html">importMapping</a></span><span class="op">(</span><span class="st">"ChocoPhlAn"</span>, <span class="st">"ko"</span>, <span class="st">"uniref90"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Retrieving mappings from /github/home/.cache/R/ariadne/213819235d6a_map_ko_uniref90.txt.gz.</span></span></code></pre></div>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">modules</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mapModules.html">mapModules</a></span><span class="op">(</span></span>
-<span>    <span class="va">gmm</span>,</span>
-<span>    <span class="va">ko.uniref90</span>,</span>
-<span>    mode <span class="op">=</span> <span class="st">"andor"</span>,</span>
-<span>    uniprot <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>    remove.empty <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; 317988 taxa were queried from UniProt.</span></span>
-<span><span class="co">#&gt; 40702 items were mapped to 82 modules.</span></span></code></pre></div>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tse</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getModules.html">addModules</a></span><span class="op">(</span><span class="va">tse</span>, <span class="va">modules</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">tse</span><span class="op">)</span><span class="op">$</span><span class="va">taxname</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"^.*(g__.+)\\|(s__.+)$"</span>, <span class="st">"\\1.\\2"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">tse</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">tse</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/utils.html">appendModules</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">rowData</a></span><span class="op">(</span><span class="va">tse</span><span class="op">)</span>, <span class="va">tax2gmm</span>, by <span class="op">=</span> <span class="st">"taxname"</span>, as <span class="op">=</span> <span class="st">"names"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">tse</span></span>
+<span><span class="co">#&gt; class: TreeSummarizedExperiment </span></span>
+<span><span class="co">#&gt; dim: 365 37 </span></span>
+<span><span class="co">#&gt; metadata(0):</span></span>
+<span><span class="co">#&gt; assays(1): relative_abundance</span></span>
+<span><span class="co">#&gt; rownames(365):</span></span>
+<span><span class="co">#&gt;   k__Bacteria|p__Firmicutes|c__Clostridia|o__Clostridiales|f__Lachnospiraceae|g__Blautia|s__Ruminococcus_torques</span></span>
+<span><span class="co">#&gt;   k__Bacteria|p__Firmicutes|c__Clostridia|o__Clostridiales|f__Lachnospiraceae|g__Blautia|s__Ruminococcus_gnavus</span></span>
+<span><span class="co">#&gt;   ...</span></span>
+<span><span class="co">#&gt;   k__Bacteria|p__Firmicutes|c__Bacilli|o__Bacillales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_capitis</span></span>
+<span><span class="co">#&gt;   k__Eukaryota|p__Basidiomycota|c__Malasseziomycetes|o__Malasseziales|f__Malasseziaceae|g__Malassezia|s__Malassezia_restricta</span></span>
+<span><span class="co">#&gt; rowData names(81): superkingdom phylum ... urea degradation xylose</span></span>
+<span><span class="co">#&gt;   degradation</span></span>
+<span><span class="co">#&gt; colnames(37): CA01 CA02 ... CA40 CA41</span></span>
+<span><span class="co">#&gt; colData names(23): study_name subject_id ... BMI smoker</span></span>
+<span><span class="co">#&gt; reducedDimNames(0):</span></span>
+<span><span class="co">#&gt; mainExpName: NULL</span></span>
+<span><span class="co">#&gt; altExpNames(0):</span></span>
+<span><span class="co">#&gt; rowLinks: a LinkDataFrame (365 rows)</span></span>
+<span><span class="co">#&gt; rowTree: 1 phylo tree(s) (10430 leaves)</span></span>
+<span><span class="co">#&gt; colLinks: NULL</span></span>
+<span><span class="co">#&gt; colTree: NULL</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/SingleCellExperiment/man/altExps.html" class="external-link">altExp</a></span><span class="op">(</span><span class="va">tse</span>, <span class="st">"modules"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://microbiome.github.io/mia/reference/agglomerate-methods.html" class="external-link">agglomerateByModule</a></span><span class="op">(</span></span>
-<span>    <span class="va">tse</span>,</span>
-<span>    by <span class="op">=</span> <span class="fl">1L</span>,</span>
-<span>    group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">modules</span><span class="op">)</span></span>
+<span>    <span class="va">tse</span>, by <span class="op">=</span> <span class="fl">1</span>, group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">tax2gmm</span><span class="op">$</span><span class="va">gmm.name</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">top.mods</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SingleCellExperiment/man/altExps.html" class="external-link">altExp</a></span><span class="op">(</span><span class="va">tse</span>, <span class="st">"modules"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://microbiome.github.io/mia/reference/summary.html" class="external-link">getTop</a></span><span class="op">(</span>assay.type <span class="op">=</span> <span class="st">"relative_abundance"</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tse</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SingleCellExperiment/man/swapAltExp.html" class="external-link">swapAltExp</a></span><span class="op">(</span></span>
 <span>    <span class="va">tse</span>,</span>
 <span>    name <span class="op">=</span> <span class="st">"modules"</span>,</span>
 <span>    saved <span class="op">=</span> <span class="st">"features"</span>,</span>
 <span>    withColData <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/miaViz/man/plotAbundance.html" class="external-link">plotAbundance</a></span><span class="op">(</span></span>
+<span>    <span class="va">tse</span><span class="op">[</span><span class="va">top.mods</span>, <span class="op">]</span>,</span>
+<span>    assay.type <span class="op">=</span> <span class="st">"relative_abundance"</span>,</span>
+<span>    as.relative <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    order.col.by <span class="op">=</span> <span class="st">"disease"</span>,</span>
+<span>    col.var <span class="op">=</span> <span class="st">"disease"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; $abundance</span></span></code></pre></div>
+<p><img src="comparison_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="700"></p>
+<pre><code><span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $disease</span></span></code></pre>
+<p><img src="comparison_files/figure-html/unnamed-chunk-11-2.png" class="r-plt" alt="" width="700"></p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/miaViz/man/plotAbundanceDensity.html" class="external-link">plotAbundanceDensity</a></span><span class="op">(</span></span>
 <span>    <span class="va">tse</span>,</span>
-<span>    layout <span class="op">=</span> <span class="st">"density"</span>,</span>
-<span>    n <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>    assay.type <span class="op">=</span> <span class="st">"relative_abundance"</span>,</span>
-<span>    colour.by <span class="op">=</span> <span class="st">"disease"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="comparison_files/figure-html/unnamed-chunk-22-1.png" width="700"></p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="va">mse</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://microbiome.github.io/mia/reference/meltSE.html" class="external-link">meltSE</a></span><span class="op">(</span><span class="va">tse</span>, assay.type <span class="op">=</span> <span class="st">"relative_abundance"</span>, add.col <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">mse</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">SampleID</span>, y <span class="op">=</span> <span class="va">FeatureID</span>, fill <span class="op">=</span> <span class="va">relative_abundance</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_tile</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>        axis.ticks.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="comparison_files/figure-html/unnamed-chunk-23-1.png" width="700"></p>
+<span>    n <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>    layout <span class="op">=</span> <span class="st">"density"</span>,</span>
+<span>    colour.by <span class="op">=</span> <span class="st">"disease"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="comparison_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="700"></p>
+</div>
+<div class="section level2">
+<h2 id="reproducibility">Reproducibility<a class="anchor" aria-label="anchor" href="#reproducibility"></a>
+</h2>
+<p>R session information:</p>
+<pre><code><span><span class="co">#&gt; R Under development (unstable) (2026-03-28 r89738)</span></span>
+<span><span class="co">#&gt; Platform: x86_64-pc-linux-gnu</span></span>
+<span><span class="co">#&gt; Running under: Ubuntu 24.04.4 LTS</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Matrix products: default</span></span>
+<span><span class="co">#&gt; BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 </span></span>
+<span><span class="co">#&gt; LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; locale:</span></span>
+<span><span class="co">#&gt;  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C               LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    </span></span>
+<span><span class="co">#&gt;  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8    LC_PAPER=en_US.UTF-8       LC_NAME=C                 </span></span>
+<span><span class="co">#&gt;  [9] LC_ADDRESS=C               LC_TELEPHONE=C             LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; time zone: UTC</span></span>
+<span><span class="co">#&gt; tzcode source: system (glibc)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attached base packages:</span></span>
+<span><span class="co">#&gt; [1] stats4    stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; other attached packages:</span></span>
+<span><span class="co">#&gt;  [1] miaViz_1.19.6                   ggraph_2.2.2                    ggplot2_4.0.2                  </span></span>
+<span><span class="co">#&gt;  [4] mia_1.19.7                      MultiAssayExperiment_1.37.4     curatedMetagenomicData_3.19.0  </span></span>
+<span><span class="co">#&gt;  [7] TreeSummarizedExperiment_2.19.0 Biostrings_2.79.5               XVector_0.51.0                 </span></span>
+<span><span class="co">#&gt; [10] SingleCellExperiment_1.33.2     SummarizedExperiment_1.41.1     Biobase_2.71.0                 </span></span>
+<span><span class="co">#&gt; [13] GenomicRanges_1.63.1            Seqinfo_1.1.0                   IRanges_2.45.0                 </span></span>
+<span><span class="co">#&gt; [16] S4Vectors_0.49.0                BiocGenerics_0.57.0             generics_0.1.4                 </span></span>
+<span><span class="co">#&gt; [19] MatrixGenerics_1.23.0           matrixStats_1.5.0               ariadne_0.2.1                  </span></span>
+<span><span class="co">#&gt; [22] BiocStyle_2.39.0               </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
+<span><span class="co">#&gt;   [1] splines_4.7.0               MultiFactor_0.1.2           ggplotify_0.1.3             filelock_1.0.3             </span></span>
+<span><span class="co">#&gt;   [5] tibble_3.3.1                polyclip_1.10-7             XML_3.99-0.23               DirichletMultinomial_1.53.0</span></span>
+<span><span class="co">#&gt;   [9] lifecycle_1.0.5             httr2_1.2.2                 vroom_1.7.1                 lattice_0.22-9             </span></span>
+<span><span class="co">#&gt;  [13] MASS_7.3-65                 SnowballC_0.7.1             magrittr_2.0.4              sass_0.4.10                </span></span>
+<span><span class="co">#&gt;  [17] rmarkdown_2.31              jquerylib_0.1.4             yaml_2.3.12                 otel_0.2.0                 </span></span>
+<span><span class="co">#&gt;  [21] DBI_1.3.0                   RColorBrewer_1.1-3          abind_1.4-8                 purrr_1.2.1                </span></span>
+<span><span class="co">#&gt;  [25] yulab.utils_0.2.4           tweenr_2.0.3                rappdirs_0.3.4              gdtools_0.5.0              </span></span>
+<span><span class="co">#&gt;  [29] ggrepel_0.9.8               tokenizers_0.3.0            irlba_2.3.7                 tidytree_0.4.7             </span></span>
+<span><span class="co">#&gt;  [33] rentrez_1.2.4               vegan_2.7-3                 pkgdown_2.2.0               permute_0.9-10             </span></span>
+<span><span class="co">#&gt;  [37] DelayedMatrixStats_1.33.0   codetools_0.2-20            DelayedArray_0.37.1         scuttle_1.21.0             </span></span>
+<span><span class="co">#&gt;  [41] ggforce_0.5.0               tidyselect_1.2.1            aplot_0.2.9                 farver_2.1.2               </span></span>
+<span><span class="co">#&gt;  [45] ScaledMatrix_1.19.0         viridis_0.6.5               BiocFileCache_3.1.0         jsonlite_2.0.0             </span></span>
+<span><span class="co">#&gt;  [49] BiocNeighbors_2.5.4         decontam_1.31.0             tidygraph_1.3.1             scater_1.39.3              </span></span>
+<span><span class="co">#&gt;  [53] systemfonts_1.3.2           tools_4.7.0                 ggnewscale_0.5.2            progress_1.2.3             </span></span>
+<span><span class="co">#&gt;  [57] treeio_1.35.0               ragg_1.5.2                  Rcpp_1.1.1                  glue_1.8.0                 </span></span>
+<span><span class="co">#&gt;  [61] gridExtra_2.3               SparseArray_1.11.12         xfun_0.57                   mgcv_1.9-4                 </span></span>
+<span><span class="co">#&gt;  [65] dplyr_1.2.0                 withr_3.0.2                 BiocManager_1.30.27         fastmap_1.2.0              </span></span>
+<span><span class="co">#&gt;  [69] bluster_1.21.1              digest_0.6.39               rsvd_1.0.5                  R6_2.6.1                   </span></span>
+<span><span class="co">#&gt;  [73] gridGraphics_0.5-1          textshaping_1.0.5           RSQLite_2.4.6               ecodive_2.2.2              </span></span>
+<span><span class="co">#&gt;  [77] tidyr_1.3.2                 fontLiberation_0.1.0        data.table_1.18.2.1         DECIPHER_3.7.1             </span></span>
+<span><span class="co">#&gt;  [81] prettyunits_1.2.0           graphlayouts_1.2.3          httr_1.4.8                  htmlwidgets_1.6.4          </span></span>
+<span><span class="co">#&gt;  [85] S4Arrays_1.11.1             pkgconfig_2.0.3             gtable_0.3.6                blob_1.3.0                 </span></span>
+<span><span class="co">#&gt;  [89] S7_0.2.1                    janeaustenr_1.0.0           htmltools_0.5.9             fontBitstreamVera_0.1.1    </span></span>
+<span><span class="co">#&gt;  [93] bookdown_0.46               scales_1.4.0                png_0.1-9                   ggfun_0.2.0                </span></span>
+<span><span class="co">#&gt;  [97] knitr_1.51                  tzdb_0.5.0                  reshape2_1.4.5              rncl_0.8.9                 </span></span>
+<span><span class="co">#&gt; [101] nlme_3.1-169                curl_7.0.0                  cachem_1.1.0                stringr_1.6.0              </span></span>
+<span><span class="co">#&gt; [105] BiocVersion_3.23.1          parallel_4.7.0              vipor_0.4.7                 arrow_23.0.1.2             </span></span>
+<span><span class="co">#&gt; [109] AnnotationDbi_1.73.0        desc_1.4.3                  pillar_1.11.1               grid_4.7.0                 </span></span>
+<span><span class="co">#&gt; [113] vctrs_0.7.2                 BiocSingular_1.27.1         dbplyr_2.5.2                beachmat_2.27.3            </span></span>
+<span><span class="co">#&gt; [117] cluster_2.1.8.2             beeswarm_0.4.0              evaluate_1.0.5              readr_2.2.0                </span></span>
+<span><span class="co">#&gt; [121] cli_3.6.5                   compiler_4.7.0              rlang_1.1.7                 crayon_1.5.3               </span></span>
+<span><span class="co">#&gt; [125] tidytext_0.4.3              labeling_0.4.3              forcats_1.0.1               plyr_1.8.9                 </span></span>
+<span><span class="co">#&gt; [129] fs_2.0.1                    ggbeeswarm_0.7.3            ggiraph_0.9.6               stringi_1.8.7              </span></span>
+<span><span class="co">#&gt; [133] viridisLite_0.4.3           BiocParallel_1.45.0         assertthat_0.2.1            lazyeval_0.2.2             </span></span>
+<span><span class="co">#&gt; [137] fontquiver_0.2.1            Matrix_1.7-5                ExperimentHub_3.1.0         patchwork_1.3.2            </span></span>
+<span><span class="co">#&gt; [141] hms_1.1.4                   sparseMatrixStats_1.23.0    bit64_4.6.0-1               KEGGREST_1.51.1            </span></span>
+<span><span class="co">#&gt; [145] AnnotationHub_4.1.0         igraph_2.2.2                memoise_2.0.1               bslib_0.10.0               </span></span>
+<span><span class="co">#&gt; [149] rotl_3.1.1                  ggtree_4.1.1                bit_4.6.0                   ape_5.8-1</span></span></code></pre>
 </div>
   </div>
 
@@ -398,7 +463,7 @@ Turku<br><a class="author_email" href="mailto:#"></a><a href="mailto:giulio.bene
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer>

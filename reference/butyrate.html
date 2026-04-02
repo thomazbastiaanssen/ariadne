@@ -21,7 +21,7 @@ reduced in the patient group."><!-- mathjax --><script src="https://cdnjs.cloudf
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ariadne</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.1</span>
       </span>
     </div>
 
@@ -44,9 +44,12 @@ reduced in the patient group."><!-- mathjax --><script src="https://cdnjs.cloudf
     <li>
       <a href="../articles/msea.html">MSEA</a>
     </li>
+    <li>
+      <a href="../articles/resources.html">Resources</a>
+    </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://github.com/thomazbastiaanssen/ariadne/" class="external-link">
+  <a href="https://github.com/Minotau-R/ariadne/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
 
   </a>
@@ -61,7 +64,7 @@ reduced in the patient group."><!-- mathjax --><script src="https://cdnjs.cloudf
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Dataset of butyrate producers</h1>
-    <small class="dont-index">Source: <a href="https://github.com/thomazbastiaanssen/ariadne/blob/devel/R/data.R" class="external-link"><code>R/data.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/Minotau-R/ariadne/blob/devel/R/data.R" class="external-link"><code>R/data.R</code></a></small>
     <div class="hidden name"><code>butyrate.Rd</code></div>
     </div>
 
@@ -73,15 +76,11 @@ provides a set of butyrate producers that were significantly increased or
 reduced in the patient group.</p>
     </div>
 
-    <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"butyrate"</span>, package <span class="op">=</span> <span class="st">"ariadne"</span><span class="op">)</span></span></code></pre></div>
-    </div>
 
-    <div id="format">
-    <h2>Format</h2>
-    <p>A <code>data.frame</code> with 16 features (rows) characterised across 6 taxonomic
-ranks (columns). One feature was identified at the Species level, whereas all
-the others at the Genus level.</p>
+    <div id="value">
+    <h2>Value</h2>
+    <p>A linkmap with 16 butyrate-producing microbial features characterised at the
+genus or species level.</p>
     </div>
     <div id="references">
     <h2>References</h2>
@@ -92,6 +91,24 @@ population-based microbiome studies." The Lancet Microbe 5.9 (2024).
 <a href="https://doi.org/10.1016/S2666-5247(24)00079-X" class="external-link">https://doi.org/10.1016/S2666-5247(24)00079-X</a></p>
     </div>
 
+    <div id="ref-examples">
+    <h2>Examples</h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Import linkmap</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"butyrate"</span>, package <span class="op">=</span> <span class="st">"ariadne"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Print some pairs</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">butyrate</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   butyrate                   taxname</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 butyrate          g__Butyricimonas</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 butyrate            g__Odoribacter</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 butyrate           g__Agathobacter</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 butyrate        g__Anaerobutyricum</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 butyrate s__Eubacterium ventriosum</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 butyrate           g__Anaerostipes</span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>
@@ -104,7 +121,7 @@ population-based microbiome studies." The Lancet Microbe 5.9 (2024).
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer></div>
