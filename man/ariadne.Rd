@@ -19,7 +19,7 @@ package.
 graph <- ariadne()
 
 # Specify resource versions
-graph <- ariadne(versions = list(BugSigDB = "v1.2.0", WoL = "v2.0"))
+graph <- ariadne(versions = list(BugSigDB = "v1.2.2", WoL = "20April2021"))
 
 }
 \seealso{

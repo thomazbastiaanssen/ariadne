@@ -33,7 +33,7 @@ and edges represent feature types and mappings between them, respectively. In
 ariadne.db, these graphs are stored in the Graph Modelling Language (GML), which
 is a standard format for relational data.
 
-```{r, include=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -52,7 +52,7 @@ database release on [Zenodo](https://zenodo.org/records/18788726) and combined
 into a single igraph object. Some resources have multiple versions, which can
 be selected through the argument `versions`. This defaults to the latest version found in the database.
 
-```{r}
+```{r fetch}
 # Import resource graph
 graph <- ariadne()
 
@@ -60,27 +60,43 @@ graph <- ariadne()
 plotPath(graph)
 ```
 
-```{r}
+The igraph object is made of two components: edges data and nodes (or vertices)
+data, which are stored in two different data tables.
+
+```{r graph2df}
+# Convert igraph to data.frame pair
 graph_df <- igraph::as_data_frame(graph, what = "both")
+
+# Extract edges data
 edge_df <- graph_df$edges
+# Extract nodes data
 node_df <- graph_df$vertices
 ```
 
+As mentioned above, the resource graph is composed of feature types (nodes) and
+mappings (edges) from several resources. Here are the summary statistics for
+each resource integrated within ariadne:
 
-```{r}
+```{r stats}
+# Get stats for each resource
 df <- edge_df |>
     group_by(source) |>
     summarise(edges = n(), nodes = n_distinct(c(from, to)))
 
+# View stats
 df
 ```
+
+The graph for each resource can be visualized with its own graph.
 
 ```{r}
 for( resource in df$source ){
     
+    # Build graph from single resource
     res_df <- edge_df[edge_df$source == resource, c("from", "to")]
     res_graph <- graph_from_data_frame(res_df)
     
+    # Plot graph
     p <- plotPath(res_graph) + ggtitle(resource)
     print(p)
 }
