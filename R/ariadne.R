@@ -34,7 +34,7 @@ NULL
 #' @export
 #' @importFrom igraph read_graph as_data_frame graph_from_data_frame
 #' @importFrom stats setNames reshape
-#' @importFrom BiocParallel bplapply
+#' @importFrom BiocParallel bpmapply
 #' @importFrom dplyr bind_rows
 ariadne <- function(versions = NULL){
     # Import version metadata
@@ -70,7 +70,11 @@ ariadne <- function(versions = NULL){
         "https://zenodo.org/records/", meta$graph, "/files/", meta$source, ".gml"
     )
     # Fetch individual resource graphs
-    graph_dfs <- bplapply(urls, .fetch_graph, meta = meta)
+    graph_dfs <- bpmapply(
+        .fetch_graph, meta$key, urls, SIMPLIFY = FALSE, USE.NAMES = FALSE
+    )
+    # Name each graph by corresponding resource
+    names(graph_dfs) <- meta$source
     # Build edge data
     edge_df <- graph_dfs |>
         lapply(`[[`, "edges") |>
@@ -100,15 +104,12 @@ ariadne <- function(versions = NULL){
 }
 
 
-.fetch_graph <- function(url, meta){
-    # Derive key from file name
-    key <- gsub("^.+files/(.+)\\.gml$", "\\1", url)
+.fetch_graph <- function(key, url){
     # Fetch graph from ariadne.db
     graph <- read_graph(url, format = "gml")
     graph_df <- as_data_frame(graph, what = "both")
     # Add version to edge and node urls
-    ver <- meta$key[meta$source == key]
-    graph_df <- .insert_version(graph_df, ver)
+    graph_df <- .insert_version(graph_df, key)
     return(graph_df)
 }
 
