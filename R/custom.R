@@ -20,7 +20,6 @@
 #' @returns An igraph object.
 #' 
 #' @examples
-#' 
 #' # Retrieve resource graph
 #' graph <- ariadne()
 #' 

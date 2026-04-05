@@ -13,6 +13,7 @@ by leveraging the resource network hosted in the companion package
 [ariadne.db](https://github.com/Minotau-R/ariadne.db).
 
 Example applications:
+
 - explore relations across omics using curated knowledge, fetched automatically
   and efficiently using SPARQL and parquet
 - stratify microbes by BugSig, Gut Metabolic or Gut Brain modules for

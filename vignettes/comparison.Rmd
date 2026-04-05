@@ -1,6 +1,6 @@
 ---
 title: "Comparison"
-author: 
+author:
   - name: Giulio Benedetti
     affiliation: University of Turku
     email: giulio.benedetti@utu.fi
@@ -29,7 +29,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r}
+```{r lib, message=FALSE, warning=FALSE}
 library(ariadne)
 library(curatedMetagenomicData)
 library(mia)

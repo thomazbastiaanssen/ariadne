@@ -11,19 +11,22 @@ load. Latest versions are used if not specified. (Default: \code{NULL})}
 An igraph object with the ariadne resource graph.
 }
 \description{
-\code{ariadne} imports the resource graph hosted in ariadne.db companion data
-package.
+\code{ariadne} imports the resource graph hosted in the companion package
+ariadne.db.
 }
 \examples{
-
-# Import ariadne resource graph
+# Import default resource graph
 graph <- ariadne()
 
-# Specify resource versions
-graph <- ariadne(versions = list(BugSigDB = "v1.2.0", WoL = "v2.0"))
+# Specify custom resource versions
+versions <- list(BugSigDB = "v1.2.2", WoL = "v20April2021")
+graph <- ariadne(versions = versions)
 
 }
 \seealso{
-ariadne.db: \url{https://github.com/Minotau-R/ariadne.db}
-Zenodo: \url{https://zenodo.org/records/18788725}
+\itemize{
+\item \code{\link{listResourceVersions}}
+\item ariadne.db: \url{https://github.com/Minotau-R/ariadne.db}
+\item Zenodo: \url{https://zenodo.org/records/18788725}
+}
 }

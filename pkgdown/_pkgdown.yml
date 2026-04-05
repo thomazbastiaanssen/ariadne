@@ -8,8 +8,9 @@ reference:
   - addResource
   - weavePath
   - weaveComplex
-- title: Other
+- title: Utility functions
 - contents:
+  - listResourceVersions
   - appendModules
   - processGeneFamilies
   - butyrate

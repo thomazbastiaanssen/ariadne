@@ -15,7 +15,6 @@ provides a set of butyrate producers that were significantly increased or
 reduced in the patient group.
 }
 \examples{
-
 # Import linkmap
 data("butyrate", package = "ariadne")
 

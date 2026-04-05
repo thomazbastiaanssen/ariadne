@@ -24,7 +24,6 @@
 #' @returns A ggplot2 object.
 #' 
 #' @examples
-#' 
 #' # Retrieve resource graph
 #' graph <- ariadne()
 #' 
