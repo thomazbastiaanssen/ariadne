@@ -1,13 +1,51 @@
-#' Process HUMAnN3 gene families
+#' List resource versions registered in the ariadne database
+#' 
+#' @name listResourceVersions
+#' @rdname listResourceVersions
+#' 
+#' @description
+#' listResourceVersions shows the available versions for the different resources
+#' registered in the ariadne database. Any of those versions can be passed to
+#' \code{\link{ariadne}}. Resources labelled with \code{"latest"} cannot be
+#' versioned as they are dynamically accessed via their API or SPARQL endpoint.
+#' 
+#' @param default \code{Logical scalar}. Should only default versions be listed.
+#'   (Default: \code{FALSE})
+#' 
+#' @returns A data.frame with information on registered resource versions.
+#' 
+#' @examples
+#' # View all available resource versions
+#' listResourceVersions()
+#' 
+#' # View default resource versions
+#' listResourceVersions(default = TRUE)
+#' 
+#' @seealso \code{\link{ariadne}}
+#' 
+#' @export
+listResourceVersions <- function(default = FALSE){
+    meta <- versionMetadata
+    if( default ){
+        meta <- meta[meta$default, ]
+    }
+    meta$resource <- meta$source
+    meta$version[is.na(meta$version)] <- "latest"
+    meta <- meta[ , c("resource", "version")]
+    return(meta)
+}
+
+
+#' Process HUMAnN gene families
 #' 
 #' @name processGeneFamilies
 #' @rdname processGeneFamilies
 #' 
 #' @description
 #' processGeneFamilies prepares a SummarizedExperiment object containing the
-#' HUMAnN3 gene families, such as those provided by curatedMetagenomicData, so
+#' HUMAnN gene families, such as those provided by curatedMetagenomicData, so
 #' its feature-wise information on genes and taxa are added to the rowData. This
-#' makes ariadne interoperable with HUMAnN3 gene families data.
+#' makes ariadne interoperable with HUMAnN gene families data.
 #' 
 #' @param x A
 #'   \code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment}}
@@ -56,6 +94,7 @@ processGeneFamilies <- function(x){
     rowData(x) <- cbind(rowData(x), gene.linkmap, tax.linkmap)
     return(x)
 }
+
 
 #' Append linkmaps to SummarizedExperiment side information
 #' 

@@ -10,6 +10,7 @@ reference:
   - weaveComplex
 - title: Utility functions
 - contents:
+  - listResourceVersions
   - appendModules
   - processGeneFamilies
   - butyrate

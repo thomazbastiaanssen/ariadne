@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{processGeneFamilies}
 \alias{processGeneFamilies}
-\title{Process HUMAnN3 gene families}
+\title{Process HUMAnN gene families}
 \usage{
 processGeneFamilies(x)
 }
@@ -17,9 +17,9 @@ rowData: uniref90, taxname, genus and species.
 }
 \description{
 processGeneFamilies prepares a SummarizedExperiment object containing the
-HUMAnN3 gene families, such as those provided by curatedMetagenomicData, so
+HUMAnN gene families, such as those provided by curatedMetagenomicData, so
 its feature-wise information on genes and taxa are added to the rowData. This
-makes ariadne interoperable with HUMAnN3 gene families data.
+makes ariadne interoperable with HUMAnN gene families data.
 }
 \examples{
 library(curatedMetagenomicData)

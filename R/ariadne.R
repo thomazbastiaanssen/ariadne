@@ -4,8 +4,8 @@
 #' @rdname ariadne
 #' 
 #' @description
-#' \code{ariadne} imports the resource graph hosted in ariadne.db companion data
-#' package.
+#' \code{ariadne} imports the resource graph hosted in the companion package
+#' ariadne.db.
 #' 
 #' @param versions \code{Character list}. A named list of resource versions to
 #' load. Latest versions are used if not specified. (Default: \code{NULL})
@@ -14,16 +14,19 @@
 #' An igraph object with the ariadne resource graph.
 #' 
 #' @examples
-#' # Import ariadne resource graph
+#' # Import default resource graph
 #' graph <- ariadne()
 #' 
-#' # Specify resource versions
-#' graph <- ariadne(versions = list(BugSigDB = "v1.2.2", WoL = "20April2021"))
+#' # Specify custom resource versions
+#' versions <- list(BugSigDB = "v1.2.2", WoL = "v20April2021")
+#' graph <- ariadne(versions = versions)
 #' 
 #' @seealso
-#' 
-#' ariadne.db: \url{https://github.com/Minotau-R/ariadne.db}
-#' Zenodo: \url{https://zenodo.org/records/18788725}
+#' \itemize{
+#'   \item \code{\link{listResourceVersions}}
+#'   \item ariadne.db: \url{https://github.com/Minotau-R/ariadne.db}
+#'   \item Zenodo: \url{https://zenodo.org/records/18788725}
+#' }
 #' 
 NULL
 

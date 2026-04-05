@@ -3,6 +3,7 @@
 export(addResource)
 export(appendModules)
 export(ariadne)
+export(listResourceVersions)
 export(plotPath)
 export(processGeneFamilies)
 export(searchPath)
