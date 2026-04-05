@@ -39,7 +39,7 @@
             x, header = FALSE, select = c(1L, 2L)
         ),
         GO = function(x) .process_one2one(x, header = FALSE),
-        Misc = .process_complex_modules
+        GM = .process_complex_modules
     )
     # Preprocess data
     linkmap <- FUN(url)

@@ -25,13 +25,21 @@
 #' 
 #' @export
 listResourceVersions <- function(default = FALSE){
+    # Retrieve metadata on resource versions
     meta <- versionMetadata
+    # If default is turned on
     if( default ){
+        # Select only default versions
         meta <- meta[meta$default, ]
     }
+    # Build resource base urls
+    urls <- attr(meta, "urls")
+    meta$url <- urls[match(meta$source, names(urls))]
+    meta$url <- paste0(meta$url, meta$key, "/")
+    # Rename source column to resource
     meta$resource <- meta$source
-    meta$version[is.na(meta$version)] <- "latest"
-    meta <- meta[ , c("resource", "version")]
+    # Select relevant columns to print
+    meta <- meta[ , c("resource", "version", "url")]
     return(meta)
 }
 

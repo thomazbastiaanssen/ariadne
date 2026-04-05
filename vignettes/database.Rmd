@@ -48,9 +48,8 @@ library(ggplot2)
 ```
 
 When `ariadne` is executed, the graph for each resource is retrieved from the
-database release on [Zenodo](https://zenodo.org/records/18788726) and combined
-into a single igraph object. Some resources have multiple versions, which can
-be selected through the argument `versions`. This defaults to the latest version found in the database.
+database release on [Zenodo](https://zenodo.org/records/18788725) and combined
+into a single igraph object.
 
 ```{r fetch}
 # Import resource graph
@@ -58,6 +57,13 @@ graph <- ariadne()
 
 # Plot resource graph
 plotPath(graph)
+```
+
+Some resources have multiple versions, which can be selected through the
+argument `versions`. This defaults to the latest version found in the database.
+
+```{r res.versions}
+listResourceVersions()
 ```
 
 The igraph object is made of two components: edges data and nodes (or vertices)
