@@ -133,57 +133,73 @@ processGeneFamilies <- function(x){
 #' 
 #' @examples
 #' library(mia)
+#' library(miaViz)
 #' 
-#' # Import dataset
+#' # Import datasets
 #' data("Tengeler2020", package = "mia")
+#' data("butyrate", package = "ariadne")
+#' 
+#' # Rename experiment object
 #' tse <- Tengeler2020
 #' 
-#' # Load resource graph
-#' graph <- ariadne()
+#' # Add butyrate-producer module to rowData
+#' rowData(tse) <- appendModules(rowData(tse), butyrate, by = "Genus")
 #' 
-#' # Retrieve taxon names
-#' tax.labs <- getTaxonomyLabels(tse, make.unique = FALSE)
-#' tax.labs <- sub("^.+:", "", tax.labs)
+#' # Add modules based on multiple variables given in order of priority
+#' rowData(tse) <- appendModules(
+#'     rowData(tse), butyrate, by = c("Genus", "Family")
+#' )
 #' 
-#' # Add taxon labels to rowData
-#' rowData(tse)$taxname <- tax.labs
+#' # Add module names instead of ids
+#' rowData(tse) <- appendModules(
+#'     rowData(tse), butyrate, by = "Genus", as = "names"
+#' )
 #' 
-#' # Weave path starting from initial values
-#' tax2bugsig <- weavePath(graph, taxname ~ bugsig, init = tax.labs)
+#' # Generate relative abundance table
+#' tse <- transformAssay(tse, method = "relabundance")
 #' 
-#' # Add BugSig modules to rowData
-#' rowData(tse) <- appendModules(rowData(tse), tax2bugsig, by = "taxname")
+#' # Agglomerate features by membership to butyrate-producer module
+#' modules <- agglomerateByModule(tse, by = "rows", group = "butyrate")
 #' 
-#' # Use module names instead of ids (currently not available for bugsig)
-#' # rowData(tse) <- appendModules(
-#' #     rowData(tse), tax2bugsig, by = "taxname", as = "names"
-#' # )
-#' 
-#' # Print first ten colnames of rowData
-#' head(names(rowData(tse)), 10)
+#' # Plot relative abundance of butyrate producers
+#' plotAbundance(modules, assay.type = "relabundance")
 #' 
 #' @export
 appendModules <- function(x, modules, by = "row.names", as = "ids"){
+    # Check if by is rownames
+    is_rownames <- length(by) == 1L && by == "row.names"
     # Check args
-    if( !by %in% c("row.names", colnames(x)) ){
+    if( !is_rownames && !all(by %in% colnames(x)) ){
         stop("'by' must be 'row.names' or a variable of 'x'.", call. = FALSE)
     }
     if( !as %in% c("ids", "names") ){
-        stop("'as' must be either 'ids' or 'rownames'.", call. = FALSE)
+        stop("'as' must be either 'ids' or 'names'.", call. = FALSE)
     }
     # Choose between ids and names
     target_col <- switch(as, ids = 2L, names = 3L)
     # Convert linkmap to wide format
     modules <- table(modules[c(1L, target_col)]) == 1
     
-    if( by == "row.names" ){
+    if( is_rownames ){
         idx <- match(rownames(x), rownames(modules))
-    }else{
+    }else if( length(by) == 1L ){
         idx <- match(x[[by]], rownames(modules))
+    }else{
+        idx <- apply(x[by], 1L, function(row){
+            m <- match(row, rownames(modules))
+            first_match <- m[!is.na(m)][1L]
+        })
     }
     
     modules <- modules[idx, , drop = FALSE]
     modules[is.na(modules)] <- FALSE
+    
+    to_remove <- which(colnames(x) %in% colnames(modules))
+    
+    if( length(to_remove) != 0L ){
+        warning("Some columns of 'x' were replaced.", call. = FALSE)
+        x[to_remove] <- NULL
+    }
     
     out <- cbind(x, modules)
     return(out)

@@ -272,10 +272,12 @@ setMethod("weavePath", signature = c(graph = "igraph"),
         # Query SPARQL endpoint
         df <- .querySPARQL(spec.from, spec.to, g$source, init, timeout, ...)
         # Filter special cases
+        print(head(df))
         if( spec.to %in% c("uniref", "BioCyc") ){
             df <- df[grepl(to, df[[2L]], ignore.case = TRUE), ]
             rownames(df) <- NULL
         }
+        print(head(df))
         # Strip special IRI prefixes
         df[[1L]] <- .strip_iri(df[[1L]], from)
         df[[2L]] <- .strip_iri(df[[2L]], to)

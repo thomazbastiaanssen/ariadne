@@ -31,33 +31,35 @@ interoperable with SE-based data analysis.
 }
 \examples{
 library(mia)
+library(miaViz)
 
-# Import dataset
+# Import datasets
 data("Tengeler2020", package = "mia")
+data("butyrate", package = "ariadne")
+
+# Rename experiment object
 tse <- Tengeler2020
 
-# Load resource graph
-graph <- ariadne()
+# Add butyrate-producer module to rowData
+rowData(tse) <- appendModules(rowData(tse), butyrate, by = "Genus")
 
-# Retrieve taxon names
-tax.labs <- getTaxonomyLabels(tse, make.unique = FALSE)
-tax.labs <- sub("^.+:", "", tax.labs)
+# Add modules based on multiple variables given in order of priority
+rowData(tse) <- appendModules(
+    rowData(tse), butyrate, by = c("Genus", "Family")
+)
 
-# Add taxon labels to rowData
-rowData(tse)$taxname <- tax.labs
+# Add module names instead of ids
+rowData(tse) <- appendModules(
+    rowData(tse), butyrate, by = "Genus", as = "names"
+)
 
-# Weave path starting from initial values
-tax2bugsig <- weavePath(graph, taxname ~ bugsig, init = tax.labs)
+# Generate relative abundance table
+tse <- transformAssay(tse, method = "relabundance")
 
-# Add BugSig modules to rowData
-rowData(tse) <- appendModules(rowData(tse), tax2bugsig, by = "taxname")
+# Agglomerate features by membership to butyrate-producer module
+modules <- agglomerateByModule(tse, by = "rows", group = "butyrate")
 
-# Use module names instead of ids (currently not available for bugsig)
-# rowData(tse) <- appendModules(
-#     rowData(tse), tax2bugsig, by = "taxname", as = "names"
-# )
-
-# Print first ten colnames of rowData
-head(names(rowData(tse)), 10)
+# Plot relative abundance of butyrate producers
+plotAbundance(modules, assay.type = "relabundance")
 
 }
