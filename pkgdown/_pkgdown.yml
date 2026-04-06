@@ -1,16 +1,27 @@
 destination: docs
 reference:
-- title: Main functions
+- title: Main functionality
+- subtitle: Build resource graph
 - contents:
   - ariadne
+  - addResource
+- subtitle: Explore resource graph
+- contents:
   - searchPath
   - plotPath
-  - addResource
+- subtitle: Weave resource graph
+- contents:
   - weavePath
   - weaveComplex
-- title: Utility functions
+- subtitle: Interoperability
+- contents:
+  - addModules
+  - getModules
+  - processGeneFamilies
+- title: Other
+- subtitle: Resource metadata
 - contents:
   - listResourceVersions
-  - appendModules
-  - processGeneFamilies
+- subtitle: Datasets
+- contents:
   - butyrate
