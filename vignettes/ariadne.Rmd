@@ -1,5 +1,5 @@
 ---
-title: "ariadne: module integration by on-demand translation of annotations using R"
+title: "ariadne: Integrate Knowledge into your Bioinformatic Analysis"
 author:
   - name: Giulio Benedetti
     affiliation: University of Turku
@@ -18,7 +18,7 @@ output:
 date: "`r doc_date()`"
 package: "`r pkg_ver('ariadne')`"
 vignette: >
-  %\VignetteIndexEntry{ariadne}
+  %\VignetteIndexEntry{ariadne: Integrate Knowledge into your Bioinformatic Analysis}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -32,6 +32,35 @@ knitr::opts_chunk$set(
 
 # Introduction
 
+All domains of biology have to do with relational information. From genes to
+organisms, each and every biological entity has some link to other entities. For
+example, bugs are friends or foes with other bugs, have foods they like and
+foods they hate (sometimes to death). All these links we call relational
+information, which becomes knowledge once it is smartly combined with other
+pieces and kept safe and open in a wonderfully organised place, usually a
+database.
+
+Building a database from scratch is no easy task. Fortunately, nowadays
+databases for all kinds of relational information are available: UniProt for
+proteins, Rhea for reactions, KEGG for pretty much anything, and many others,
+which keep growing together with the field they support. As a scientist, having
+access to such vast knowledge from past research can truly make us "stand on the
+shoulders of giants".
+
+In practice, though, it is not always easy (or even possible) to leverage such
+knowledge in routine bioinformatic analyses due to three main challenges. First,
+data is usually deposited somewhere online, so there must be a fast and reliable
+method to retrieve and import it in the local environment. Second, data size
+often exceeds the disk space of a typical laptop, which requires smart ways to
+efficiently subset and store data in a lightweight, accessible format. Third,
+unless you are lucky, data will need a tidy-up before it is compatible with your
+dataset and other resources, so we need a systematic approach to integrate
+information from multiple resources.
+
+
+## Motivation
+
+
 ariadne provides a rapid and robust approach to incorporate taxonomic
 and functional module analyses into your bioinformatic workflow. Despite the
 presence of specialised bioinformatic tools, on-demand functional annotation of
@@ -41,7 +70,6 @@ modules based on online resources (BugSigDB, ChocoPhlAn, Web of Life and UniProt
 In addition, we provide tools to incorporate, analyse and visualise module
 information into popular standardised containers, such as TreeSummarizedExperiment.
 
-## Motivation
 
 # Tutorial
 
@@ -55,25 +83,60 @@ if( !requireNamespace("BiocManager", quietly = TRUE) ){
 BiocManager::install("ariadne")
 ```
 
-## Explore ariadne graph
+## Explore the resource graph
 
-```{r}
+ariadne combines different resources into a single graph highlighting the links
+between biological entities. The resource graph can be imported as an igraph
+object with the function `ariadne`.
+
+```{r lib, message=FALSE, warning=FALSE}
 library(ariadne)
 
-# 
+# Import resource graph
 graph <- ariadne()
 
-#
+# View graph
+summary(graph)
+```
+
+The graph can also be visualised with `plotPath`.
+
+```{r plot}
+# Plot resource graph
 plotPath(graph)
 ```
 
+Let's say we need to find all links between gene functions and enzyme activity
+represented by KEGG Orthologues (KO) and Enzyme Commission (EC) ids,
+respectively. The function `searchPath` can be used to find the `k` shortest
+paths in the graph.
+
 ```{r}
-searchPath(graph, taxname ~ ec, k = 10)
+# Search for paths from ko to ec
+searchPath(graph, ko ~ ec, k = 3)
 ```
 
 ```{r}
-plotPath(graph, taxname ~ ec, include = "uniref90", focus = TRUE)
+plotPath(graph, ko ~ ec, include = "uniref90", focus = TRUE)
 ```
+
+We decide to go through the simplest path, which corresponds to a `k` of 1. The
+links between KO and EC are found by the function `weavePath`, which fetches
+the necessary resources and weaves a path from KO to EC.
+
+```{r}
+# Weave path from ko to ec
+ko2ec <- weavePath(graph, ko ~ ec, k = 1)
+
+# View some links
+head(ko2ec)
+```
+
+The links are provided as a **linkmap**, a 2-column table where each row is a
+pair of ids (one KO and one EC). When available, the feature names are returned
+as a third optional column.
+
+## Incorporate relational knowledge in a dataset
 
 ```{r}
 library(mia)
@@ -85,6 +148,12 @@ tse <- Tengeler2020
 # Retrieve taxon names
 tax.labs <- getTaxonomyLabels(tse, make.unique = FALSE)
 tax.labs <- sub("^.+:", "", tax.labs)
+```
+
+```{r}
+# butyrate
+# addModules
+# butyrate producer abundance
 ```
 
 

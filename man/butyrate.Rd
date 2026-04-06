@@ -20,7 +20,6 @@ data("butyrate", package = "ariadne")
 
 # Print some pairs
 head(butyrate)
-
 }
 \references{
 Kullberg, Robert FJ, et al.

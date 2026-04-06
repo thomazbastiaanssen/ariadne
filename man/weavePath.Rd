@@ -91,7 +91,8 @@ presence, between 0 and 1. Only for \code{weaveComplex}.
 (Default: \code{1})}
 }
 \value{
-A two-column data.frame (x-to-y linkmap).
+A two-column data.frame (x-to-y linkmap), with optional names as a third
+column.
 }
 \description{
 \code{weavePath} and \code{weaveComplex} bridge the path between resources,
@@ -130,5 +131,4 @@ dis2gmm <- weaveComplex(graph, disease ~ gmm, threshold = 0.8)
 
 # Obtain results in terms of coverage
 dis2gmm <- weaveComplex(graph, disease ~ gmm, mode = "coverage")
-
 }

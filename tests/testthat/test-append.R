@@ -1,6 +1,6 @@
 
 test_that("append", {
     
-    data(buty)
+    data("butyrate", package = "ariadne")
     
 })

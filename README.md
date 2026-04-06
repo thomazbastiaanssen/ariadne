@@ -9,15 +9,15 @@
 ariadne is a multi-purpose R package that integrates relational knowledge from
 various biological databases. It provides tools to navigate resource graphs,
 find and visualise paths between features and link them across different omics
-by leveraging the resource network hosted in the companion package
+by leveraging the resource graph hosted in the companion package
 [ariadne.db](https://github.com/Minotau-R/ariadne.db).
 
 Example applications:
 
 - explore relations across omics using curated knowledge, fetched automatically
   and efficiently using SPARQL and parquet
-- stratify microbes by BugSig, Gut Metabolic or Gut Brain modules for
-  functional or microbe-set enrichment analysis
+- stratify microbes by BugSig and Gut Metabolic modules for functional or
+  microbe-set enrichment analysis
 - converge features from different taxonomies (NCBI, SILVA, OTT, etc.)
 
 # Usage

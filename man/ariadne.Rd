@@ -3,6 +3,9 @@
 \name{ariadne}
 \alias{ariadne}
 \title{Build ariadne resource graph}
+\usage{
+ariadne(versions = NULL)
+}
 \arguments{
 \item{versions}{\code{Character list}. A named list of resource versions to
 load. Latest versions are used if not specified. (Default: \code{NULL})}
@@ -21,7 +24,6 @@ graph <- ariadne()
 # Specify custom resource versions
 versions <- list(BugSigDB = "v1.2.2", WoL = "v20April2021")
 graph <- ariadne(versions = versions)
-
 }
 \seealso{
 \itemize{

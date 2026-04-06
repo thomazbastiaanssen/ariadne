@@ -1,7 +1,6 @@
 #' List resource versions registered in the ariadne database
 #' 
 #' @name listResourceVersions
-#' @rdname listResourceVersions
 #' 
 #' @description
 #' listResourceVersions shows the available versions for the different resources
@@ -14,16 +13,18 @@
 #' 
 #' @returns A data.frame with information on registered resource versions.
 #' 
+#' @seealso \code{\link{ariadne}}
+#' 
 #' @examples
 #' # View all available resource versions
 #' listResourceVersions()
 #' 
 #' # View default resource versions
 #' listResourceVersions(default = TRUE)
-#' 
-#' @seealso \code{\link{ariadne}}
-#' 
+NULL
+
 #' @export
+#' @rdname listResourceVersions
 listResourceVersions <- function(default = FALSE){
     # Retrieve metadata on resource versions
     meta <- versionMetadata
@@ -47,7 +48,6 @@ listResourceVersions <- function(default = FALSE){
 #' Process HUMAnN gene families
 #' 
 #' @name processGeneFamilies
-#' @rdname processGeneFamilies
 #' 
 #' @description
 #' processGeneFamilies prepares a SummarizedExperiment object containing the
@@ -80,8 +80,10 @@ listResourceVersions <- function(default = FALSE){
 #' 
 #' # Print head of rowData
 #' head(rowData(genes, use.names = FALSE))
-#' 
+NULL
+
 #' @export
+#' @rdname processGeneFamilies
 #' @importFrom SummarizedExperiment rowData rowData<-
 #' @importFrom stringr fixed str_detect str_split
 processGeneFamilies <- function(x){

@@ -1,7 +1,6 @@
 #' Append linkmaps to SummarizedExperiment side information
 #' 
 #' @name addModules
-#' @rdname addModules
 #' 
 #' @description
 #' getModules and addModules allow to retrieve or append a linkmap to the side
@@ -61,7 +60,6 @@
 #' 
 #' # Plot relative abundance of butyrate producers
 #' plotAbundance(mod.se, assay.type = "relabundance")
-#' 
 NULL
 
 

@@ -38,5 +38,4 @@ genes <- processGeneFamilies(genes)
 
 # Print head of rowData
 head(rowData(genes, use.names = FALSE))
-
 }

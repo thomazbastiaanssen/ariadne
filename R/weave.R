@@ -1,5 +1,8 @@
 #' Weave paths between resources
 #' 
+#' @name weavePath
+#' @aliases weaveComplex
+#' 
 #' @description
 #' \code{weavePath} and \code{weaveComplex} bridge the path between resources,
 #' fetching and combining the necessary data from the ariadne database.
@@ -52,7 +55,9 @@
 #'   (Default: \code{3})
 #' }
 #' 
-#' @returns A two-column data.frame (x-to-y linkmap).
+#' @returns
+#' A two-column data.frame (x-to-y linkmap), with optional names as a third
+#' column.
 #' 
 #' @examples
 #' library(mia)
@@ -87,15 +92,11 @@
 #' 
 #' # Obtain results in terms of coverage
 #' dis2gmm <- weaveComplex(graph, disease ~ gmm, mode = "coverage")
-#' 
-#' @name weavePath
-#' @aliases weaveComplex
 NULL
 
 
 #' @export
 #' @rdname weavePath
-#' @importFrom igraph as_data_frame
 #' @importFrom stats as.formula
 #' @importFrom MultiFactor MultiFactor weave
 setMethod("weavePath", signature = c(graph = "igraph"),
@@ -133,20 +134,18 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     }
     # Select unique input
     init <- unique(init)
-    # Retrieve edges and nodes data
-    graph_df <- as_data_frame(graph, what = "both")
     # Draw kth path from source to target
     path_df <- .draw_path(graph, path_by, k, include, exclude)
+    # Add edges metadata
+    path_df <- .add_edge_metadata(path_df, graph, internal = TRUE)
     # Perform step of path
     for( i in seq_len(nrow(path_df)) ){
         # Retrieve step
-        g <- path_df[i, ]
+        g <- path_df[i, , drop = FALSE]
         # Print step
         if( verbose ) message(g$from, " -(", g$source, ")-> ", g$to)
         # Fetch linkmap
-        linkmap <- .fetch_resource(
-            graph_df, g$from, g$to, g$source, init, timeout, ...
-        )
+        linkmap <- .fetch_resource(g, init, timeout, ...)
         # Add to linkmaps
         linkmaps[[paste0(g$from, "2", g$to)]] <- linkmap
         # Update init
@@ -157,16 +156,17 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     # Weave desired linkmap from MultiFactor
     out <- weave(mf, by)
     # Add feature names
-    if( use.names ) out <- .id2name(graph_df, out, verbose)
+    if( use.names ) out <- .id2name(graph, out, verbose)
     return(out)
 })
 
 
 #' @importFrom data.table fread
+#' @importFrom igraph as_data_frame
 #' @importFrom KEGGREST listDatabases keggList
-.id2name <- function(graph_df, linkmap, verbose){
-    
-    node_df <- graph_df$vertices
+.id2name <- function(graph, linkmap, verbose){
+    # Retrieve nodes data
+    node_df <- as_data_frame(graph, what = "vertices")
     target <- colnames(linkmap)[2L]
     
     url <- node_df$url[node_df$name == target]
@@ -209,78 +209,53 @@ setMethod("weavePath", signature = c(graph = "igraph"),
 #' @importFrom KEGGREST keggConv keggLink
 #' @importFrom arrow read_parquet open_dataset
 #' @importFrom dplyr filter collect
-#' @importFrom stats na.omit
 #' @importFrom rlang sym
-.fetch_resource <- function(graph_df, from, to, repo, init, timeout, ...){
-    
-    edge_df <- graph_df$edges
-    node_df <- graph_df$vertices
-    
+.fetch_resource <- function(g, init, timeout, ...){
+    # Check if init exists
     is_init <- !is.null(init)
-    is_source <- edge_df$source == repo
-    
-    idx <- which(
-        edge_df$from == from & edge_df$to == to & is_source
-    )
-    
-    if( length(idx) == 0L ){
-        
-        idx <- which(
-            edge_df$from == to & edge_df$to == from & is_source
-        )
-    }
-    # Only one edge match allowed
-    if( length(idx) > 1L ) stop("Multiple matches were found.", call. = FALSE)
-    # Retrieve matched edge (only one)
-    g <- edge_df[idx, , drop = FALSE]
     # Check edges where init is necessary
     if( !is_init &&
-        (g$source == "OTT" || (g$source == "KEGG" && from == "genes")) ){
+        (g$source == "OTT" || (g$source == "KEGG" && g$from == "genes")) ){
         stop("'init' must be provided for ", g$from, " queries to ", g$source,
             ".", call. = FALSE)
     }
-    # Retrieve specific names for KEGG, OTT and SPARQL queries
-    spec.from <- node_df[node_df$name == from, g$source]
-    spec.to <- node_df[node_df$name == to, g$source]
     # Retrieve linkmap from corresponding resource
     if( g$source == "KEGG" ){
         # List external databases
         ext <- c("chebi", "geneid", "proteinid", "pubchem", "uniprotkb")
         # Select function based on id types
-        kegg_fun <- ifelse(any(c(from, to) %in% ext), keggConv, keggLink)
+        kegg_fun <- ifelse(any(c(g$from, g$to) %in% ext), keggConv, keggLink)
         # Use initial values as input for genes db
-        orig <- if( "genes" %in% c(from, to) ) init else spec.from
+        orig <- if( "genes" %in% c(g$from, g$to) ) init else g$specFrom
         # Add prefix to external from ids
-        if( is_init && from %in% ext ) orig <- paste0(spec.from, ":", orig)
+        if( is_init && g$from %in% ext ) orig <- paste0(g$specFrom, ":", orig)
         # Send query to keggLink
-        kegg_link <- kegg_fun(spec.to, orig)
+        kegg_link <- kegg_fun(g$specTo, orig)
         # Convert to data.frame
         df <- data.frame(x = names(kegg_link), y = kegg_link, row.names = NULL)
         # Strip db prefix except for genes db
-        if( from != "genes") df$x <- sub("^[^:]*:", "", df$x)
-        if( to != "genes" ) df$y <- sub("^[^:]*:", "", df$y)
+        if( g$from != "genes") df$x <- sub("^[^:]*:", "", df$x)
+        if( g$to != "genes" ) df$y <- sub("^[^:]*:", "", df$y)
         # Use initial values to filter output
         if( is_init ) df <- df[df[[1L]] %in% init, , drop = FALSE]
     # Query Open Tree Taxonomy API
     }else if( g$source == "OTT" ){
         # Send OTT query (init must be vector)
-        df <- .queryOTT(spec.from, spec.to, init, timeout, ...)
+        df <- .queryOTT(g$specFrom, g$specTo, init, timeout, ...)
     # Query SPARQL endpoint
     }else if( g$source %in% c("Rhea", "UniProt") ){
         # Add special IRI prefixes
-        if( is_init ) init <- .add_iri(init, g$source, from)
+        if( is_init ) init <- .add_iri(init, g$source, g$from)
         # Query SPARQL endpoint
-        df <- .querySPARQL(spec.from, spec.to, g$source, init, timeout, ...)
+        df <- .querySPARQL(g$specFrom, g$specTo, g$source, init, timeout, ...)
         # Filter special cases
-        print(head(df))
-        if( spec.to %in% c("uniref", "BioCyc") ){
-            df <- df[grepl(to, df[[2L]], ignore.case = TRUE), ]
+        if( g$specTo %in% c("uniref", "BioCyc") ){
+            df <- df[grepl(g$to, df[[2L]], ignore.case = TRUE), ]
             rownames(df) <- NULL
         }
-        print(head(df))
         # Strip special IRI prefixes
-        df[[1L]] <- .strip_iri(df[[1L]], from)
-        df[[2L]] <- .strip_iri(df[[2L]], to)
+        df[[1L]] <- .strip_iri(df[[1L]], g$from)
+        df[[2L]] <- .strip_iri(df[[2L]], g$to)
     # Fetch linkmap from file
     }else{
         # Get file path to cached resource
@@ -291,21 +266,18 @@ setMethod("weavePath", signature = c(graph = "igraph"),
             # Filter linkmap before importing
             df <- cached |>
                 open_dataset() |>
-                filter(!!sym(from) %in% init) |>
+                filter(!!sym(g$initFrom) %in% init) |>
                 collect() |>
                 as.data.frame()
         }else{
             # Read linkmap from parquet
             df <- read_parquet(cached)
         }
-        # Replace colnames with specifics
-        from <- g$from
-        to <- g$to
     }
     # Check that result is not empty
     if( nrow(df) == 0L ) stop("Bindings depleted.", call. = FALSE)
     # Add edge names
-    colnames(df) <- c(from, to)
+    colnames(df) <- c(g$from, g$to)
     return(df)
 }
 

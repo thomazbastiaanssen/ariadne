@@ -74,5 +74,4 @@ mod.se <- agglomerateByModule(tse, by = "rows", group = "butyrate")
 
 # Plot relative abundance of butyrate producers
 plotAbundance(mod.se, assay.type = "relabundance")
-
 }
