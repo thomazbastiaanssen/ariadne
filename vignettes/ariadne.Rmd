@@ -1,5 +1,5 @@
 ---
-title: "ariadne: Integrate Knowledge into your Bioinformatic Analysis"
+title: "ariadne: Integrate Knowledge in your Bioinformatic Analysis"
 author:
   - name: Giulio Benedetti
     affiliation: University of Turku
@@ -30,8 +30,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Introduction
-
 All domains of biology have to do with relational information. From genes to
 organisms, each and every biological entity has some link to other entities. For
 example, bugs are friends or foes with other bugs, have foods they like and
@@ -54,12 +52,61 @@ method to retrieve and import it in the local environment. Second, data size
 often exceeds the disk space of a typical laptop, which requires smart ways to
 efficiently subset and store data in a lightweight, accessible format. Third,
 unless you are lucky, data will need a tidy-up before it is compatible with your
-dataset and other resources, so we need a systematic approach to integrate
+dataset and other resources, necessitating a systematic approach to integrate
 information from multiple resources.
-
 
 ## Motivation
 
+Sometimes biology seems like a huge labyrinth with no simple paths between its
+building blocks (genes, proteins, organisms, etc.). Even when the path to take
+is clear, many obstacles may hide on the way: inaccessible resources, long query
+times, incompatible formats, just to name a few. Crossing the labyrinth without
+a strategy is a seriously boring and discouraging task.
+
+Luckily, ariadne is here to help. By "Assembling Relational Information Across
+the Database Network", ariadne provides a harmonised graph of interlinked
+resources and a rich toolkit to navigate its underexplored paths. 
+
+The harmonised graph of resources was built with a reproducible pipeline hosted
+in the companion package `ariadne.db`, and it is openly available on [Zenodo](https://doi.org/10.5281/zenodo.18788725), including its previous
+versions.
+
+
+## Implementation
+
+The ariadne jargon:
+
+- **feature type**: Examples: ko (KEGG Orthologues), uniref90
+- **level**: a unique element belonging to a feature type. The term _feature_
+  could be used as well, but it is not ideal due to its many closely related
+  meanings. Examples: 563 (NCBI id for E. coli), C00246 (KEGG compound id for
+  butyrate).
+  
+- **linkmap**: 2-column data.frame where columns are the feature types and rows
+  the links between them. This is how relational information is represented in
+  ariadne. It is often named with the syntax `x2y`, where x and y are the names
+  of the feature types in the first and second columns, respectively. Sometimes,
+  there is also a third column with the names for the target feature type y.
+- **resource**: a database from where linkmaps between feature types can be
+  retrieved. Examples: KEGG, Rhea or UniProt.
+- **weave**: the operation of sequentially linking feature types
+
+
+
+Looking inside ariadne:
+
+- The resource graph is represented as an `igraph` object, where edges are
+  resources and nodes feature types. This is a natural choice for relational
+  data and enables applying graph theory to select relevant paths from one
+  feature type to another.
+- Resources are queried via fast `httr2` requests or using pre-existing APIs.
+  Whenever possible, even faster SPARQL queries are used to fetch linkmaps.
+- Linkmaps are automatically cached with `BiocFileCache` and efficiently stored
+  and imported using the Apache parquet columnar format from `arrow`.
+- `MultiFactor` weaves the output linkmap under the hood.
+
+
+## Applications
 
 ariadne provides a rapid and robust approach to incorporate taxonomic
 and functional module analyses into your bioinformatic workflow. Despite the

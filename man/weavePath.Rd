@@ -95,8 +95,14 @@ A two-column data.frame (x-to-y linkmap), with optional names as a third
 column.
 }
 \description{
-\code{weavePath} and \code{weaveComplex} bridge the path between resources,
-fetching and combining the necessary data from the ariadne database.
+\code{weavePath} and \code{weaveComplex} build the selected path through the
+resource graph from the origin to the target features, fetching and combining
+the necessary resources from several databases.
+
+While \code{weavePath} returns a linkmap with all simple links,
+\code{weaveComplex} yields links only for features mapped above a certain
+coverage threshold, which is useful for pathways or functional modules made
+of several indispensable components.
 }
 \examples{
 library(mia)
