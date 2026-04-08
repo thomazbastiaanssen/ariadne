@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ariadne: module integration by on-demand translation of annotations using R • ariadne</title>
+<title>ariadne: Integrate Knowledge in your Bioinformatic Analysis • ariadne</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="ariadne: module integration by on-demand translation of annotations using R">
+<script src="../pkgdown.js"></script><meta property="og:title" content="ariadne: Integrate Knowledge in your Bioinformatic Analysis">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -55,7 +55,7 @@
       <a href="../articles/comparison.html">Comparison</a>
     </li>
     <li>
-      <a href="../articles/database.html">Database</a>
+      <a href="../articles/database.html">A quick intro to the ariadne database</a>
     </li>
     <li>
       <a href="../articles/msea.html">Microbe-Set Enrichment Analysis</a>
@@ -83,8 +83,8 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>ariadne: module integration by on-demand
-translation of annotations using R</h1>
+      <h1 data-toc-skip>ariadne: Integrate Knowledge in your
+Bioinformatic Analysis</h1>
                         <h4 data-toc-skip class="author">Giulio
 Benedetti</h4>
             <address class="author_afil">
@@ -92,7 +92,7 @@ Benedetti</h4>
 Turku<br><a class="author_email" href="mailto:#"></a><a href="mailto:giulio.benedetti@utu.fi" class="email">giulio.benedetti@utu.fi</a>
       </address>
                   
-            <h4 data-toc-skip class="date">5 April 2026</h4>
+            <h4 data-toc-skip class="date">8 April 2026</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/Minotau-R/ariadne/blob/devel/vignettes/ariadne.Rmd" class="external-link"><code>vignettes/ariadne.Rmd</code></a></small>
       <div class="hidden name"><code>ariadne.Rmd</code></div>
@@ -101,22 +101,122 @@ Turku<br><a class="author_email" href="mailto:#"></a><a href="mailto:giulio.bene
 
     
     
-<div class="section level2">
-<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
-</h2>
-<p>ariadne provides a rapid and robust approach to incorporate taxonomic
-and functional module analyses into your bioinformatic workflow. Despite
-the presence of specialised bioinformatic tools, on-demand functional
-annotation of taxonomic features directly in R has remained challenging.
-To make this simple, ariadne offers tools to rapidly annotate features
-with taxonomic or functional modules based on online resources
-(BugSigDB, ChocoPhlAn, Web of Life and UniProt). In addition, we provide
-tools to incorporate, analyse and visualise module information into
-popular standardised containers, such as TreeSummarizedExperiment.</p>
+<p>All domains of biology have to do with relational information. From
+genes to organisms, each and every biological entity has some link to
+other entities. For example, bugs are friends or foes with other bugs,
+have foods they like and foods they hate (sometimes to death). All these
+links we call relational information, which becomes knowledge once it is
+smartly combined with other pieces and kept safe and open in a
+wonderfully organised place, usually a database.</p>
+<p>Building a database from scratch is no easy task. Fortunately,
+nowadays databases for all kinds of relational information are
+available: UniProt for proteins, Rhea for reactions, KEGG for pretty
+much anything, and many others, which keep growing together with the
+field they support. As a scientist, having access to such vast knowledge
+from past research can truly make us “stand on the shoulders of
+giants”.</p>
+<p>In practice, though, it is not always easy (or even possible) to
+leverage such knowledge in routine bioinformatic analyses due to three
+main challenges. First, data is usually deposited somewhere online, so
+there must be a fast and reliable method to retrieve and import it in
+the local environment. Second, data size often exceeds the disk space of
+a typical laptop, which requires smart ways to efficiently subset and
+store data in a lightweight, accessible format. Third, unless you are
+lucky, data will need a tidy-up before it is compatible with your
+dataset and other resources, necessitating a systematic approach to
+integrate information from multiple resources.</p>
 <div class="section level3">
 <h3 id="motivation">Motivation<a class="anchor" aria-label="anchor" href="#motivation"></a>
 </h3>
+<p>Sometimes biology seems like a huge labyrinth with no simple paths
+between its building blocks (genes, proteins, organisms, etc.). Even
+when the path to take is clear, many obstacles may hide on the way:
+inaccessible resources, long query times, incompatible formats, just to
+name a few. Crossing the labyrinth without a strategy is a seriously
+boring and discouraging task.</p>
+<p>Luckily, ariadne is here to help. By “Assembling Relational
+Information Across the Database Network”, ariadne provides a harmonised
+graph of interlinked resources and a rich toolkit to navigate its
+underexplored paths.</p>
+<p>The harmonised graph of resources was built with a reproducible
+pipeline hosted in the companion package <code>ariadne.db</code>, and it
+is openly available on <a href="https://doi.org/10.5281/zenodo.18788725" class="external-link">Zenodo</a>, including its
+previous versions.</p>
 </div>
+<div class="section level3">
+<h3 id="implementation">Implementation<a class="anchor" aria-label="anchor" href="#implementation"></a>
+</h3>
+<p>Before describing how ariadne functions, let us explain some
+important jargon:</p>
+<ul>
+<li>
+<strong>feature type</strong>: a distinct type of biological entity
+which includes a set of unique elements labelled with ids. For
+consistency, all feature types are written in lower case characters.
+Examples: <code>genes</code>, (KEGG genes id), <code>ko</code> (KEGG
+Orthologues), <code>ec</code> (Enzyme Commission number) or
+<code>uniref90</code> (90% similarity UniRef sequence clusters).</li>
+<li>
+<strong>level</strong>: a unique element belonging to a feature
+type. The term <em>feature</em> could be used as well, but it is not
+ideal due to its many closely related meanings. Examples: 563 (NCBI id
+for E. coli), C00246 (KEGG compound id for butyrate) or P0DTC2
+(UniProtKB id for the SARS-CoV-2 spike protein).</li>
+<li>
+<strong>linkmap</strong>: 2-column data.frame where columns are the
+feature types and rows the links between them. This is how relational
+information is represented in ariadne. It is often named with the syntax
+<code>x2y</code>, where x and y are the names of the feature types in
+the first and second columns, respectively. Sometimes, there is also a
+third column with the names for the target feature type y. Examples:
+<code>tax2cpd</code> (linkmap between taxon names and compounds).</li>
+<li>
+<strong>resource</strong>: a database from where linkmaps between
+feature types can be retrieved. Examples: KEGG, Rhea or UniProt.</li>
+<li>
+<strong>weave</strong>: the operation of sequentially linking
+feature types to generate a new linkmap between two feature types that
+originally were not directly linked. This operation follows the syntax
+<code>x ~ y</code>, where x and y are the origin and target feature type
+to be linked, respectively. Examples: <code>ko ~ ec</code>,
+<code>disease ~ drug</code>, <code>genes ~ metacyc</code>.</li>
+</ul>
+<p>Looking inside ariadne:</p>
+<ul>
+<li>The resource graph is represented as an <code>igraph</code> object,
+where edges are resources and nodes feature types. This is a natural
+choice for relational data and enables applying graph theory to select
+the preferred path from one feature type to another. It can be also
+easily expanded with user-defined resources.</li>
+<li>Resources are queried via fast <code>httr2</code> requests or using
+pre-existing APIs. Whenever possible, even faster SPARQL queries are
+used to fetch linkmaps.</li>
+<li>Linkmaps are automatically cached with <code>BiocFileCache</code>
+and efficiently stored and imported using the Apache parquet columnar
+format from <code>arrow</code>.</li>
+<li>The <code>MultiFactor</code> class, designed for optimised factor
+operations, takes care of generating the desired linkmap by sequentially
+weaving linkmaps along the path from the origin to the target feature
+type.</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="applications">Applications<a class="anchor" aria-label="anchor" href="#applications"></a>
+</h3>
+<p>ariadne provides a graph-based approach to integrate relational
+knowledge in routine bioinformatic analyses. As such, it can be used to
+annotate any type of biological data when related databases are
+available. This opens up potential applications in various corners of
+bioinformatics, from knowledge-driven feature annotation and
+stratification to goal-oriented feature selection and prediction.</p>
+<p>With microbes as features, ariadne allows to functionally annotate
+them using ChocoPhlAn or WoL and to stratify them by Bug Signatures or
+Gut Modules. (ideas for examples with metabolites, proteins, genes
+etc?)</p>
+<p>ariadne is interoperable with the Bioconductor ecosystem. In
+particular, the SummarizedExperiment (SE) data container and its derived
+classes can be directly annotated or stratified by relational
+information with ariadne.</p>
 </div>
 <div class="section level2">
 <h2 id="tutorial">Tutorial<a class="anchor" aria-label="anchor" href="#tutorial"></a>
@@ -132,55 +232,73 @@ popular standardised containers, such as TreeSummarizedExperiment.</p>
 <span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://bioconductor.github.io/BiocManager/reference/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"ariadne"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="explore-ariadne-graph">Explore ariadne graph<a class="anchor" aria-label="anchor" href="#explore-ariadne-graph"></a>
+<h3 id="explore-the-resource-graph">Explore the resource graph<a class="anchor" aria-label="anchor" href="#explore-the-resource-graph"></a>
 </h3>
+<p>ariadne combines different resources into a single graph highlighting
+the links between biological entities. The resource graph can be
+imported as an igraph object with the function <code>ariadne</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/Minotau-R/ariadne" class="external-link">ariadne</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Registered S3 method overwritten by 'bit64':</span></span>
-<span><span class="co">#&gt;   method          from </span></span>
-<span><span class="co">#&gt;   print.bitstring tools</span></span>
 <span></span>
-<span><span class="co"># </span></span>
+<span><span class="co"># Import resource graph</span></span>
 <span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ariadne.html">ariadne</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co">#</span></span>
-<span><span class="fu"><a href="../reference/plotPath.html">plotPath</a></span><span class="op">(</span><span class="va">graph</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ariadne_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" alt="" width="700"></p>
+<span><span class="co"># View graph</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">graph</span><span class="op">)</span></span>
+<span><span class="co">#&gt; IGRAPH 7f125bb DN-- 232 888 -- </span></span>
+<span><span class="co">#&gt; + attr: name (v/c), BugSigDB (v/c), ChocoPhlAn (v/c), GM (v/c), GO</span></span>
+<span><span class="co">#&gt; | (v/c), KEGG (v/c), OTT (v/c), Rhea (v/c), TIGRFAMs (v/c), UniProt</span></span>
+<span><span class="co">#&gt; | (v/c), WoL (v/c), url (v/c), source (e/c), url (e/c)</span></span></code></pre></div>
+<p>The graph can also be visualised with <code>plotPath</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/searchPath.html">searchPath</a></span><span class="op">(</span><span class="va">graph</span>, <span class="va">taxname</span> <span class="op">~</span> <span class="va">ec</span>, k <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Plot resource graph</span></span>
+<span><span class="fu"><a href="../reference/plotPath.html">plotPath</a></span><span class="op">(</span><span class="va">graph</span><span class="op">)</span></span></code></pre></div>
+<p><img src="ariadne_files/figure-html/plot-1.png" class="r-plt" alt="" width="700"></p>
+<p>Let’s say we need to find all links between gene functions and enzyme
+activity represented by KEGG Orthologues (KO) and Enzyme Commission (EC)
+ids, respectively. The function <code>searchPath</code> can be used to
+find the <code>k</code> shortest paths in the graph.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Search for paths from ko to ec</span></span>
+<span><span class="fu"><a href="../reference/searchPath.html">searchPath</a></span><span class="op">(</span><span class="va">graph</span>, <span class="va">ko</span> <span class="op">~</span> <span class="va">ec</span>, k <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Path 1:</span></span>
-<span><span class="co">#&gt; taxname -(UniProt)-&gt; uniref100 -(UniProt)-&gt; ec</span></span>
+<span><span class="co">#&gt; ko -(KEGG)-&gt; ec</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Path 2:</span></span>
-<span><span class="co">#&gt; taxname -(UniProt)-&gt; uniref90 -(UniProt)-&gt; ec</span></span>
+<span><span class="co">#&gt; ko -(ChocoPhlAn)-&gt; uniref90 -(UniProt)-&gt; ec</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Path 3:</span></span>
-<span><span class="co">#&gt; taxname -(UniProt)-&gt; uniref50 -(UniProt)-&gt; ec</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Path 4:</span></span>
-<span><span class="co">#&gt; taxname -(UniProt)-&gt; uniref90 -(ChocoPhlAn)-&gt; ec</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Path 5:</span></span>
-<span><span class="co">#&gt; taxname -(UniProt)-&gt; uniref50 -(ChocoPhlAn)-&gt; ec</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Path 6:</span></span>
-<span><span class="co">#&gt; taxname -(UniProt)-&gt; uniref100 -(UniProt)-&gt; rhea -(Rhea)-&gt; ec</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Path 7:</span></span>
-<span><span class="co">#&gt; taxname -(UniProt)-&gt; uniref50 -(UniProt)-&gt; go -(GO)-&gt; ec</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Path 8:</span></span>
-<span><span class="co">#&gt; taxname -(UniProt)-&gt; uniref90 -(WoL)-&gt; go -(GO)-&gt; ec</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Path 9:</span></span>
-<span><span class="co">#&gt; taxname -(UniProt)-&gt; taxid -(UniProt)-&gt; uniref90 -(UniProt)-&gt; ec</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Path 10:</span></span>
-<span><span class="co">#&gt; taxname -(UniProt)-&gt; uniref100 -(UniProt)-&gt; go -(GO)-&gt; ec</span></span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotPath.html">plotPath</a></span><span class="op">(</span><span class="va">graph</span>, <span class="va">taxname</span> <span class="op">~</span> <span class="va">ec</span>, include <span class="op">=</span> <span class="st">"uniref90"</span>, focus <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ariadne_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="700"></p>
+<span><span class="co">#&gt; ko -(WoL)-&gt; uniref90 -(UniProt)-&gt; ec</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotPath.html">plotPath</a></span><span class="op">(</span><span class="va">graph</span>, <span class="va">ko</span> <span class="op">~</span> <span class="va">ec</span>, include <span class="op">=</span> <span class="st">"uniref90"</span>, focus <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="ariadne_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="700"></p>
+<p>We decide to go through the simplest path, which corresponds to a
+<code>k</code> of 1. The links between KO and EC are found by the
+function <code>weavePath</code>, which fetches the necessary resources
+and weaves a path from KO to EC.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Weave path from ko to ec</span></span>
+<span><span class="va">ko2ec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/weavePath.html">weavePath</a></span><span class="op">(</span><span class="va">graph</span>, <span class="va">ko</span> <span class="op">~</span> <span class="va">ec</span>, k <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ko -(KEGG)-&gt; ec</span></span>
+<span></span>
+<span><span class="co"># View some links</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ko2ec</span><span class="op">)</span></span>
+<span><span class="co">#&gt;       ko      ec</span></span>
+<span><span class="co">#&gt; 1 K00001 1.1.1.1</span></span>
+<span><span class="co">#&gt; 2 K00121 1.1.1.1</span></span>
+<span><span class="co">#&gt; 3 K04072 1.1.1.1</span></span>
+<span><span class="co">#&gt; 4 K11440 1.1.1.1</span></span>
+<span><span class="co">#&gt; 5 K13951 1.1.1.1</span></span>
+<span><span class="co">#&gt; 6 K13952 1.1.1.1</span></span></code></pre></div>
+<p>The links are provided as a <strong>linkmap</strong>, a 2-column
+table where each row is a pair of ids (one KO and one EC). When
+available, the feature names are returned as a third optional
+column.</p>
+</div>
+<div class="section level3">
+<h3 id="incorporate-relational-knowledge-in-a-dataset">Incorporate relational knowledge in a dataset<a class="anchor" aria-label="anchor" href="#incorporate-relational-knowledge-in-a-dataset"></a>
+</h3>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://microbiome.github.io/mia/" class="external-link">mia</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading required package: MultiAssayExperiment</span></span>
 <span><span class="co">#&gt; Loading required package: SummarizedExperiment</span></span>
@@ -273,7 +391,11 @@ popular standardised containers, such as TreeSummarizedExperiment.</p>
 <span><span class="co"># Retrieve taxon names</span></span>
 <span><span class="va">tax.labs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://microbiome.github.io/mia/reference/taxonomy-methods.html" class="external-link">getTaxonomyLabels</a></span><span class="op">(</span><span class="va">tse</span>, make.unique <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">tax.labs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"^.+:"</span>, <span class="st">""</span>, <span class="va">tax.labs</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># butyrate</span></span>
+<span><span class="co"># addModules</span></span>
+<span><span class="co"># butyrate producer abundance</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tax2ec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/weavePath.html">weavePath</a></span><span class="op">(</span></span>
 <span>    <span class="va">graph</span>,</span>
 <span>    <span class="va">taxname</span> <span class="op">~</span> <span class="va">ec</span>,</span>
@@ -303,7 +425,7 @@ popular standardised containers, such as TreeSummarizedExperiment.</p>
 <p>We hope that ariadne will be useful for your research. Please use the
 following information to cite the package and the overall approach.
 Thank you!</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Citation info</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"ariadne"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning in citation("ariadne"): could not determine year for 'ariadne' from</span></span>
@@ -338,7 +460,7 @@ language <span class="citation">[@core2025r]</span>
 framework for microbiome data analysis <span class="citation">[@borman2025mia]</span>
 </li>
 <li>
-<a href="https://github.com/thomazbastiaanssen/anansi/" class="external-link">anansi</a>,
+<a href="https://github.com/thomazbastiaanssen/anansi/" class="external-link">MultiFactor</a>,
 Annotation-based Analysis of Specific Interactions <span class="citation">[@bastiaanssen2023anansi]</span>
 </li>
 <li>
@@ -360,7 +482,7 @@ guidelines</a>.</p>
 <h2 id="reproducibility">Reproducibility<a class="anchor" aria-label="anchor" href="#reproducibility"></a>
 </h2>
 <p>R session information:</p>
-<pre><code><span><span class="co">#&gt; R Under development (unstable) (2026-04-02 r89783)</span></span>
+<pre><code><span><span class="co">#&gt; R Under development (unstable) (2026-04-05 r89793)</span></span>
 <span><span class="co">#&gt; Platform: x86_64-pc-linux-gnu</span></span>
 <span><span class="co">#&gt; Running under: Ubuntu 24.04.4 LTS</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -388,7 +510,7 @@ guidelines</a>.</p>
 <span><span class="co">#&gt; [16] matrixStats_1.5.0               ariadne_0.2.1                   BiocStyle_2.39.0               </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
-<span><span class="co">#&gt;   [1] RColorBrewer_1.1-3          jsonlite_2.0.0              magrittr_2.0.4              ggbeeswarm_0.7.3           </span></span>
+<span><span class="co">#&gt;   [1] RColorBrewer_1.1-3          jsonlite_2.0.0              magrittr_2.0.5              ggbeeswarm_0.7.3           </span></span>
 <span><span class="co">#&gt;   [5] farver_2.1.2                rmarkdown_2.31              fs_2.0.1                    ragg_1.5.2                 </span></span>
 <span><span class="co">#&gt;   [9] vctrs_0.7.2                 DelayedMatrixStats_1.33.0   memoise_2.0.1               forcats_1.0.1              </span></span>
 <span><span class="co">#&gt;  [13] htmltools_0.5.9             S4Arrays_1.11.1             progress_1.2.3              curl_7.0.0                 </span></span>

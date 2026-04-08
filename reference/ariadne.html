@@ -39,7 +39,7 @@ ariadne.db."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs
       <a href="../articles/comparison.html">Comparison</a>
     </li>
     <li>
-      <a href="../articles/database.html">Database</a>
+      <a href="../articles/database.html">A quick intro to the ariadne database</a>
     </li>
     <li>
       <a href="../articles/msea.html">Microbe-Set Enrichment Analysis</a>
@@ -70,6 +70,9 @@ ariadne.db."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs
 ariadne.db.</p>
     </div>
 
+    <div id="ref-usage">
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ariadne</span><span class="op">(</span>versions <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
@@ -101,7 +104,6 @@ load. Latest versions are used if not specified. (Default: <code>NULL</code>)</p
 <span class="r-in"><span><span class="co"># Specify custom resource versions</span></span></span>
 <span class="r-in"><span><span class="va">versions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>BugSigDB <span class="op">=</span> <span class="st">"v1.2.2"</span>, WoL <span class="op">=</span> <span class="st">"v20April2021"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu">ariadne</span><span class="op">(</span>versions <span class="op">=</span> <span class="va">versions</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
