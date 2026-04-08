@@ -20,6 +20,8 @@
 #' @param exclude \code{Character vector}. Nodes to avoid in the path.
 #'   (Default: \code{NULL})
 #' 
+#' @param ... Unused.
+#' 
 #' @returns
 #' A data.frame with path steps in the rows and step metadata in the columns.
 #'

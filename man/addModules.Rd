@@ -20,6 +20,8 @@ addModules(x, ...)
 \code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment}}
 object.}
 
+\item{...}{Unused.}
+
 \item{modules}{\code{data.frame}. A linkmap as returned by
 \code{\link{weavePath}} or \code{\link{weaveComplex}}. Its first and second
 columns must contain elements to match to \code{key} and the target
@@ -64,7 +66,7 @@ modules <- getModules(tse, butyrate, key = "Genus")
 modules <- getModules(tse, butyrate, key = c("Genus", "Family"))
 
 # Add modules to experiment as names instead of ids
-tse <- addModules(tse, butyrate, by = "Genus", as = "names")
+tse <- addModules(tse, butyrate, key = "Genus", as = "names")
 
 # Generate relative abundance table
 tse <- transformAssay(tse, method = "relabundance")
