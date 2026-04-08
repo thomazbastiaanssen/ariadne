@@ -23,8 +23,6 @@
 #' 
 #' # Print some pairs
 #' head(butyrate)
-#' 
-#' @importFrom utils data
-#'
 #' @name butyrate
+#' @importFrom utils data
 NULL

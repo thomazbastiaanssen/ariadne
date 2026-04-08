@@ -1,5 +1,7 @@
 #' Plot paths between resources
-#'
+#' 
+#' @name plotPath
+#' 
 #' @description
 #' \code{plotPath} provides a visual of a graph and the selected path.
 #' 
@@ -35,8 +37,6 @@
 #' 
 #' # Plot first 5 paths excluding uniref50 and uniref100
 #' plotPath(graph, taxname ~ ko, k = 5, exclude = c("uniref50", "uniref100"))
-#' 
-#' @name plotPath
 NULL
 
 #' @export

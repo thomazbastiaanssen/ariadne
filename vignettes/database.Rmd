@@ -1,5 +1,5 @@
 ---
-title: "Database"
+title: "A quick intro to the ariadne database"
 author:
   - name: Giulio Benedetti
     affiliation: University of Turku
@@ -17,7 +17,7 @@ output:
 date: "`r doc_date()`"
 package: "`r pkg_ver('ariadne')`"
 vignette: >
-    %\VignetteIndexEntry{Database}
+    %\VignetteIndexEntry{A quick intro to the ariadne database}
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8}
 ---
@@ -45,6 +45,7 @@ library(ariadne)
 library(igraph)
 library(dplyr)
 library(ggplot2)
+library(patchwork)
 ```
 
 When `ariadne` is executed, the graph for each resource is retrieved from the
@@ -62,8 +63,12 @@ plotPath(graph)
 Some resources have multiple versions, which can be selected through the
 argument `versions`. This defaults to the latest version found in the database.
 
-```{r res.versions}
-listResourceVersions()
+```{r res_versions}
+# List available resource versions
+versions <- listResourceVersions()
+
+# View versions
+knitr::kable(versions)
 ```
 
 The igraph object is made of two components: edges data and nodes (or vertices)
@@ -90,23 +95,27 @@ df <- edge_df |>
     summarise(edges = n(), nodes = n_distinct(c(from, to)))
 
 # View stats
-df
+knitr::kable(df)
 ```
 
 The graph for each resource can be visualized with its own graph.
 
-```{r}
-for( resource in df$source ){
-    
-    # Build graph from single resource
-    res_df <- edge_df[edge_df$source == resource, c("from", "to")]
+```{r plot_graphs}
+plots <- list()
+
+for(res_name in df$source) {
+    # Build graph for individual resource
+    res_df <- edge_df[edge_df$source == res_name, c("from", "to")]
     res_graph <- graph_from_data_frame(res_df)
     
-    # Plot graph
-    p <- plotPath(res_graph) + ggtitle(resource)
-    print(p)
+    # Store resource graph
+    plots[[res_name]] <- plotPath(res_graph) + ggtitle(res_name)
 }
+
+# View resource graphs
+wrap_plots(plots)
 ```
+
 
 # Reproducibility
 

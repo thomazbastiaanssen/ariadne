@@ -44,5 +44,4 @@ searchPath(graph, taxname ~ ko, include = "uniref90")
 
 # Search first 5 paths excluding uniref50 and uniref100
 searchPath(graph, taxname ~ ko, k = 5, exclude = c("uniref50", "uniref100"))
-
 }

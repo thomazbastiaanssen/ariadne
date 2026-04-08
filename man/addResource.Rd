@@ -55,5 +55,4 @@ plotPath(graph, taxid ~ aro, focus = TRUE)
 
 # Find antibiotics related to E. coli (NCBI 562)
 tax2aro <- weavePath(graph, taxid ~ aro, init = 562)
-
 }

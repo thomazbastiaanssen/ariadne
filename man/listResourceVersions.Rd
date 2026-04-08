@@ -25,7 +25,6 @@ listResourceVersions()
 
 # View default resource versions
 listResourceVersions(default = TRUE)
-
 }
 \seealso{
 \code{\link{ariadne}}

@@ -1,7 +1,6 @@
 #' Build ariadne resource graph
 #'
 #' @name ariadne
-#' @rdname ariadne
 #' 
 #' @description
 #' \code{ariadne} imports the resource graph hosted in the companion package
@@ -10,16 +9,7 @@
 #' @param versions \code{Character list}. A named list of resource versions to
 #' load. Latest versions are used if not specified. (Default: \code{NULL})
 #' 
-#' @returns
-#' An igraph object with the ariadne resource graph.
-#' 
-#' @examples
-#' # Import default resource graph
-#' graph <- ariadne()
-#' 
-#' # Specify custom resource versions
-#' versions <- list(BugSigDB = "v1.2.2", WoL = "v20April2021")
-#' graph <- ariadne(versions = versions)
+#' @returns An igraph object with the ariadne resource graph.
 #' 
 #' @seealso
 #' \itemize{
@@ -28,10 +18,18 @@
 #'   \item Zenodo: \url{https://zenodo.org/records/18788725}
 #' }
 #' 
+#' @examples
+#' # Import default resource graph
+#' graph <- ariadne()
+#' 
+#' # Specify custom resource versions
+#' versions <- list(BugSigDB = "v1.2.2", WoL = "v20April2021")
+#' graph <- ariadne(versions = versions)
 NULL
 
 
 #' @export
+#' @rdname ariadne
 #' @importFrom igraph read_graph as_data_frame graph_from_data_frame
 #' @importFrom stats setNames reshape
 #' @importFrom BiocParallel bpmapply
@@ -100,6 +98,8 @@ ariadne <- function(versions = NULL){
     node_df  <- merge(node_df, node_urls, by = "name", all.x = TRUE)
     # Build final resource graph
     graph <- graph_from_data_frame(edge_df, vertices = node_df)
+    # Add versions as attribute to graph
+    attr(graph, "versions") <- unlist(versions)
     return(graph)
 }
 

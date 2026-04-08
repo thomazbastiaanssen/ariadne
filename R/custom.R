@@ -1,5 +1,7 @@
 #' Add resources to graph
 #'
+#' @name addResource
+#'
 #' @description
 #' \code{addResource} includes a user-defined resource to the ariadne graph.
 #' 
@@ -44,8 +46,6 @@
 #' 
 #' # Find antibiotics related to E. coli (NCBI 562)
 #' tax2aro <- weavePath(graph, taxid ~ aro, init = 562)
-#' 
-#' @name addResource
 NULL
 
 #' @export

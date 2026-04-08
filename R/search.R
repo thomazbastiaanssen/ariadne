@@ -1,5 +1,7 @@
 #' Search paths between resources
 #' 
+#' @name searchPath
+#' 
 #' @description
 #' \code{searchPath} allows to search the first k-th shortest paths between
 #' resources.
@@ -34,8 +36,6 @@
 #' 
 #' # Search first 5 paths excluding uniref50 and uniref100
 #' searchPath(graph, taxname ~ ko, k = 5, exclude = c("uniref50", "uniref100"))
-#' 
-#' @name searchPath
 NULL
 
 

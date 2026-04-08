@@ -53,5 +53,4 @@ plotPath(graph, taxname ~ ko, include = "uniref90")
 
 # Plot first 5 paths excluding uniref50 and uniref100
 plotPath(graph, taxname ~ ko, k = 5, exclude = c("uniref50", "uniref100"))
-
 }

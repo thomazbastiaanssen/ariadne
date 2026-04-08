@@ -1,8 +1,9 @@
 
+#' @importFrom stats na.omit
 #' @importFrom BiocParallel bplapply
 .queryOTT <- function(from, to, init, timeout, ...){
     # Remove rank prefixes
-    x <- gsub("^[a-z]__", "", init)
+    x <- sub("^[a-z]__", "", init)
     # If source is taxname
     if( from == "taxname" ){
         # Search with TNRS API
