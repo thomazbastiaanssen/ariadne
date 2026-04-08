@@ -1,4 +1,5 @@
 
+#' @importFrom stats na.omit
 #' @importFrom BiocParallel bplapply
 .queryOTT <- function(from, to, init, timeout, ...){
     # Remove rank prefixes

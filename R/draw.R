@@ -20,6 +20,8 @@
 #' @param exclude \code{Character vector}. Nodes to avoid in the path.
 #'   (Default: \code{NULL})
 #' 
+#' @param ... Unused.
+#' 
 #' @returns
 #' A data.frame with path steps in the rows and step metadata in the columns.
 #'
@@ -47,6 +49,7 @@ setMethod("drawPath", signature = c(graph = "igraph"),
 })
 
 
+#' @importFrom igraph as_data_frame
 .add_edge_metadata <- function(path_df, graph, internal){
     
     graph_df <- as_data_frame(graph, what = "both")

@@ -28,6 +28,8 @@
 #'   ids or names should be used. For the latter, a third column with names
 #'   must exist in \code{modules}. (Default: \code{"ids"})
 #' 
+#' @param ... Unused.
+#' 
 #' @returns
 #' An object of the same type as \code{x} with additional columns in its side
 #' information, each containing information on membership to a certain module.
@@ -50,7 +52,7 @@
 #' modules <- getModules(tse, butyrate, key = c("Genus", "Family"))
 #' 
 #' # Add modules to experiment as names instead of ids
-#' tse <- addModules(tse, butyrate, by = "Genus", as = "names")
+#' tse <- addModules(tse, butyrate, key = "Genus", as = "names")
 #' 
 #' # Generate relative abundance table
 #' tse <- transformAssay(tse, method = "relabundance")
@@ -65,12 +67,12 @@ NULL
 
 #' @export
 #' @rdname addModules
-#' @importFrom SummarizedExperiment rowData colData
+#' @importFrom SummarizedExperiment rowData rowData<- colData colData<-
 setMethod("addModules", signature = c(x = "SummarizedExperiment"),
     function(x, modules, by = "rows", key = "row.names", as = "ids"){
     # Check margin
     if( length(by) == 0L || !by %in% c("rows", "cols") ){
-        stop("'by' must be either rows or cols.", call. = FALSE)
+        stop("'by' must be either 'rows' or 'cols'.", call. = FALSE)
     }
     # Select side information based on margin
     df <- if( by == "rows" ) rowData(x) else colData(x)
@@ -97,7 +99,7 @@ setMethod("getModules", signature = c(x = "SummarizedExperiment"),
     function(x, modules, by = "rows", key = "row.names", as = "ids"){
     # Check margin
     if( length(by) == 0L || !by %in% c("rows", "cols") ){
-        stop("'by' must be either rows or cols.", call. = FALSE)
+        stop("'by' must be either 'rows' or 'cols'.", call. = FALSE)
     }
     # Select side information based on margin
     df <- if( by == "rows" ) rowData(x) else colData(x)

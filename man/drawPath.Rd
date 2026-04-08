@@ -12,6 +12,8 @@ drawPath(graph, ...)
 \arguments{
 \item{graph}{An igraph object.}
 
+\item{...}{Unused.}
+
 \item{by}{A formula specifying the path to plot. (Default: \code{NULL})}
 
 \item{k}{\code{Numeric scalar}. The kth shortest path to plot.
