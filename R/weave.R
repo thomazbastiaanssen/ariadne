@@ -154,7 +154,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     # Construct MultiFactor from linkmaps
     mf <- MultiFactor(linkmaps)
     # Weave desired linkmap from MultiFactor
-    out <- weave(mf, by)
+    out <- weave(mf, by) |> as.data.frame()
     # Add feature names
     if( use.names ) out <- .id2name(graph, out, verbose)
     return(out)

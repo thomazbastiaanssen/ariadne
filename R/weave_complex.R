@@ -83,7 +83,7 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
     # Add colnames
     colnames(out) <- c(orig.name, mod.name)
     # Add feature names
-    out <- if( use.names ) .id2name(graph_df, out, verbose) else out
+    out <- if( use.names ) .id2name(graph, out, verbose) else out
     return(out)
 })
 
