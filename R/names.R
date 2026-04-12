@@ -107,6 +107,8 @@ setMethod("linkNames", signature = c(graph = "igraph"),
     }else if( x %in% c(listDatabases(), "ec", "network") ){
         # Use ids as input if specified
         init <- if( is.null(ids) ) x else unique(ids)
+        # For many ids, global search is faster
+        if( length(init) > 50 ) init <- x
         # Get vector of feature names
         name_vec <- keggList(init)
         # Keep only first name (and last for ko)

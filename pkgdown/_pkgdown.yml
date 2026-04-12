@@ -1,6 +1,7 @@
 destination: docs
 reference:
 - title: Work with the resource graph
+- contents:
   - ariadne
   - addResource
   - searchPath

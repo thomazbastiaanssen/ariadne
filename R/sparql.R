@@ -3,11 +3,30 @@
 .querySPARQL <- function(from, to, endpoint, init, timeout,
     batch.size = 25000, workers = NULL, factor = 3){
     
+    preface <- paste0("
+        PREFIX chebislash: <http://purl.obolibrary.org/obo/chebi/>
+        PREFIX enzyme: <http://purl.uniprot.org/enzyme/>
+        PREFIX obo: <http://purl.obolibrary.org/obo/>
+        PREFIX oboInOwl: <http://www.geneontology.org/formats/oboInOwl#>
+        PREFIX protein: <http://purl.uniprot.org/uniprot/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX rh: <http://rdf.rhea-db.org/>
+        PREFIX taxon: <http://purl.uniprot.org/taxonomy/>
+        PREFIX uniref: <http://purl.uniprot.org/uniref/>
+        PREFIX up: <http://purl.uniprot.org/core/>
+        
+        SELECT DISTINCT ?", paste0(c(from, to), collapse = " ?"), "
+        WHERE {
+        "
+    )
+    
+    triple <- .triple_table(from, to)
+    
     ranges <- .get_batches(init, batch.size, workers, factor)
     
     out.list <- bplapply(ranges, function(i){
         x <- init[i[1]:i[2]]
-        query <- .composeSPARQL(from, to, endpoint, x)
+        query <- .composeSPARQL(from, to, preface, triple, endpoint, x)
         resp <- .sendSPARQL(query, endpoint, timeout)
     })
     
@@ -36,42 +55,19 @@
 }
 
 
-.composeSPARQL <- function(from, to, endpoint, init) {
-    
-    preface <- "
-        PREFIX enzyme: <http://purl.uniprot.org/enzyme/>
-        PREFIX obo: <http://purl.obolibrary.org/obo/>
-        PREFIX protein: <http://purl.uniprot.org/uniprot/>
-        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX rh: <http://rdf.rhea-db.org/>
-        PREFIX taxon: <http://purl.uniprot.org/taxonomy/>
-        PREFIX uniref: <http://purl.uniprot.org/uniref/>
-        PREFIX up: <http://purl.uniprot.org/core/>
-    "
-
-    clause <- paste0("
-        SELECT DISTINCT ?", paste0(c(from, to), collapse = " ?"), "
-        WHERE {
-        "
-    )
+.composeSPARQL <- function(from, to, preface, triple, endpoint, init) {
     
     if( !is.null(init) && length(init) != 0L ){
         
         spec.from <- ifelse(from == "taxname", "sciName", from)
         
         clause <- paste0(
-            clause,
             "VALUES ?", spec.from, " {\n",
-                paste0(.iri_table(init, from, endpoint), collapse = " "), "\n",
-            "}\n"
-        )
+                paste0(.iri_table(init, from, to, endpoint), collapse = " "), "
+            }\n")
     }
-    
-    triple <- .triple_table(from, to)
-    
-    clause <- paste0(clause, triple, "\n}")
     # Build query
-    query <- paste0(preface, clause)
+    query <- paste0(preface, clause, triple, "\n}")
     return(query)
 }
 
@@ -92,7 +88,8 @@
     spterms <- c(from, to)
     
     internals <- c(
-        "uniref", "uniprotkb", "taxname", "taxid", "enzyme", "rhea", "chebi"
+        "uniref", "uniprotkb", "taxname", "taxid", "enzyme", "rhea", "chebi",
+        "inchikey", "inchi", "smiles"
     )
     
     ext <- setdiff(spterms, internals)
@@ -143,8 +140,24 @@
         ?rhea rdfs:subClassOf rh:Reaction.
         ?rhea rh:side/rh:contains/rh:compound ?compound.
         # chebi is small molecule, reactive part of macromolecule or polymer
-        ?compound (rh:chebi|(rh:reactivePart/rh:chebi)|rh:underlyingChebi) ?chebi.
+        ?compound rh:chebi|rh:reactivePart/rh:chebi|rh:underlyingChebi ?chebi.
     "
+    
+    inchi2chebi <- "
+        ?chebi chebislash:inchi ?inchi.
+    "
+    
+    inchikey2chebi <- "
+        ?chebi chebislash:inchikey ?inchiKey.  
+    "
+    
+    smiles2chebi <- "
+        ?chebi chebislash:smiles ?smiles.
+    "
+    
+    rhea2inchi <- paste0(rhea2chebi, inchi2chebi)
+    rhea2inchikey <- paste0(rhea2chebi, inchikey2chebi)
+    smiles2rhea <- paste0(rhea2chebi, smiles2chebi)
     
     rhea2enzyme <- "
         ?rhea rdfs:subClassOf rh:Reaction.
@@ -163,7 +176,12 @@
             ?alter rdfs:seeAlso ?", ext, ".
             BIND(?alter as ?rhea)
         }
-        FILTER(CONTAINS(str(?", ext, "), '", ext, "'))
+        FILTER(contains(str(?", ext, "), '", ext, "'))
+    ")
+    
+    chebi2external <- paste0("
+        ?chebi oboInOwl:hasDbXref ?", ext, ".
+        FILTER(contains(?", ext, ", '", ext, ":'))
     ")
     
     key <- paste(rev(sort(spterms)), collapse = "2")
@@ -180,6 +198,12 @@
         uniref2rhea = uniref2rhea,
         rhea2chebi = rhea2chebi,
         rhea2enzyme = rhea2enzyme,
+        inchi2chebi = inchi2chebi,
+        inchikey2chebi = inchikey2chebi,
+        smiles2chebi = smiles2chebi,
+        rhea2inchi = rhea2inchi,
+        rhea2inchikey = rhea2inchikey,
+        smiles2rhea = smiles2rhea,
         "external"
     )
     
@@ -191,7 +215,8 @@
             internal,
             uniprotkb = uniprotkb2external,
             uniref = uniref2external,
-            rhea = rhea2external
+            rhea = rhea2external,
+            chebi = chebi2external
         )
     }
     
@@ -199,7 +224,7 @@
 }
 
 
-.iri_table <- function(x, from, endpoint) {
+.iri_table <- function(x, from, to, endpoint) {
     
     iri <- switch(
         from,
@@ -207,13 +232,20 @@
         uniprotkb = "protein",
         uniref = "uniref",
         taxid = "taxon",
+        smiles = "",
+        inchi = "",
+        inchikey = "",
         taxname = "",
         enzyme = "enzyme",
         rhea = "rh",
         "external"
     )
     
-    if( iri == "external" ){
+    is_external <- iri == "external"
+    
+    if( is_external && to == "chebi" ){
+        x <- paste0("'", from, ":", x, "'")
+    }else if( is_external ){
         iri <- .get_external_iri(from, endpoint)
         x <- paste0("<", iri, x, ">")
     }else if( iri == "" ){
@@ -245,7 +277,7 @@
         WHERE {
             ?rhea rdfs:subClassOf rh:Reaction.
             ?rhea rdfs:seeAlso ?entry.
-            FILTER CONTAINS(str(?entry), '", ext, "')
+            FILTER(contains(str(?entry), '", ext, "'))
     ")
     
     query <- switch(endpoint, Rhea = rhea_query, UniProt = uniprot_query)
