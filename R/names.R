@@ -61,6 +61,10 @@ setMethod("linkNames", signature = c(graph = "igraph"),
     url <- node_df$url[node_df$name == x]
     # Map ids and names to one another
     name_links <- .fetch_node(x, url, ids)
+    # Return empty object if no names are available
+    if( is.null(name_links) ){
+        return(NULL)
+    }
     # Select ids and names that matched an entry
     name_links <- name_links |>
         .match_key2val(x, 1L, ids, verbose) |>
@@ -72,7 +76,7 @@ setMethod("linkNames", signature = c(graph = "igraph"),
 
 
 #' @importFrom data.table fread
-#' @importFrom KEGGREST listDatabases keggList keggFind
+#' @importFrom KEGGREST listDatabases keggList
 #' @importFrom stringr str_split
 #' @importFrom readr read_lines
 #' @importFrom MultiFactor LinkMap
@@ -112,6 +116,8 @@ setMethod("linkNames", signature = c(graph = "igraph"),
         name_links <- data.frame(
             x = names(name_vec), y = name_vec, row.names = NULL
         )
+    }else{
+        return(NULL)
     }
     name_links <- LinkMap(name_links)
     # Add placeholders to column names
