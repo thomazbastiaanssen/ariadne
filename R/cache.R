@@ -1,7 +1,6 @@
 
 
 #' @importFrom BiocFileCache bfcquery
-#' @importFrom utils download.file
 #' @importFrom arrow write_parquet
 .cache_resource <- function(url, res.name, from, to) {
     # Initialise cache
@@ -18,17 +17,11 @@
         ChocoPhlAn = function(x) .process_one2many(
             x, FUN = function(keys) sub("GO:", "", keys, fixed = TRUE)
         ),
-        WoL = function(x) {
-            # Download temporary file (xz not supported by read_lines)
-            temp_xz <- tempfile(fileext = ".xz")
-            download.file(x, temp_xz, mode = "wb", quiet = TRUE)
-            # Process temporary file
-            .process_one2many(
-                temp_xz, FUN = function(keys) paste0("UniRef90_", keys)
-            )
-        },
+        WoL = function(x) .process_one2many(
+                x, FUN = function(keys) paste0("UniRef90_", keys)
+        ),
         BugSigDB = function(x) .process_one2many(
-            x, nonval.cols = c(1L, 2L), skip = 1L, FUN = function(keys){
+            x, val.cols = -c(1L, 2L), skip = 1L, FUN = function(keys){
                 # Remove module prefix
                 keys <- sub("bsdb:", "", keys, fixed = TRUE)
                 # Remove module description
@@ -98,16 +91,17 @@
 
 
 #' @importFrom readr read_lines
+#' @importFrom stringr str_split fixed
 .process_one2many <- function(
-    x, key.col = 1L, nonval.cols = key.col, FUN = identity, ...){
+    x, key.col = 1L, val.cols = -key.col, FUN = identity, ...){
     # Read file content
     x <- read_lines(x, ...)
     # Split elements in each line by tab
-    line_content <- strsplit(x, "\t", fixed = TRUE)
+    line_content <- str_split(x, fixed("\t"))
     # Extract keys
     keys <- vapply(line_content, `[`, key.col, FUN.VALUE = character(1L))
     # Extract values
-    values <- lapply(line_content, `[`, -nonval.cols)
+    values <- lapply(line_content, `[`, val.cols)
     # Apply custom processing function
     keys <- FUN(keys)
     # Create linkmap

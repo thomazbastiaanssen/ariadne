@@ -151,7 +151,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
         # Print step
         if( verbose ) message(g$from, " -(", g$source, ")-> ", g$to)
         # Fetch linkmap
-        linkmap <- .fetch_resource(g, init, timeout, ...)
+        linkmap <- .fetch_edge(g, init, timeout, ...)
         # Add to linkmaps
         linkmaps[[paste0(g$from, "2", g$to)]] <- linkmap
         # Update init
@@ -162,61 +162,20 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     # Weave desired linkmap from MultiFactor
     out <- weave(mf, by) |> as.data.frame()
     # Add feature names
-    if( use.names ) out <- .id2name(graph, out, verbose)
+    if( use.names ){
+        target <- colnames(out)[2L]
+        name_links <- linkNames(graph, target, out[[2L]], verbose = verbose)
+        out[paste0(target, ".name")] <- name_links[[2L]]
+    }
     return(out)
 })
-
-
-#' @importFrom data.table fread
-#' @importFrom igraph as_data_frame
-#' @importFrom KEGGREST listDatabases keggList
-.id2name <- function(graph, linkmap, verbose){
-    # Retrieve nodes data
-    node_df <- as_data_frame(graph, what = "vertices")
-    target <- colnames(linkmap)[2L]
-    
-    url <- node_df$url[node_df$name == target]
-    
-    if( !is.na(url) ){
-        
-        name.linkmap <- fread(url, header = FALSE)
-        
-    }else if( target %in% c(listDatabases(), "network") ){
-        # Use gene ids as input if target is genes
-        ids <- if( target == "genes" ) levels(linkmap[[2L]]) else target
-        # Get vector of feature names
-        name.vec <- keggList(ids)
-        # Maintain only first name
-        name.vec <- sub(";.*", "", name.vec)
-        # Use gene ids as names if target is genes
-        if( target == "genes" ) names(name.vec) <- levels(linkmap[[2L]])
-        # Convert to linkmap
-        name.linkmap <- data.frame(
-            x = names(name.vec), y = name.vec, row.names = NULL
-        )
-    }else{
-        return(linkmap)
-    }
-    # Find matches
-    idx <- match(linkmap[[2L]], name.linkmap[[1L]])
-    
-    unmatched <- is.na(idx)
-    
-    if( verbose && any(unmatched) ){
-        warning("Names for ", sum(unmatched), " ", target, " ids not found.",
-            call. = FALSE)
-    }
-    # Map ids to names
-    linkmap[paste0(target, ".name")] <- as.factor(name.linkmap[idx, ][[2L]])
-    return(linkmap)
-}
 
 
 #' @importFrom KEGGREST keggConv keggLink
 #' @importFrom arrow read_parquet open_dataset
 #' @importFrom dplyr filter collect
 #' @importFrom rlang sym
-.fetch_resource <- function(g, init, timeout, ...){
+.fetch_edge <- function(g, init, timeout, ...){
     # Check if init exists
     is_init <- !is.null(init)
     # Check edges where init is necessary
