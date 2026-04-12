@@ -39,12 +39,12 @@ passed to \code{weavePath} and \code{weaveComplex}.
 # Retrieve resource graph
 graph <- ariadne()
 
-# Search first 5 paths from ko to ec
-searchPath(graph, ko ~ ec, k = 5)
+# Fetch names for all Gut Metabolic modules
+linkNames(graph, "gmm")
 
-# Search first path including uniref90
-searchPath(graph, taxname ~ ko, include = "uniref90")
+# Fetch names for a set of KO ids
+linkNames(graph, "ko", ids = c("K00001", "K00844", "K03455"))
 
-# Search first 5 paths excluding uniref50 and uniref100
-searchPath(graph, taxname ~ ko, k = 5, exclude = c("uniref50", "uniref100"))
+# Fetch names for a set of EC names
+linkNames(graph, "ec", names = c("alcohol dehydrogenase", "alditol oxidase"))
 }

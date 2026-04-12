@@ -31,13 +31,14 @@
 #' # Retrieve resource graph
 #' graph <- ariadne()
 #' 
+#' # Fetch names for all Gut Metabolic modules
+#' linkNames(graph, "gmm")
+#' 
+#' # Fetch names for a set of KO ids
 #' linkNames(graph, "ko", ids = c("K00001", "K00844", "K03455"))
 #' 
-#' # Search first path including uniref90
-#' searchPath(graph, taxname ~ ko, include = "uniref90")
-#' 
-#' # Search first 5 paths excluding uniref50 and uniref100
-#' searchPath(graph, taxname ~ ko, k = 5, exclude = c("uniref50", "uniref100"))
+#' # Fetch names for a set of EC names
+#' linkNames(graph, "ec", names = c("alcohol dehydrogenase", "alditol oxidase"))
 NULL
 
 
@@ -52,24 +53,20 @@ setMethod("linkNames", signature = c(graph = "igraph"),
     if( !x %in% node_df$name ){
         stop("'x' must be in 'graph'.", call. = FALSE)
     }
+    # Check input keys
+    if( !is.null(ids) && !is.null(names) ){
+        stop("Either 'ids' or 'names' can be specified.", call. = FALSE)
+    }
     # Get url for name linkmap (or NA for missing)
     url <- node_df$url[node_df$name == x]
     # Map ids and names to one another
-    name_links <- .fetch_node(x, url, ids, names)
+    name_links <- .fetch_node(x, url, ids)
     # Select ids and names that matched an entry
     name_links <- name_links |>
-        .select_matched(x, 1L, ids, verbose) |>
-        .select_matched(x, 2L, names, verbose)
-    
-    # think if there is a better way, maybe earlier step
-    linkmap <- bind_rows(
-        data.frame(x = if( is.null(ids) ) integer(0L) else ids),
-        data.frame(y = if( is.null(names) ) integer(0L) else names)
-    )
-    
-    merge(linkmap)
-    # Reset row indices after subsetting
-    rownames(name_links) <- NULL
+        .match_key2val(x, 1L, ids, verbose) |>
+        .match_key2val(x, 2L, names, verbose)
+    # Use keywords as column names
+    colnames(name_links) <- c(x, paste0(x, ".name"))
     return(name_links)
 })
 
@@ -79,11 +76,10 @@ setMethod("linkNames", signature = c(graph = "igraph"),
 #' @importFrom stringr str_split
 #' @importFrom readr read_lines
 #' @importFrom MultiFactor LinkMap
-.fetch_node <- function(x, url, ids, names){
-    
+.fetch_node <- function(x, url, ids){
     # Check nodes where init is necessary
-    if( x == "genes" && is.null(ids) && is.null(names) ){
-        stop("'ids', 'names' or both must be provided for ", x, ".",
+    if( x == "genes" && is.null(ids) ){
+        stop("Only searches with 'ids' are currently supported for ", x, ".",
             call. = FALSE)
     }
     
@@ -105,11 +101,11 @@ setMethod("linkNames", signature = c(graph = "igraph"),
         name_links[[1L]] <- sub("bsdb:", "", name_links[[1L]], fixed = TRUE)
     
     }else if( x %in% c(listDatabases(), "ec", "network") ){
-        # Use gene ids as input if target is genes
-        keys <- if( is.null(ids) ) x else ids
+        # Use ids as input if specified
+        init <- if( is.null(ids) ) x else unique(ids)
         # Get vector of feature names
-        name_vec <- keggList(keys)
-        # Maintain only first name (and last for ko)
+        name_vec <- keggList(init)
+        # Keep only first name (and last for ko)
         to_remove <- ifelse(x == "ko", ".*;", ";.*")
         name_vec <- sub(to_remove, "", name_vec)
         # Convert to linkmap
@@ -117,32 +113,38 @@ setMethod("linkNames", signature = c(graph = "igraph"),
             x = names(name_vec), y = name_vec, row.names = NULL
         )
     }
-    
     name_links <- LinkMap(name_links)
-    
-    colnames(name_links) <- c(x, paste0(x, ".name"))
+    # Add placeholders to column names
+    colnames(name_links) <- c("ids", "names")
     return(name_links)
 }
 
 
-.select_matched <- function(linkmap, x, what, init, verbose){
-    
+.match_key2val <- function(linkmap, x, what, init, verbose){
+    # Return original linkmap if no keyword is defined
     if( is.null(init) ){
         return(linkmap)
     }
-    # Find matches
+    # Retrieve keywords ("ids" and "names")
+    keys <- colnames(linkmap)
+    # Define function to order keywords
+    order_fun <- switch(what, identity, rev)
+    # Order keywords
+    keys <- order_fun(keys)
+    # Find matched and total unmatched keys
     idx <- match(init, linkmap[[what]])
-    unmatched <- is.na(idx)
-    
-    if( verbose && any(unmatched) ){
-        
-        order_fun <- switch(what, identity, rev)
-        keys <- order_fun(c("ids", "names"))
-        
-        warning(sum(unmatched), " ", keys[1L], " for ", x, " ", keys[2L],
+    total_unmatched <- sum(is.na(idx))
+    # If there are unmatched keys
+    if( verbose && total_unmatched != 0L ){
+        # Warn about unmatched keys
+        warning(keys[2L], " for ", total_unmatched, " ",  x, " ", keys[1L],
             " not found.", call. = FALSE)
     }
-    # 
-    linkmap <- linkmap[idx[!unmatched], , drop = FALSE]
+    # Create id2name linkmap
+    linkmap <- data.frame(
+      x = init, y = linkmap[idx, ][[keys[2L]]], row.names = NULL
+    )
+    # Reorder columns based on input keyword
+    linkmap <- order_fun(linkmap)
     return(linkmap)
 }
