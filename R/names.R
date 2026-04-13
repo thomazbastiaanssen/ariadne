@@ -118,6 +118,17 @@ setMethod("linkNames", signature = c(graph = "igraph"),
         name_links <- data.frame(
             x = names(name_vec), y = name_vec, row.names = NULL
         )
+    }else if( x == "chebi" ){
+        query <- "
+            PREFIX up: <http://purl.uniprot.org/core/>
+            SELECT DISTINCT ?chebi ?name
+            WHERE {?chebi up:name ?name}
+        "
+        name_links <- .sendSPARQL(query, "Rhea", 1e6)
+        name_links[[1L]] <- sub(
+            "http://purl.obolibrary.org/obo/CHEBI_", "",
+            name_links[[1L]], fixed = TRUE
+        )
     }else{
         return(NULL)
     }
