@@ -148,7 +148,7 @@
     "
     
     inchikey2chebi <- "
-        ?chebi chebislash:inchikey ?inchiKey.  
+        ?chebi chebislash:inchikey ?inchikey.  
     "
     
     smiles2chebi <- "
