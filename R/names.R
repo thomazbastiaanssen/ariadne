@@ -107,6 +107,8 @@ setMethod("linkNames", signature = c(graph = "igraph"),
     }else if( x %in% c(listDatabases(), "ec", "network") ){
         # Use ids as input if specified
         init <- if( is.null(ids) ) x else unique(ids)
+        # For many ids, global search is faster
+        if( length(init) > 50 ) init <- x
         # Get vector of feature names
         name_vec <- keggList(init)
         # Keep only first name (and last for ko)
@@ -115,6 +117,17 @@ setMethod("linkNames", signature = c(graph = "igraph"),
         # Convert to linkmap
         name_links <- data.frame(
             x = names(name_vec), y = name_vec, row.names = NULL
+        )
+    }else if( x == "chebi" ){
+        query <- "
+            PREFIX up: <http://purl.uniprot.org/core/>
+            SELECT DISTINCT ?chebi ?name
+            WHERE {?chebi up:name ?name}
+        "
+        name_links <- .sendSPARQL(query, "Rhea", 1e6)
+        name_links[[1L]] <- sub(
+            "http://purl.obolibrary.org/obo/CHEBI_", "",
+            name_links[[1L]], fixed = TRUE
         )
     }else{
         return(NULL)
