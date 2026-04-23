@@ -55,19 +55,21 @@
 }
 
 
-.composeSPARQL <- function(from, to, preface, triple, endpoint, init) {
-    
+.composeSPARQL <- function(from, to, preface, clause, endpoint, init){
+    # If init is defined
     if( !is.null(init) && length(init) != 0L ){
-        
+        # Pass values to sciName for taxname ids
         spec.from <- ifelse(from == "taxname", "sciName", from)
-        
-        clause <- paste0(
+        # Limit query with values
+        values <- paste0(
             "VALUES ?", spec.from, " {\n",
                 paste0(.iri_table(init, from, to, endpoint), collapse = " "), "
             }\n")
+        # Pre-append values to clause
+        clause <- paste0(values, clause)
     }
     # Build query
-    query <- paste0(preface, clause, triple, "\n}")
+    query <- paste0(preface, clause, "\n}")
     return(query)
 }
 
