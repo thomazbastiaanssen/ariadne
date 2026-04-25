@@ -33,7 +33,7 @@ NULL
 #' @importFrom igraph read_graph as_data_frame graph_from_data_frame
 #' @importFrom stats setNames reshape
 #' @importFrom BiocParallel bpmapply
-#' @importFrom dplyr bind_rows
+#' @importFrom data.table rbindlist
 ariadne <- function(versions = NULL){
     # Import version metadata
     meta <- versionMetadata
@@ -76,18 +76,17 @@ ariadne <- function(versions = NULL){
     # Build edge data
     edge_df <- graph_dfs |>
         lapply(`[[`, "edges") |>
-        bind_rows(.id = "source")
+        rbindlist(idcol = "source", fill = TRUE)
     # Reorder edge columns
     edge_df <- edge_df[ , c("from", "to", "source", "url")]
     # Build node data
     node_df <- graph_dfs |>
         lapply(`[[`, "vertices") |>
-        bind_rows(.id = "source")
+        rbindlist(idcol = "source", fill = TRUE)
     # Reduce missing characters to standard NA
     node_df$url[node_df$url == "NA"] <- NA
     # Remove rownames and store node urls
-    rownames(node_df) <- NULL
-    node_urls <- unique(node_df[c("name", "url")])
+    node_urls <- unique(node_df[ , c("name", "url")])
     # Widen database-specific names
     node_df <- reshape(
         node_df, idvar = "name", timevar = "source",

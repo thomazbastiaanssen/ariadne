@@ -89,7 +89,7 @@ setMethod("linkNames", signature = c(graph = "igraph"),
     
     if( !is.na(url) ){
         
-        name_links <- fread(url, header = FALSE)
+        name_links <- fread(url, header = FALSE, verbose = FALSE)
     
     }else if( x == "bugsig" ){
         
@@ -103,6 +103,7 @@ setMethod("linkNames", signature = c(graph = "igraph"),
             as.data.frame()
         
         name_links[[1L]] <- sub("bsdb:", "", name_links[[1L]], fixed = TRUE)
+        name_links[[2L]] <- sub("^.+:", "", name_links[[2L]])
     
     }else if( x %in% c(listDatabases(), "ec", "network") ){
         # Use ids as input if specified
