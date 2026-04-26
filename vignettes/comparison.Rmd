@@ -117,7 +117,7 @@ searchPath(graph, taxid ~ gmm, k = 3)
 ```
 
 ```{r}
-# Link taxa to gut metabolic modules
+# Link taxa to gut metabolic modules (remove taxid 562 to speed up)
 tax2gmm <- weaveComplex(graph, taxid ~ gmm, k = 3, init = rowData(tse)$species)
 
 head(tax2gmm)

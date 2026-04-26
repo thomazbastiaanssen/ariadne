@@ -3,10 +3,11 @@
 #' @rdname weavePath
 #' @importFrom igraph as_data_frame
 #' @importFrom stats as.formula
+#' @importFrom Matrix summary
 setMethod("weaveComplex", signature = c(graph = "igraph"),
     function(graph, by, k = 1, include = NULL, exclude = NULL, init = NULL,
-    prune = TRUE, use.names = TRUE, mode = "presence", threshold = 1,
-    verbose = TRUE, timeout = 1e6, ...){
+    prune = TRUE, use.names = TRUE, threshold = 1, verbose = TRUE,
+    timeout = 1e6, ...){
     # Check mode
     mode <- match.arg(mode, c("presence", "coverage"))
     # Check threshold
@@ -59,29 +60,19 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
     # Print step
     if( verbose ) message(feat.name, " -(GM)-> ", mod.name)
     # Map features to complex modules
-    out <- .map_modules(mf)
-    # If presence is set
-    if( mode == "presence" ){
-        # Convert to adjacency matrix
-        out <- out >= threshold
-    }
-    # Set dimnames
-    rownames(out) <- levels(mf[["module2component"]][[1L]])
-    colnames(out) <- levels(mf[["feature2orig"]][[2L]])
+    mat <- .map_modules(mf)
     # Convert to matrix object
-    out <- out |>
-        as.matrix() |>
-        t()
-    # Find indices of non-null values
-    idx <- which(out > 0, arr.ind = TRUE)
+    out <- summary(mat)
+    # Find indices of values above threshold
+    out <- out[out$x >= threshold, ]
     # Convert to linkmap
     out <- data.frame(
-        x = rownames(out)[idx[ , 1L]],
-        y = colnames(out)[idx[ , 2L]],
-        row.names = NULL
+        x = colnames(mat)[out$j],
+        y = rownames(mat)[out$i],
+        cov = out$x, row.names = NULL
     )
     # Add colnames
-    colnames(out) <- c(orig.name, mod.name)
+    colnames(out) <- c(orig.name, mod.name, paste0(mod.name, ".cov"))
     # Add feature names
     if( use.names ){
         name_links <- linkNames(graph, mod.name, out[[2L]], verbose = verbose)

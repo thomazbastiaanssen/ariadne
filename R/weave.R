@@ -35,12 +35,8 @@
 #' @param use.names \code{Logical scalar}. Should feature names be used in the
 #'   output instead of feature identifiers. either (Default: \code{TRUE})
 #' 
-#' @param mode \code{Character scalar}. The mode of the output, either as
-#'   \code{"presence"} or \code{"coverage"} information. Only for
-#'   \code{weaveComplex}. (Default: \code{"presence"})
-#' 
-#' @param threshold \code{Numeric scalar}. The coverage threshold to infer
-#'   presence, between 0 and 1. Only for \code{weaveComplex}.
+#' @param threshold \code{Numeric scalar}. The coverage threshold above which
+#'   to include links, between 0 and 1. Only for \code{weaveComplex}.
 #'   (Default: \code{1})
 #' 
 #' @param verbose \code{Logical scalar}. Should messages be printed in the

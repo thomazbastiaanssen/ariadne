@@ -133,7 +133,6 @@ setMethod("linkNames", signature = c(graph = "igraph"),
     }else{
         return(NULL)
     }
-    name_links <- LinkMap(name_links)
     # Add placeholders to column names
     colnames(name_links) <- c("ids", "names")
     return(name_links)
@@ -162,7 +161,7 @@ setMethod("linkNames", signature = c(graph = "igraph"),
     }
     # Create id2name linkmap
     linkmap <- data.frame(
-      x = init, y = linkmap[idx, ][[keys[2L]]], row.names = NULL
+        x = init, y = linkmap[idx, ][[keys[2L]]], row.names = NULL
     )
     # Reorder columns based on input keyword
     linkmap <- order_fun(linkmap)

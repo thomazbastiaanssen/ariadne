@@ -34,7 +34,6 @@ weaveComplex(graph, ...)
   init = NULL,
   prune = TRUE,
   use.names = TRUE,
-  mode = "presence",
   threshold = 1,
   verbose = TRUE,
   timeout = 1e+06,
@@ -82,12 +81,8 @@ console. (Default: \code{TRUE})}
 \item{timeout}{\code{Numeric scalar}. The timeout for downloading resources.
 (Default: \code{1e6})}
 
-\item{mode}{\code{Character scalar}. The mode of the output, either as
-\code{"presence"} or \code{"coverage"} information. Only for
-\code{weaveComplex}. (Default: \code{"presence"})}
-
-\item{threshold}{\code{Numeric scalar}. The coverage threshold to infer
-presence, between 0 and 1. Only for \code{weaveComplex}.
+\item{threshold}{\code{Numeric scalar}. The coverage threshold above which
+to include links, between 0 and 1. Only for \code{weaveComplex}.
 (Default: \code{1})}
 }
 \value{
