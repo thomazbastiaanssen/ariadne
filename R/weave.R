@@ -35,9 +35,9 @@
 #' @param use.names \code{Logical scalar}. Should feature names be used in the
 #'   output instead of feature identifiers. either (Default: \code{TRUE})
 #' 
-#' @param threshold \code{Numeric scalar}. The coverage threshold above which
-#'   to include links, between 0 and 1. Only for \code{weaveComplex}.
-#'   (Default: \code{1})
+#' @param threshold \code{Numeric scalar}. Only for \code{weaveComplex}. The
+#'   coverage threshold above which to include links, between 0 and 1. If
+#'   \code{NULL}, all non-zero links are returned. (Default: \code{NULL})
 #' 
 #' @param verbose \code{Logical scalar}. Should messages be printed in the
 #'   console. (Default: \code{TRUE})

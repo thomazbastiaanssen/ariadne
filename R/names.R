@@ -89,7 +89,7 @@ setMethod("linkNames", signature = c(graph = "igraph"),
     
     if( !is.na(url) ){
         
-        name_links <- fread(url, header = FALSE, verbose = FALSE)
+        name_links <- fread(url, header = FALSE, showProgress = FALSE)
     
     }else if( x == "bugsig" ){
         

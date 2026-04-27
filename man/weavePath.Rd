@@ -34,7 +34,7 @@ weaveComplex(graph, ...)
   init = NULL,
   prune = TRUE,
   use.names = TRUE,
-  threshold = 1,
+  threshold = NULL,
   verbose = TRUE,
   timeout = 1e+06,
   ...
@@ -81,9 +81,9 @@ console. (Default: \code{TRUE})}
 \item{timeout}{\code{Numeric scalar}. The timeout for downloading resources.
 (Default: \code{1e6})}
 
-\item{threshold}{\code{Numeric scalar}. The coverage threshold above which
-to include links, between 0 and 1. Only for \code{weaveComplex}.
-(Default: \code{1})}
+\item{threshold}{\code{Numeric scalar}. Only for \code{weaveComplex}. The
+coverage threshold above which to include links, between 0 and 1. If
+\code{NULL}, all non-zero links are returned. (Default: \code{NULL})}
 }
 \value{
 A two-column data.frame (x-to-y linkmap), with optional names as a third

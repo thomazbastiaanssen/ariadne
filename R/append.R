@@ -113,6 +113,7 @@ setMethod("getModules", signature = c(x = "SummarizedExperiment"),
 })
 
 
+#' @importFrom data.table set dcast as.data.table
 .get_modules <- function(df, modules, key, as){
     # Check if by is rownames
     is_rownames <- length(key) == 1L && key == "row.names"
@@ -124,25 +125,34 @@ setMethod("getModules", signature = c(x = "SummarizedExperiment"),
         stop("'as' must be either 'ids' or 'names'.", call. = FALSE)
     }
     # Choose between ids and names
-    target_col <- switch(as, ids = 2L, names = 3L)
-    # Convert linkmap to wide format
-    modules <- table(modules[c(1L, target_col)]) == 1
+    origin_col <- colnames(modules)[1L]
+    target_col <- colnames(modules)[switch(as, ids = 2L, names = ncol(modules))]
+    widen_form <- as.formula(paste(origin_col, "~", target_col))
+    
+    modules <- as.data.table(modules)
+    
+    if( !"cov" %in% colnames(modules) ) modules$cov <- 1
+    
+    modules <- dcast(modules, widen_form, value.var = "cov", fill = 0)
+    
     # Match by rownames
     if( is_rownames ){
-        idx <- match(rownames(df), rownames(modules))
+        idx <- match(rownames(df), modules[[origin_col]])
     # Match by one variable
     }else if( length(key) == 1L ){
-        idx <- match(df[[key]], rownames(modules))
+        idx <- match(df[[key]], modules[[origin_col]])
     # Match by multiple variables (decreasing priority)
     }else{
         idx <- apply(df[key], 1L, function(row){
-            m <- match(row, rownames(modules))
+            m <- match(row, modules[[origin_col]])
             first_match <- m[!is.na(m)][1L]
         })
     }
     # Select and order matched modules rows
-    out <- modules[idx, , drop = FALSE]
-    # Replace missing with false
-    out[is.na(out)] <- FALSE
+    out <- modules[idx, -1L]
+    # Replace missing values with 0
+    for( col in colnames(out) ){
+        set(out, which(is.na(out[[col]])), col, 0)
+    }
     return(out)
 }

@@ -6,13 +6,11 @@
 #' @importFrom Matrix summary
 setMethod("weaveComplex", signature = c(graph = "igraph"),
     function(graph, by, k = 1, include = NULL, exclude = NULL, init = NULL,
-    prune = TRUE, use.names = TRUE, threshold = 1, verbose = TRUE,
+    prune = TRUE, use.names = TRUE, threshold = NULL, verbose = TRUE,
     timeout = 1e6, ...){
-    # Check mode
-    mode <- match.arg(mode, c("presence", "coverage"))
     # Check threshold
-    if( !is.numeric(threshold) || length(threshold) != 1L ||
-        threshold <= 0 || threshold > 1 ){
+    if( !is.null(threshold) && (!is.numeric(threshold) ||
+        length(threshold) != 1L || threshold <= 0 || threshold > 1) ){
         stop("'threshold' must be a number between 0 and 1.", call. = FALSE)
     }
     # Extract formula vars
@@ -63,16 +61,16 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
     mat <- .map_modules(mf)
     # Convert to matrix object
     out <- summary(mat)
-    # Find indices of values above threshold
-    out <- out[out$x >= threshold, ]
+    # If defined, subset values above threshold
+    if( !is.null(threshold) ) out <- out[out$x >= threshold, ]
     # Convert to linkmap
     out <- data.frame(
         x = colnames(mat)[out$j],
         y = rownames(mat)[out$i],
-        cov = out$x, row.names = NULL
+        z = out$x, row.names = NULL
     )
     # Add colnames
-    colnames(out) <- c(orig.name, mod.name, paste0(mod.name, ".cov"))
+    colnames(out) <- c(orig.name, mod.name, "cov")
     # Add feature names
     if( use.names ){
         name_links <- linkNames(graph, mod.name, out[[2L]], verbose = verbose)
