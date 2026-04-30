@@ -1,6 +1,7 @@
 
 #' @importFrom BiocParallel bplapply
-.querySPARQL <- function(from, to, endpoint, init, timeout,
+#' @importFrom data.table rbindlist
+.querySPARQL <- function(from, to, endpoint, init, uniref.identity, timeout,
     batch.size = 25000, workers = NULL, factor = 3){
     
     preface <- paste0("
@@ -19,18 +20,18 @@
         WHERE {
         "
     )
-    
-    triple <- .triple_table(from, to)
-    
+    # Build triple based on from and to
+    triple <- .triple_table(from, to, uniref.identity)
+    # Find starts and ends of init ranges
     ranges <- .get_batches(init, batch.size, workers, factor)
-    
+    # Query SPARQL for each range
     out.list <- bplapply(ranges, function(i){
         x <- init[i[1]:i[2]]
         query <- .composeSPARQL(from, to, preface, triple, endpoint, x)
         resp <- .sendSPARQL(query, endpoint, timeout)
     })
-    
-    out <- do.call(rbind, out.list)
+    # Bind output linkmaps
+    out <- rbindlist(out.list)
     return(out)
 }
 
@@ -85,7 +86,7 @@
 }
 
 
-.triple_table <- function(from, to){
+.triple_table <- function(from, to, uniref.identity){
     
     spterms <- c(from, to)
     
@@ -96,12 +97,17 @@
     
     ext <- setdiff(spterms, internals)
     
-    uniref2taxid <- "
+    which_uniref <- ifelse(to == "uniref", paste0("
+        ?uniref up:identity ", uniref.identity, ".
+    "), "")
+    
+    uniref2taxid <- paste0(
+        which_uniref, "
         # Bind UniRef ids to cluster members
         ?uniref up:member ?member.
         # Bind cluster members to taxa
         ?member up:organism ?taxid.
-    "
+    ")
     
     taxname2taxid <- "
         # Bind taxa to scientific names and ranks
@@ -114,9 +120,10 @@
     
     uniref2taxname <- paste0(uniref2taxid, taxname2taxid)
     
-    uniref2uniprotkb <- "
+    uniref2uniprotkb <- paste0(
+        which_uniref, "
         ?uniprotkb up:representativeFor ?uniref.
-    "
+    ")
     
     uniprotkb2enzyme <- "
         ?uniprotkb (up:enzyme|up:domain/up:enzyme|up:component/up:enzyme) ?enzyme.

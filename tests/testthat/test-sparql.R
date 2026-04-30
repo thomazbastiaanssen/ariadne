@@ -12,7 +12,8 @@ test_that("sparql", {
     expect_length(ranges, 5L)
     
     out <- .querySPARQL(
-        "uniprotkb", "GeneID", "UniProt", c("P0DTC2", "P60507", "Q9Y261"), 1e6
+        "uniprotkb", "GeneID", "UniProt", c("P0DTC2", "P60507", "Q9Y261"),
+        NULL, 1e6
     )
     
     ids <- as.numeric(sub(".*/", "", out$GeneID))

@@ -34,8 +34,7 @@ weaveComplex(graph, ...)
   init = NULL,
   prune = TRUE,
   use.names = TRUE,
-  mode = "presence",
-  threshold = 1,
+  threshold = NULL,
   verbose = TRUE,
   timeout = 1e+06,
   ...
@@ -82,13 +81,9 @@ console. (Default: \code{TRUE})}
 \item{timeout}{\code{Numeric scalar}. The timeout for downloading resources.
 (Default: \code{1e6})}
 
-\item{mode}{\code{Character scalar}. The mode of the output, either as
-\code{"presence"} or \code{"coverage"} information. Only for
-\code{weaveComplex}. (Default: \code{"presence"})}
-
-\item{threshold}{\code{Numeric scalar}. The coverage threshold to infer
-presence, between 0 and 1. Only for \code{weaveComplex}.
-(Default: \code{1})}
+\item{threshold}{\code{Numeric scalar}. Only for \code{weaveComplex}. The
+coverage threshold above which to include links, between 0 and 1. If
+\code{NULL}, all non-zero links are returned. (Default: \code{NULL})}
 }
 \value{
 A two-column data.frame (x-to-y linkmap), with optional names as a third
@@ -133,8 +128,8 @@ tax2bugsig <- weavePath(
 dis2gmm <- weavePath(graph, disease ~ gmm)
 
 # Weave complex path from KEGG diseases to gut metabolic modules
-dis2gmm <- weaveComplex(graph, disease ~ gmm, threshold = 0.8)
+dis2gmm <- weaveComplex(graph, disease ~ gmm)
 
-# Obtain results in terms of coverage
-dis2gmm <- weaveComplex(graph, disease ~ gmm, mode = "coverage")
+# Specify coverage threshold
+dis2gmm <- weaveComplex(graph, disease ~ gmm, threshold = 0.8)
 }

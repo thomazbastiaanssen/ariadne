@@ -199,39 +199,6 @@ The links are provided as a **linkmap**, a 2-column table where each row is a
 pair of ids (one KO and one EC). When available, the feature names are returned
 as a third optional column.
 
-## Incorporate relational knowledge in a dataset
-
-```{r}
-library(mia)
-
-# Import dataset
-data("Tengeler2020", package = "mia")
-tse <- Tengeler2020
-
-# Retrieve taxon names
-tax.labs <- getTaxonomyLabels(tse, make.unique = FALSE)
-tax.labs <- sub("^.+:", "", tax.labs)
-```
-
-```{r}
-# butyrate
-# addModules
-# butyrate producer abundance
-```
-
-
-```{r}
-tax2ec <- weavePath(
-    graph,
-    taxname ~ ec,
-    include = "uniref90",
-    init = tax.labs,
-    factor = 8
-)
-
-head(tax2ec)
-```
-
 # Resources
 
 ## Citation

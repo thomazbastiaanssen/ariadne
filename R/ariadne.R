@@ -33,7 +33,7 @@ NULL
 #' @importFrom igraph read_graph as_data_frame graph_from_data_frame
 #' @importFrom stats setNames reshape
 #' @importFrom BiocParallel bpmapply
-#' @importFrom dplyr bind_rows
+#' @importFrom data.table rbindlist dcast
 ariadne <- function(versions = NULL){
     # Import version metadata
     meta <- versionMetadata
@@ -76,25 +76,20 @@ ariadne <- function(versions = NULL){
     # Build edge data
     edge_df <- graph_dfs |>
         lapply(`[[`, "edges") |>
-        bind_rows(.id = "source")
+        rbindlist(idcol = "source", fill = TRUE)
     # Reorder edge columns
     edge_df <- edge_df[ , c("from", "to", "source", "url")]
     # Build node data
     node_df <- graph_dfs |>
         lapply(`[[`, "vertices") |>
-        bind_rows(.id = "source")
+        rbindlist(idcol = "source", fill = TRUE)
     # Reduce missing characters to standard NA
     node_df$url[node_df$url == "NA"] <- NA
     # Remove rownames and store node urls
-    rownames(node_df) <- NULL
-    node_urls <- unique(node_df[c("name", "url")])
+    node_urls <- unique(node_df[ , c("name", "url")])
     # Widen database-specific names
-    node_df <- reshape(
-        node_df, idvar = "name", timevar = "source",
-        direction = "wide", drop = c("id", "url")
-    )
-    # Clean colnames and add back node urls
-    names(node_df) <- sub("specific.", "", names(node_df), fixed = TRUE)
+    node_df <- dcast(node_df, name ~ source, value.var = "specific")
+    # Add back node urls
     node_df  <- merge(node_df, node_urls, by = "name", all.x = TRUE)
     # Build final resource graph
     graph <- graph_from_data_frame(edge_df, vertices = node_df)

@@ -35,13 +35,9 @@
 #' @param use.names \code{Logical scalar}. Should feature names be used in the
 #'   output instead of feature identifiers. either (Default: \code{TRUE})
 #' 
-#' @param mode \code{Character scalar}. The mode of the output, either as
-#'   \code{"presence"} or \code{"coverage"} information. Only for
-#'   \code{weaveComplex}. (Default: \code{"presence"})
-#' 
-#' @param threshold \code{Numeric scalar}. The coverage threshold to infer
-#'   presence, between 0 and 1. Only for \code{weaveComplex}.
-#'   (Default: \code{1})
+#' @param threshold \code{Numeric scalar}. Only for \code{weaveComplex}. The
+#'   coverage threshold above which to include links, between 0 and 1. If
+#'   \code{NULL}, all non-zero links are returned. (Default: \code{NULL})
 #' 
 #' @param verbose \code{Logical scalar}. Should messages be printed in the
 #'   console. (Default: \code{TRUE})
@@ -94,10 +90,10 @@
 #' dis2gmm <- weavePath(graph, disease ~ gmm)
 #' 
 #' # Weave complex path from KEGG diseases to gut metabolic modules
-#' dis2gmm <- weaveComplex(graph, disease ~ gmm, threshold = 0.8)
+#' dis2gmm <- weaveComplex(graph, disease ~ gmm)
 #' 
-#' # Obtain results in terms of coverage
-#' dis2gmm <- weaveComplex(graph, disease ~ gmm, mode = "coverage")
+#' # Specify coverage threshold
+#' dis2gmm <- weaveComplex(graph, disease ~ gmm, threshold = 0.8)
 NULL
 
 
@@ -155,7 +151,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
         # Add to linkmaps
         linkmaps[[paste0(g$from, "2", g$to)]] <- linkmap
         # Update init
-        init <- if( prune ) unique(linkmap[[g$to]]) else NULL
+        init <- if( prune ) levels(linkmap[[g$to]]) else NULL
     }
     # Construct MultiFactor from linkmaps
     mf <- MultiFactor(linkmaps)
@@ -165,7 +161,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     if( use.names ){
         target <- colnames(out)[2L]
         name_links <- linkNames(graph, target, out[[2L]], verbose = verbose)
-        out[paste0(target, ".name")] <- name_links[[2L]]
+        out[paste0(target, ".name")] <- as.factor(name_links[[2L]])
     }
     return(out)
 })
@@ -174,6 +170,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
 #' @importFrom KEGGREST keggConv keggLink
 #' @importFrom arrow read_parquet open_dataset
 #' @importFrom dplyr filter collect
+#' @importFrom MultiFactor LinkMap
 #' @importFrom rlang sym
 .fetch_edge <- function(g, init, timeout, ...){
     # Check if init exists
@@ -211,10 +208,14 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     }else if( g$source %in% c("Rhea", "UniProt") ){
         # Add special IRI prefixes
         if( is_init ) init <- .add_iri(init, g$source, g$from)
+        # Select similarity level for uniref clusters
+        uniref.identity <- switch(g$to, uniref50 = 0.5, uniref90 = 0.9, NULL)
         # Query SPARQL endpoint
-        df <- .querySPARQL(g$specFrom, g$specTo, g$source, init, timeout, ...)
+        df <- .querySPARQL(
+            g$specFrom, g$specTo, g$source, init, uniref.identity, timeout, ...
+        )
         # Filter special cases
-        if( g$specTo %in% c("uniref", "BioCyc") ){
+        if( g$specTo == "BioCyc" ){
             df <- df[grepl(g$to, df[[2L]], ignore.case = TRUE), ]
             rownames(df) <- NULL
         }
@@ -243,6 +244,8 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     if( nrow(df) == 0L ) stop("Bindings depleted.", call. = FALSE)
     # Add edge names
     colnames(df) <- c(g$from, g$to)
+    # Convert characters to factors
+    df <- LinkMap(df)
     return(df)
 }
 

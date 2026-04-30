@@ -89,7 +89,7 @@ setMethod("linkNames", signature = c(graph = "igraph"),
     
     if( !is.na(url) ){
         
-        name_links <- fread(url, header = FALSE)
+        name_links <- fread(url, header = FALSE, showProgress = FALSE)
     
     }else if( x == "bugsig" ){
         
@@ -103,6 +103,7 @@ setMethod("linkNames", signature = c(graph = "igraph"),
             as.data.frame()
         
         name_links[[1L]] <- sub("bsdb:", "", name_links[[1L]], fixed = TRUE)
+        name_links[[2L]] <- sub("^.+:", "", name_links[[2L]])
     
     }else if( x %in% c(listDatabases(), "ec", "network") ){
         # Use ids as input if specified
@@ -132,7 +133,6 @@ setMethod("linkNames", signature = c(graph = "igraph"),
     }else{
         return(NULL)
     }
-    name_links <- LinkMap(name_links)
     # Add placeholders to column names
     colnames(name_links) <- c("ids", "names")
     return(name_links)
@@ -161,7 +161,7 @@ setMethod("linkNames", signature = c(graph = "igraph"),
     }
     # Create id2name linkmap
     linkmap <- data.frame(
-      x = init, y = linkmap[idx, ][[keys[2L]]], row.names = NULL
+        x = init, y = linkmap[idx, ][[keys[2L]]], row.names = NULL
     )
     # Reorder columns based on input keyword
     linkmap <- order_fun(linkmap)
