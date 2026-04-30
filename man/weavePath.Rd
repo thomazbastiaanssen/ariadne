@@ -128,8 +128,8 @@ tax2bugsig <- weavePath(
 dis2gmm <- weavePath(graph, disease ~ gmm)
 
 # Weave complex path from KEGG diseases to gut metabolic modules
-dis2gmm <- weaveComplex(graph, disease ~ gmm, threshold = 0.8)
+dis2gmm <- weaveComplex(graph, disease ~ gmm)
 
-# Obtain results in terms of coverage
-dis2gmm <- weaveComplex(graph, disease ~ gmm, mode = "coverage")
+# Specify coverage threshold
+dis2gmm <- weaveComplex(graph, disease ~ gmm, threshold = 0.8)
 }

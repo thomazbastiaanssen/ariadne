@@ -90,10 +90,10 @@
 #' dis2gmm <- weavePath(graph, disease ~ gmm)
 #' 
 #' # Weave complex path from KEGG diseases to gut metabolic modules
-#' dis2gmm <- weaveComplex(graph, disease ~ gmm, threshold = 0.8)
+#' dis2gmm <- weaveComplex(graph, disease ~ gmm)
 #' 
-#' # Obtain results in terms of coverage
-#' dis2gmm <- weaveComplex(graph, disease ~ gmm, mode = "coverage")
+#' # Specify coverage threshold
+#' dis2gmm <- weaveComplex(graph, disease ~ gmm, threshold = 0.8)
 NULL
 
 
@@ -151,7 +151,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
         # Add to linkmaps
         linkmaps[[paste0(g$from, "2", g$to)]] <- linkmap
         # Update init
-        init <- if( prune ) unique(linkmap[[g$to]]) else NULL
+        init <- if( prune ) levels(linkmap[[g$to]]) else NULL
     }
     # Construct MultiFactor from linkmaps
     mf <- MultiFactor(linkmaps)
@@ -161,7 +161,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     if( use.names ){
         target <- colnames(out)[2L]
         name_links <- linkNames(graph, target, out[[2L]], verbose = verbose)
-        out[paste0(target, ".name")] <- name_links[[2L]]
+        out[paste0(target, ".name")] <- as.factor(name_links[[2L]])
     }
     return(out)
 })
@@ -170,6 +170,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
 #' @importFrom KEGGREST keggConv keggLink
 #' @importFrom arrow read_parquet open_dataset
 #' @importFrom dplyr filter collect
+#' @importFrom MultiFactor LinkMap
 #' @importFrom rlang sym
 .fetch_edge <- function(g, init, timeout, ...){
     # Check if init exists
@@ -243,6 +244,8 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     if( nrow(df) == 0L ) stop("Bindings depleted.", call. = FALSE)
     # Add edge names
     colnames(df) <- c(g$from, g$to)
+    # Convert characters to factors
+    df <- LinkMap(df)
     return(df)
 }
 

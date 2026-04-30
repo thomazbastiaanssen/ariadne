@@ -65,8 +65,8 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
     if( !is.null(threshold) ) out <- out[out$x >= threshold, ]
     # Convert to linkmap
     out <- data.frame(
-        x = colnames(mat)[out$j],
-        y = rownames(mat)[out$i],
+        x = as.factor(colnames(mat)[out$j]),
+        y = as.factor(rownames(mat)[out$i]),
         z = out$x, row.names = NULL
     )
     # Add colnames
@@ -74,14 +74,15 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
     # Add feature names
     if( use.names ){
         name_links <- linkNames(graph, mod.name, out[[2L]], verbose = verbose)
-        out[paste0(mod.name, ".name")] <- name_links[[2L]]
+        out[paste0(mod.name, ".name")] <- as.factor(name_links[[2L]])
     }
     return(out)
 })
 
 
-#' @importFrom Matrix Matrix crossprod colSums
+#' @importFrom Matrix crossprod colSums
 .map_modules <- function(mf){
+    # Retrieve matrices from MultiFactor
     # Retrieve matrices from MultiFactor
     col.order <- c(2L, 1L)
     orig2f <- as.matrix(mf[["feature2orig"]])
@@ -89,17 +90,11 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
     cx2f <- as.matrix(mf[["complex2feature"]], terms = col.order)
     m2cp <- as.matrix(mf[["module2component"]], terms = col.order)
     
-    complex2x <- Matrix(
-        crossprod(cx2f, orig2f != 0L) >= Matrix::colSums(cx2f),
-        sparse = TRUE
-    )
+    complex2x <- crossprod(cx2f, orig2f != 0L) >= Matrix::colSums(cx2f)
     
     component2x <- crossprod(ct2cx, complex2x, boolArith = TRUE)
     # Compute module coverage
-    out <- Matrix(
-        crossprod(m2cp, component2x != 0L) / Matrix::colSums(m2cp),
-        sparse = TRUE
-    )
+    out <- crossprod(m2cp, component2x != 0L) / Matrix::colSums(m2cp)
 }
 
 
