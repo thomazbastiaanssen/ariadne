@@ -24,8 +24,6 @@ test_that("weave", {
     ko2gbm <- weavePath(graph, ko ~ gbm, use.names = FALSE)
     expect_equal(ncol(ko2gbm), 2L)
     
-    expect_error(
-        weaveComplex(graph, gmm ~ gbm),
-        "Exactly one side of 'by' must be a module name."
-    )
+    ec2gmm <- weaveComplex(graph, ec ~ gmm)
+    expect_equal(colnames(ec2gmm), c("ec", "gmm", "cov", "gmm.name"))
 })

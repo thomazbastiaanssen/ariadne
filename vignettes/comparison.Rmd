@@ -71,7 +71,7 @@ head(uniref2gmm)
 genes <- addModules(genes, uniref2gmm, as = "names")
 
 uniref.modules <- agglomerateByModule(
-    genes, by = "rows", group = unique(uniref2gmm$gmm.name)
+    genes, by = "rows", group = levels(uniref2gmm$gmm.name)
 )
 
 uniref.modules
@@ -81,9 +81,12 @@ uniref.modules
 top.mods <- getTop(uniref.modules, assay.type = "gene_families")
 
 plotAbundance(
-    modules[top.mods, ],
+    uniref.modules[top.mods, ],
     assay.type = "gene_families",
-    as.relative = TRUE
+    col.var = "disease",
+    scales = "free_x",
+    as.relative = TRUE,
+    facet.cols = TRUE
 )
 ```
 
@@ -127,7 +130,7 @@ head(tax2gmm)
 tse <- addModules(tse, tax2gmm, key = "species", as = "names")
 
 tax.modules <- agglomerateByModule(
-    tse, by = "rows", group = unique(tax2gmm$gmm.name)
+    tse, by = "rows", group = levels(tax2gmm$gmm.name)
 )
 
 tax.modules
@@ -138,8 +141,11 @@ top.mods <- getTop(tax.modules, assay.type = "relative_abundance")
 
 plotAbundance(
     tax.modules[top.mods, ],
-    assay.type = "relative_abundance",
-    as.relative = TRUE
+    assay.type = "gene_families",
+    col.var = "disease",
+    scales = "free_x",
+    as.relative = TRUE,
+    facet.cols = TRUE
 )
 ```
 

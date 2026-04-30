@@ -104,6 +104,25 @@ NULL
 setMethod("weavePath", signature = c(graph = "igraph"),
     function(graph, by, k = 1, include = NULL, exclude = NULL, init = NULL,
     prune = TRUE, use.names = TRUE, verbose = TRUE, timeout = 1e6, ...){
+    # Build MultiFactor from path linkmaps
+    mf <- .build_path_mf(
+        graph, by, k, include, exclude,
+        init, prune, prune, verbose, timeout, ...
+    )
+    # Weave desired linkmap from MultiFactor
+    out <- weave(mf, by) |> as.data.frame()
+    # Add feature names
+    if( use.names ){
+        target <- colnames(out)[2L]
+        name_links <- linkNames(graph, target, out[[2L]], verbose = verbose)
+        out[paste0(target, ".name")] <- as.factor(name_links[[2L]])
+    }
+    return(out)
+})
+
+
+.build_path_mf <- function(graph, by, k, include, exclude, init, prune,
+    prune.last, verbose, timeout, ...){
     # Check shared numeric args
     if( !is.numeric(timeout) || length(timeout) != 1L || timeout <= 0 ){
         stop("'timeout' must be a positive number", call. = FALSE)
@@ -140,6 +159,8 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     path_df <- .draw_path(graph, path_by, k, include, exclude)
     # Add edges metadata
     path_df <- .add_edge_metadata(path_df, graph, internal = TRUE)
+    # Create pruning instructions
+    prune_vec <- c(rep(prune, max(0, nrow(path_df) - 2)), prune.last, FALSE)
     # Perform step of path
     for( i in seq_len(nrow(path_df)) ){
         # Retrieve step
@@ -151,20 +172,12 @@ setMethod("weavePath", signature = c(graph = "igraph"),
         # Add to linkmaps
         linkmaps[[paste0(g$from, "2", g$to)]] <- linkmap
         # Update init
-        init <- if( prune ) levels(linkmap[[g$to]]) else NULL
+        init <- if( prune_vec[i] ) levels(linkmap[[g$to]]) else NULL
     }
     # Construct MultiFactor from linkmaps
     mf <- MultiFactor(linkmaps)
-    # Weave desired linkmap from MultiFactor
-    out <- weave(mf, by) |> as.data.frame()
-    # Add feature names
-    if( use.names ){
-        target <- colnames(out)[2L]
-        name_links <- linkNames(graph, target, out[[2L]], verbose = verbose)
-        out[paste0(target, ".name")] <- as.factor(name_links[[2L]])
-    }
-    return(out)
-})
+    return(mf)
+}
 
 
 #' @importFrom KEGGREST keggConv keggLink
