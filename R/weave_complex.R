@@ -13,7 +13,6 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
         length(threshold) != 1L || threshold <= 0 || threshold > 1) ){
         stop("'threshold' must be a number between 0 and 1.", call. = FALSE)
     }
-    path_df <- .draw_path(graph, by, k, include, exclude)
     # Extract formula vars
     by.vars <- all.vars(by)
     # Identify module name

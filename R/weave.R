@@ -229,7 +229,10 @@ setMethod("weavePath", signature = c(graph = "igraph"),
         )
         # Filter special cases
         if( g$specTo == "BioCyc" ){
-            df <- df[grepl(g$to, df[[2L]], ignore.case = TRUE), ]
+            # Get key (metacyc or ecocyc)
+            biocyc_key <- sub("_.+$", "", g$to)
+            # Filter by key
+            df <- df[grepl(biocyc_key, df[[2L]], ignore.case = TRUE), ]
             rownames(df) <- NULL
         }
         # Strip special IRI prefixes
