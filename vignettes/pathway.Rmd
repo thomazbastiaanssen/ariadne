@@ -1,0 +1,79 @@
+---
+title: "Metabolic Pathway Enrichment Analysis"
+author:
+  - name: Giulio Benedetti
+    affiliation: University of Turku
+    email: giulio.benedetti@utu.fi
+output:
+    BiocStyle::html_document:
+        fig_height: 7
+        fig_width: 10
+        toc: true
+        toc_float: true
+        toc_depth: 2
+        number_sections: true
+        self_contained: true
+        code_folding: show
+date: "`r doc_date()`"
+package: "`r pkg_ver('ariadne')`"
+vignette: >
+    %\VignetteIndexEntry{Metabolic Pathway Enrichment Analysis}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Metabolic pathways
+
+Briefly describe idea behind metabolic pathways and related databases.
+
+## Prepare
+
+```{r lib, message=FALSE, warning=FALSE}
+library(ariadne)
+library(mia)
+library(miaViz)
+```
+
+
+```{r}
+graph <- ariadne()
+```
+
+
+## KEGG
+
+```{r}
+searchPath(graph, ec ~ kegg_path, include = "kegg_rxn", k = 3)
+```
+
+```{r}
+ec2path <- weaveComplex(
+    graph,
+    ec ~ kegg_path,
+    include = "kegg_rxn",
+    threshold = 0.5
+)
+
+head(ec2path)
+```
+
+
+## MetaCyc
+
+```{r}
+searchPath(graph, uniref90 ~ metacyc_path, k = 3)
+```
+
+```{r}
+uniref2path <- weaveComplex(graph, ec ~ metacyc_path)
+
+head(uniref2path)
+```
+

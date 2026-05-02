@@ -68,6 +68,7 @@ setMethod("drawPath", signature = c(graph = "igraph"),
     if( internal ){
       
         path_df$initFrom <- path_df$from
+        path_df$initTo <- path_df$to
         
         idy <- which(!is.na(path_df$url))
         path_df[idy, c("from", "to")] <- edge_df[idx[idy], c("from", "to")]

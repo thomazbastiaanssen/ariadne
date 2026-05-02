@@ -59,8 +59,10 @@ setMethod("linkNames", signature = c(graph = "igraph"),
     }
     # Get url for name linkmap (or NA for missing)
     url <- node_df$url[node_df$name == x]
+    # Retrieve KEGG specific for special case
+    kegg_x <- node_df$KEGG[node_df$name == x]
     # Map ids and names to one another
-    name_links <- .fetch_node(x, url, ids)
+    name_links <- .fetch_node(x, url, ids, kegg_x)
     # Return empty object if no names are available
     if( is.null(name_links) ){
         return(NULL)
@@ -80,9 +82,9 @@ setMethod("linkNames", signature = c(graph = "igraph"),
 #' @importFrom stringr str_split
 #' @importFrom readr read_lines
 #' @importFrom MultiFactor LinkMap
-.fetch_node <- function(x, url, ids){
+.fetch_node <- function(x, url, ids, kegg_x){
     # Check nodes where init is necessary
-    if( x == "genes" && is.null(ids) ){
+    if( x == "kegg_genes" && is.null(ids) ){
         stop("Only searches with 'ids' are currently supported for ", x, ".",
             call. = FALSE)
     }
@@ -105,15 +107,15 @@ setMethod("linkNames", signature = c(graph = "igraph"),
         name_links[[1L]] <- sub("bsdb:", "", name_links[[1L]], fixed = TRUE)
         name_links[[2L]] <- sub("^.+:", "", name_links[[2L]])
     
-    }else if( x %in% c(listDatabases(), "ec", "network") ){
+    }else if( kegg_x %in% c(listDatabases(), "ec", "network") ){
         # Use ids as input if specified
-        init <- if( is.null(ids) ) x else unique(ids)
+        init <- if( is.null(ids) ) kegg_x else unique(ids)
         # For many ids, global search is faster
-        if( length(init) > 50 ) init <- x
+        if( length(init) > 50 ) init <- kegg_x
         # Get vector of feature names
         name_vec <- keggList(init)
         # Keep only first name (and last for ko)
-        to_remove <- ifelse(x == "ko", ".*;", ";.*")
+        to_remove <- ifelse(kegg_x == "ko", ".*;", ";.*")
         name_vec <- sub(to_remove, "", name_vec)
         # Convert to linkmap
         name_links <- data.frame(

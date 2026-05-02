@@ -86,7 +86,7 @@ ariadne <- function(versions = NULL){
     # Reduce missing characters to standard NA
     node_df$url[node_df$url == "NA"] <- NA
     # Remove rownames and store node urls
-    node_urls <- unique(node_df[ , c("name", "url")])
+    node_urls <- unique(node_df[!is.na(node_df$url) , c("name", "url")])
     # Widen database-specific names
     node_df <- dcast(node_df, name ~ source, value.var = "specific")
     # Add back node urls
