@@ -87,13 +87,13 @@
 #' )
 #' 
 #' # Weave simple path from KEGG diseases to gut metabolic modules
-#' dis2gmm <- weavePath(graph, disease ~ gmm)
+#' dis2gmm <- weavePath(graph, kegg_disease ~ gmm)
 #' 
 #' # Weave complex path from KEGG diseases to gut metabolic modules
-#' dis2gmm <- weaveComplex(graph, disease ~ gmm)
+#' dis2gmm <- weaveComplex(graph, kegg_disease ~ gmm)
 #' 
 #' # Specify coverage threshold
-#' dis2gmm <- weaveComplex(graph, disease ~ gmm, threshold = 0.8)
+#' dis2gmm <- weaveComplex(graph, kegg_disease ~ gmm, threshold = 0.8)
 NULL
 
 

@@ -57,12 +57,10 @@ setMethod("linkNames", signature = c(graph = "igraph"),
     if( !is.null(ids) && !is.null(names) ){
         stop("Either 'ids' or 'names' can be specified.", call. = FALSE)
     }
-    # Get url for name linkmap (or NA for missing)
-    url <- node_df$url[node_df$name == x]
-    # Retrieve KEGG specific for special case
-    kegg_x <- node_df$KEGG[node_df$name == x]
+    # Retrieve corresponding node from graph
+    g <- node_df[node_df$name == x, , drop = FALSE]
     # Map ids and names to one another
-    name_links <- .fetch_node(x, url, ids, kegg_x)
+    name_links <- .fetch_node(g, ids)
     # Return empty object if no names are available
     if( is.null(name_links) ){
         return(NULL)
@@ -73,6 +71,8 @@ setMethod("linkNames", signature = c(graph = "igraph"),
         .match_key2val(x, 2L, names, verbose)
     # Use keywords as column names
     colnames(name_links) <- c(x, paste0(x, ".name"))
+    # Convert to data.frame
+    name_links <- as.data.frame(name_links)
     return(name_links)
 })
 
@@ -82,18 +82,18 @@ setMethod("linkNames", signature = c(graph = "igraph"),
 #' @importFrom stringr str_split
 #' @importFrom readr read_lines
 #' @importFrom MultiFactor LinkMap
-.fetch_node <- function(x, url, ids, kegg_x){
+.fetch_node <- function(g, ids){
     # Check nodes where init is necessary
-    if( x == "kegg_genes" && is.null(ids) ){
-        stop("Only searches with 'ids' are currently supported for ", x, ".",
-            call. = FALSE)
+    if( g$name == "kegg_genes" && is.null(ids) ){
+        stop("Only searches with 'ids' are currently supported for ", g$name,
+            ".", call. = FALSE)
     }
     
-    if( !is.na(url) ){
+    if( !is.na(g$url) ){
         
-        name_links <- fread(url, header = FALSE, showProgress = FALSE)
+        name_links <- fread(g$url, header = FALSE, showProgress = FALSE)
     
-    }else if( x == "bugsig" ){
+    }else if( g$name == "bugsig" ){
         
         url <- "https://zenodo.org/records/15272273/files/bugsigdb_signatures_mixed_ncbi.gmt"
         
@@ -107,21 +107,21 @@ setMethod("linkNames", signature = c(graph = "igraph"),
         name_links[[1L]] <- sub("bsdb:", "", name_links[[1L]], fixed = TRUE)
         name_links[[2L]] <- sub("^.+:", "", name_links[[2L]])
     
-    }else if( kegg_x %in% c(listDatabases(), "ec", "network") ){
+    }else if( g$KEGG %in% c(listDatabases(), "ec", "network") ){
         # Use ids as input if specified
-        init <- if( is.null(ids) ) kegg_x else unique(ids)
+        init <- if( is.null(ids) ) g$KEGG else unique(ids)
         # For many ids, global search is faster
-        if( length(init) > 50 ) init <- kegg_x
+        if( length(init) > 50 ) init <- g$KEGG
         # Get vector of feature names
         name_vec <- keggList(init)
         # Keep only first name (and last for ko)
-        to_remove <- ifelse(kegg_x == "ko", ".*;", ";.*")
+        to_remove <- ifelse(g$KEGG == "ko", ".*;", ";.*")
         name_vec <- sub(to_remove, "", name_vec)
         # Convert to linkmap
         name_links <- data.frame(
             x = names(name_vec), y = name_vec, row.names = NULL
         )
-    }else if( x == "chebi" ){
+    }else if( g$name == "chebi" ){
         query <- "
             PREFIX up: <http://purl.uniprot.org/core/>
             SELECT DISTINCT ?chebi ?name
