@@ -2,7 +2,7 @@
 
 #' @importFrom BiocFileCache bfcquery
 #' @importFrom arrow write_parquet
-.cache_resource <- function(url, res.name, from, to) {
+.cache_resource <- function(url, res.name, from, to){
     # Initialise cache
     bfc <- .init_cache()
     # Build resource name
@@ -15,13 +15,15 @@
     FUN <- switch(
         res.name,
         ChocoPhlAn = function(x) .process_one2many(
-            x, FUN = function(keys) sub("GO:", "", keys, fixed = TRUE)
+            x, key.FUN = function(keys) sub("GO:", "", keys, fixed = TRUE)
         ),
         WoL = function(x) .process_one2many(
-                x, FUN = function(keys) paste0("UniRef90_", keys)
+            x, key.FUN = ifelse(from == "uniref90",
+                function(keys) paste0("UniRef90_", keys), identity),
+            val.FUN = function(vals) sub("EC-", "", vals, fixed = TRUE)
         ),
         BugSigDB = function(x) .process_one2many(
-            x, val.cols = -c(1L, 2L), skip = 1L, FUN = function(keys){
+            x, val.cols = -c(1L, 2L), skip = 1L, key.FUN = function(keys){
                 # Remove module prefix
                 keys <- sub("bsdb:", "", keys, fixed = TRUE)
                 # Remove module description
@@ -92,8 +94,8 @@
 
 #' @importFrom readr read_lines
 #' @importFrom stringr str_split fixed
-.process_one2many <- function(
-    x, key.col = 1L, val.cols = -key.col, FUN = identity, ...){
+.process_one2many <- function(x, key.col = 1L, val.cols = -key.col,
+    key.FUN = identity, val.FUN = identity,...){
     # Read file content
     x <- read_lines(x, ...)
     # Split elements in each line by tab
@@ -102,12 +104,14 @@
     keys <- vapply(line_content, `[`, key.col, FUN.VALUE = character(1L))
     # Extract values
     values <- lapply(line_content, `[`, val.cols)
-    # Apply custom processing function
-    keys <- FUN(keys)
+    # Apply custom processing function to keys
+    keys <- key.FUN(keys)
     # Create linkmap
     linkmap <- data.frame(
         x = rep(keys, lengths(values, use.names = FALSE)),
         y = unlist(values, recursive = TRUE, use.names = FALSE)
     )
+    # Apply custom processing function to values
+    linkmap$y <- val.FUN(linkmap$y)
     return(linkmap)
 }

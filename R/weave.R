@@ -87,13 +87,13 @@
 #' )
 #' 
 #' # Weave simple path from KEGG diseases to gut metabolic modules
-#' dis2gmm <- weavePath(graph, disease ~ gmm)
+#' dis2gmm <- weavePath(graph, kegg_disease ~ gmm)
 #' 
 #' # Weave complex path from KEGG diseases to gut metabolic modules
-#' dis2gmm <- weaveComplex(graph, disease ~ gmm)
+#' dis2gmm <- weaveComplex(graph, kegg_disease ~ gmm)
 #' 
 #' # Specify coverage threshold
-#' dis2gmm <- weaveComplex(graph, disease ~ gmm, threshold = 0.8)
+#' dis2gmm <- weaveComplex(graph, kegg_disease ~ gmm, threshold = 0.8)
 NULL
 
 
@@ -104,6 +104,25 @@ NULL
 setMethod("weavePath", signature = c(graph = "igraph"),
     function(graph, by, k = 1, include = NULL, exclude = NULL, init = NULL,
     prune = TRUE, use.names = TRUE, verbose = TRUE, timeout = 1e6, ...){
+    # Build MultiFactor from path linkmaps
+    mf <- .build_path_mf(
+        graph, by, k, include, exclude,
+        init, prune, prune, verbose, timeout, ...
+    )
+    # Weave desired linkmap from MultiFactor
+    out <- weave(mf, by) |> as.data.frame()
+    # Add feature names
+    if( use.names ){
+        target <- colnames(out)[2L]
+        name_links <- linkNames(graph, target, out[[2L]], verbose = verbose)
+        out[paste0(target, ".name")] <- as.factor(name_links[[2L]])
+    }
+    return(out)
+})
+
+
+.build_path_mf <- function(graph, by, k, include, exclude, init, prune,
+    prune.last, verbose, timeout, ...){
     # Check shared numeric args
     if( !is.numeric(timeout) || length(timeout) != 1L || timeout <= 0 ){
         stop("'timeout' must be a positive number", call. = FALSE)
@@ -140,31 +159,25 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     path_df <- .draw_path(graph, path_by, k, include, exclude)
     # Add edges metadata
     path_df <- .add_edge_metadata(path_df, graph, internal = TRUE)
+    # Create pruning instructions
+    prune_vec <- c(rep(prune, max(0, nrow(path_df) - 2)), prune.last, FALSE)
     # Perform step of path
     for( i in seq_len(nrow(path_df)) ){
         # Retrieve step
         g <- path_df[i, , drop = FALSE]
         # Print step
-        if( verbose ) message(g$from, " -(", g$source, ")-> ", g$to)
+        if( verbose ) message(g$initFrom, " -(", g$source, ")-> ", g$initTo)
         # Fetch linkmap
         linkmap <- .fetch_edge(g, init, timeout, ...)
         # Add to linkmaps
         linkmaps[[paste0(g$from, "2", g$to)]] <- linkmap
         # Update init
-        init <- if( prune ) levels(linkmap[[g$to]]) else NULL
+        init <- if( prune_vec[i] ) levels(linkmap[[g$initTo]]) else NULL
     }
     # Construct MultiFactor from linkmaps
     mf <- MultiFactor(linkmaps)
-    # Weave desired linkmap from MultiFactor
-    out <- weave(mf, by) |> as.data.frame()
-    # Add feature names
-    if( use.names ){
-        target <- colnames(out)[2L]
-        name_links <- linkNames(graph, target, out[[2L]], verbose = verbose)
-        out[paste0(target, ".name")] <- as.factor(name_links[[2L]])
-    }
-    return(out)
-})
+    return(mf)
+}
 
 
 #' @importFrom KEGGREST keggConv keggLink
@@ -177,7 +190,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     is_init <- !is.null(init)
     # Check edges where init is necessary
     if( !is_init &&
-        (g$source == "OTT" || (g$source == "KEGG" && g$from == "genes")) ){
+        (g$source == "OTT" || (g$source == "KEGG" && g$from == "kegg_genes")) ){
         stop("'init' must be provided for ", g$from, " queries to ", g$source,
             ".", call. = FALSE)
     }
@@ -188,7 +201,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
         # Select function based on id types
         kegg_fun <- ifelse(any(c(g$from, g$to) %in% ext), keggConv, keggLink)
         # Use initial values as input for genes db
-        orig <- if( "genes" %in% c(g$from, g$to) ) init else g$specFrom
+        orig <- if( "kegg_genes" %in% c(g$from, g$to) ) init else g$specFrom
         # Add prefix to external from ids
         if( is_init && g$from %in% ext ) orig <- paste0(g$specFrom, ":", orig)
         # Send query to keggLink
@@ -196,8 +209,8 @@ setMethod("weavePath", signature = c(graph = "igraph"),
         # Convert to data.frame
         df <- data.frame(x = names(kegg_link), y = kegg_link, row.names = NULL)
         # Strip db prefix except for genes db
-        if( g$from != "genes") df$x <- sub("^[^:]*:", "", df$x)
-        if( g$to != "genes" ) df$y <- sub("^[^:]*:", "", df$y)
+        if( g$from != "kegg_genes") df$x <- sub("^[^:]*:", "", df$x)
+        if( g$to != "kegg_genes" ) df$y <- sub("^[^:]*:", "", df$y)
         # Use initial values to filter output
         if( is_init ) df <- df[df[[1L]] %in% init, , drop = FALSE]
     # Query Open Tree Taxonomy API
@@ -216,7 +229,10 @@ setMethod("weavePath", signature = c(graph = "igraph"),
         )
         # Filter special cases
         if( g$specTo == "BioCyc" ){
-            df <- df[grepl(g$to, df[[2L]], ignore.case = TRUE), ]
+            # Get key (metacyc or ecocyc)
+            biocyc_key <- sub("_.+$", "", g$to)
+            # Filter by key
+            df <- df[grepl(biocyc_key, df[[2L]], ignore.case = TRUE), ]
             rownames(df) <- NULL
         }
         # Strip special IRI prefixes
@@ -226,7 +242,6 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     }else{
         # Get file path to cached resource
         cached <- .cache_resource(g$url, g$source, g$from, g$to)
-        df <- read_parquet(cached)
         # If initial values are given
         if( is_init ){
             # Filter linkmap before importing
@@ -239,11 +254,13 @@ setMethod("weavePath", signature = c(graph = "igraph"),
             # Read linkmap from parquet
             df <- read_parquet(cached)
         }
+        # Swap columns if direction does not equal file order 
+        if( g$from != g$initFrom ) df <- rev(df)
     }
     # Check that result is not empty
     if( nrow(df) == 0L ) stop("Bindings depleted.", call. = FALSE)
     # Add edge names
-    colnames(df) <- c(g$from, g$to)
+    colnames(df) <- c(g$initFrom, g$initTo)
     # Convert characters to factors
     df <- LinkMap(df)
     return(df)

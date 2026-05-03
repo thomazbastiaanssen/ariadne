@@ -22,9 +22,16 @@ vignette: >
     %\VignetteEncoding{UTF-8}
 ---
 
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
 ## Incorporate relational knowledge in a dataset
 
-```{r}
+```{r lib, message=FALSE, warning=FALSE}
 library(ariadne)
 library(mia)
 library(miaViz)

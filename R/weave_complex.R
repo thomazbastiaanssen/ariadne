@@ -15,50 +15,63 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
     }
     # Extract formula vars
     by.vars <- all.vars(by)
-    # Define possible module names
-    mod.names <- c("gbm", "gmm")
     # Identify module name
-    is.mod <- by.vars %in% mod.names
-    # Check that exactly one module name is specified
-    if( sum(is.mod) != 1L ){
-        stop("Exactly one side of 'by' must be a module name.", call. = FALSE)
+    origin <- by.vars[1L]
+    target <- by.vars[2L]
+    # Define complex modules
+    complex_modules <- c("gbm", "gmm")
+    
+    if( target %in% complex_modules ){
+    
+        edge_df <- as_data_frame(graph, what = "edges")
+        
+        inter_name <- edge_df$to[edge_df$from == target]
+        url <- edge_df$url[edge_df$from == target]
+        
+        linkmaps <- .process_complex_modules(url, output.format = "list")
+        
+        inner_by <- c(origin, inter_name) |>
+            paste(collapse = "~") |>
+            as.formula()
+    }else{
+        inner_by <- by
     }
     
-    var.idx <- c(mod = which(is.mod), orig = which(!is.mod))
-    
-    mod.name <- by.vars[var.idx[["mod"]]]
-    orig.name <- by.vars[var.idx[["orig"]]]
-    
-    graph_df <- as_data_frame(graph, what = "both")
-    edge_df <- graph_df$edges
-
-    feat.name <- edge_df$to[edge_df$from == mod.name]
-    url <- edge_df$url[edge_df$from == mod.name]
-    
-    linkmaps <- .process_complex_modules(url, output.format = "list")
-    
-    if( var.idx[["mod"]] == 1L ){
-        init <- unique(linkmaps[["complex2feature"]][["feature"]])
-    }
-    
-    inner_by <- c(feat.name, orig.name)[var.idx] |>
-        paste(collapse = "~") |>
-        as.formula()
-    
-    feature2orig <- weavePath(
-        graph, inner_by, k, include, exclude,
-        init, prune, FALSE, verbose, timeout, ...
+    # Build MultiFactor from path linkmaps
+    mf <- .build_path_mf(
+        graph, inner_by, k, include, exclude, init,
+        prune, TRUE, verbose, timeout, ...
     )
     
-    feature2orig <- feature2orig[ , var.idx]
-    colnames(feature2orig) <- c("feature", "orig")
-    linkmaps[["feature2orig"]] <- feature2orig
-    # Construct MultiFactor from linkmaps
-    mf <- MultiFactor(linkmaps)
-    # Print step
-    if( verbose ) message(feat.name, " -(GM)-> ", mod.name)
-    # Map features to complex modules
-    mat <- .map_modules(mf)
+    if( target %in% complex_modules ){
+        # Print step
+        if( verbose ) message(inter_name, " -(GM)-> ", target)
+        #
+        origin2feature <- weave(mf, inner_by) |> as.data.frame()
+        #
+        colnames(origin2feature) <- c("origin", "feature")
+        #
+        linkmaps[["origin2feature"]] <- origin2feature
+        # Construct MultiFactor from linkmaps
+        mf <- MultiFactor(linkmaps)
+        # Map features to complex modules
+        mat <- .map_complex_modules(mf)
+    }else{
+        
+        outer_by <- colnames(mf)[c(1L, ncol(mf) - 1)] |>
+            paste(collapse = "~") |>
+            as.formula()
+        
+        feature2origin <- mf |>
+            weave(outer_by) |>
+            as.matrix(terms = c(2L, 1L))
+        
+        feature2module <- as.matrix(mf[[nrow(mf)]])
+        
+        module2origin <- crossprod(feature2module, feature2origin != 0L)
+        
+        mat <- module2origin / colSums(feature2module)
+    }
     # Convert to matrix object
     out <- summary(mat)
     # If defined, subset values above threshold
@@ -70,31 +83,37 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
         z = out$x, row.names = NULL
     )
     # Add colnames
-    colnames(out) <- c(orig.name, mod.name, "cov")
+    colnames(out) <- c(origin, target, "cov")
     # Add feature names
     if( use.names ){
-        name_links <- linkNames(graph, mod.name, out[[2L]], verbose = verbose)
-        out[paste0(mod.name, ".name")] <- as.factor(name_links[[2L]])
+        name_links <- linkNames(graph, target, out[[2L]], verbose = verbose)
+        out[paste0(target, ".name")] <- as.factor(name_links[[2L]])
     }
     return(out)
 })
 
 
 #' @importFrom Matrix crossprod colSums
-.map_modules <- function(mf){
+.map_complex_modules <- function(mf){
     # Retrieve matrices from MultiFactor
-    # Retrieve matrices from MultiFactor
-    col.order <- c(2L, 1L)
-    orig2f <- as.matrix(mf[["feature2orig"]])
-    ct2cx <- as.matrix(mf[["component2complex"]], terms = col.order)
-    cx2f <- as.matrix(mf[["complex2feature"]], terms = col.order)
-    m2cp <- as.matrix(mf[["module2component"]], terms = col.order)
-    
-    complex2x <- crossprod(cx2f, orig2f != 0L) >= Matrix::colSums(cx2f)
-    
-    component2x <- crossprod(ct2cx, complex2x, boolArith = TRUE)
-    # Compute module coverage
-    out <- crossprod(m2cp, component2x != 0L) / Matrix::colSums(m2cp)
+    mats <- lapply(mf, as.matrix, terms = c(2L, 1L))
+    # Link binarised origin ids to complexes
+    complex2origin <- crossprod(
+        mats[["complex2feature"]], mats[["origin2feature"]] != 0L
+    )
+    # Ensure that a given origin id links to all members of each complex
+    complex2origin <- complex2origin == colSums(mats[["complex2feature"]])
+    # Link origin ids to components
+    component2origin <- crossprod(
+        mats[["component2complex"]], complex2origin, boolArith = TRUE
+    )
+    # Link binarised origin ids to modules
+    module2origin <- crossprod(
+        mats[["module2component"]], component2origin != 0L
+    )
+    # Estimate coverage dividing by total of components in each module
+    module2origin <- module2origin / colSums(mats[["module2component"]])
+    return(module2origin)
 }
 
 
