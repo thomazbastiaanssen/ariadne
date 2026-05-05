@@ -13,6 +13,7 @@ plotPath(graph, ...)
   k = 1,
   include = NULL,
   exclude = NULL,
+  res.name = NULL,
   focus = FALSE
 )
 }
@@ -32,6 +33,9 @@ plotPath(graph, ...)
 \item{exclude}{\code{Character vector}. Nodes to avoid in the path.
 (Default: \code{NULL})}
 
+\item{res.name}{\code{Character vector}. Names of resources to include in
+the graph. (Default: \code{NULL})}
+
 \item{focus}{\code{Logical scalar}. Whether the edges and nodes in the path
 should be plotted. (Default: \code{FALSE})}
 }
@@ -44,6 +48,9 @@ A ggplot2 object.
 \examples{
 # Retrieve resource graph
 graph <- ariadne()
+
+# Plot graph for a subset of resources
+plotPath(graph, res.name = c("KEGG", "WoL"))
 
 # Plot fifth path from ko to ec
 plotPath(graph, ko ~ ec, k = 5)

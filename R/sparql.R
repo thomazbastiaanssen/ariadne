@@ -37,8 +37,7 @@
 
 
 #' @importFrom data.table fread
-#' @importFrom httr2 request req_headers req_timeout req_perform
-#'   resp_body_string req_body_form
+#' @importFrom httr2 request req_headers req_timeout req_perform resp_body_string req_body_form
 .sendSPARQL <- function(query, endpoint, timeout) {
     # Get base url from endpoint table
     endpoint <- .endpoint_table(endpoint)

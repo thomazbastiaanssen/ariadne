@@ -154,12 +154,33 @@ object with the function `ariadne`.
 
 ```{r lib, message=FALSE, warning=FALSE}
 library(ariadne)
+library(igraph)
 
 # Import resource graph
 graph <- ariadne()
 
 # View graph
 summary(graph)
+```
+
+The graph can be explored using all native functions from the igraph package.
+For example, we can sort its nodes by degree, that is, the number of adjacent
+edges:
+
+```{r}
+node_degrees <- graph |>
+    degree(mode = "all") |>
+    sort(decreasing = TRUE)
+
+node_degrees <- node_degrees[node_degrees >= 10]
+
+knitr::kable(node_degrees, col.names = "degree")
+```
+
+In addition, we can list all the nodes in the neighbourhood of a certain node:
+
+```{r}
+neighbors(graph, "ko", mode = "all")
 ```
 
 The graph can also be visualised with `plotPath`.
