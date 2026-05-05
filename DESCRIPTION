@@ -1,5 +1,5 @@
 Package: ariadne
-Version: 0.2.2
+Version: 0.2.3
 Authors@R: 
     c(person(given = "Giulio", family = "Benedetti", role = c("aut", "cre"),
           email = "giulio.benedetti@utu.fi",
