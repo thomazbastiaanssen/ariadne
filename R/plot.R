@@ -42,7 +42,7 @@
 #' plotPath(graph, taxname ~ ko, include = "uniref90")
 #' 
 #' # Plot first 5 paths excluding uniref50 and uniref100
-#' plotPath(graph, taxname ~ ko, k = 5, exclude = c("uniref50", "uniref100"))
+#' plotPath(graph, taxname ~ ko, k = 5, exclude = "uniref50")
 NULL
 
 #' @export
@@ -100,9 +100,9 @@ setMethod("plotPath", signature = c(graph = "igraph"),
     graph <- graph_from_data_frame(edge_df, vertices = node_df)
     # Plot graph with edges marked and others faded
     p <- ggraph(graph, layout = "stress") +
-        geom_edge_link(
-            aes(colour = factor(.data$mark), label = .data$name, alpha = .data$alpha),
-            edge_width = 1, fontface = "bold", show.legend = TRUE) +
+        geom_edge_link(aes(colour = factor(.data$mark), label = .data$name,
+            alpha = .data$alpha), edge_width = 1, fontface = "bold",
+            show.legend = TRUE) +
         geom_node_point(aes(filter = .data$alpha),
             size = 4, colour = "darkorange") +
         geom_node_text(aes(label = .data$name, filter = .data$alpha),

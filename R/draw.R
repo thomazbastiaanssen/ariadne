@@ -20,6 +20,9 @@
 #' @param exclude \code{Character vector}. Nodes to avoid in the path.
 #'   (Default: \code{NULL})
 #' 
+#' @param res.name \code{Character vector}. Names of resources to include in
+#'   the graph. (Default: \code{NULL})
+#' 
 #' @param ... Unused.
 #' 
 #' @returns
@@ -42,7 +45,7 @@ NULL
 setMethod("drawPath", signature = c(graph = "igraph"),
     function(graph, by, k = 1, include = NULL, exclude = NULL, res.name = NULL){
     # Draw path through graph
-    path_df <- .draw_path(graph, by, k, include, exclude)
+    path_df <- .draw_path(graph, by, k, include, exclude, res.name)
     # Add edge metadata for external use
     path_df <- .add_edge_metadata(path_df, graph, internal = FALSE)
     return(path_df)

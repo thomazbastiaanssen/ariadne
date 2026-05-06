@@ -19,6 +19,9 @@
 #' @param exclude \code{Character vector}. Nodes to avoid in the path.
 #'   (Default: \code{NULL})
 #' 
+#' @param res.name \code{Character vector}. Names of resources to include in
+#'   the graph. (Default: \code{NULL})
+#' 
 #' @param ... Unused.
 #' 
 #' @returns
@@ -35,7 +38,10 @@
 #' searchPath(graph, taxname ~ ko, include = "uniref90")
 #' 
 #' # Search first 5 paths excluding uniref50 and uniref100
-#' searchPath(graph, taxname ~ ko, k = 5, exclude = c("uniref50", "uniref100"))
+#' searchPath(graph, taxname ~ ko, k = 5, exclude = "uniref50")
+#' 
+#' # Search path for a subset of resources
+#' searchPath(graph, uniref90 ~ eggnog, k = 3, res.name = "ChocoPhlAn")
 NULL
 
 
@@ -43,7 +49,7 @@ NULL
 #' @rdname searchPath
 #' @importFrom igraph E V k_shortest_paths
 setMethod("searchPath", signature = c(graph = "igraph"),
-    function(graph, by, k = 1, include = NULL, exclude = NULL){
+    function(graph, by, k = 1, include = NULL, exclude = NULL, res.name = NULL){
     # Initialise message
     msg <- c()
     # Print paths up to k
@@ -51,7 +57,7 @@ setMethod("searchPath", signature = c(graph = "igraph"),
         # Add path number
         msg <- c(msg, "Path ", j, ":\n")
         # Get path
-        path_df <- .draw_path(graph, by, j, include, exclude)
+        path_df <- .draw_path(graph, by, j, include, exclude, res.name)
         # Add path string
         path_str <- paste0(
             " -(", path_df$source, ")-> ", path_df$to, collapse = ""

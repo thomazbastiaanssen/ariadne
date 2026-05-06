@@ -3,7 +3,7 @@ test_that("weave", {
     
     graph <- ariadne()
     
-    path_df <- .draw_path(graph, bugsig ~ ko, 1, "uniref90", "taxid")
+    path_df <- .draw_path(graph, bugsig ~ ko, 1, "uniref90", "taxid", NULL)
     
     expect_false("taxid" %in% path_df$from || "taxid" %in% path_df$to)
     expect_true("uniref90" %in% path_df$from || "taxid" %in% path_df$to)

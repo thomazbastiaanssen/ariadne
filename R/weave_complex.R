@@ -5,9 +5,9 @@
 #' @importFrom stats as.formula
 #' @importFrom Matrix summary
 setMethod("weaveComplex", signature = c(graph = "igraph"),
-    function(graph, by, k = 1, include = NULL, exclude = NULL, init = NULL,
-    prune = TRUE, use.names = TRUE, threshold = NULL, verbose = TRUE,
-    timeout = 1e6, ...){
+    function(graph, by, k = 1, include = NULL, exclude = NULL, res.name = NULL,
+    init = NULL, prune = TRUE, use.names = TRUE, threshold = NULL,
+    verbose = TRUE, timeout = 1e6, ...){
     # Check threshold
     if( !is.null(threshold) && (!is.numeric(threshold) ||
         length(threshold) != 1L || threshold <= 0 || threshold > 1) ){
@@ -39,8 +39,8 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
     
     # Build MultiFactor from path linkmaps
     mf <- .build_path_mf(
-        graph, inner_by, k, include, exclude, init,
-        prune, TRUE, verbose, timeout, ...
+        graph, inner_by, k, include, exclude, res.name,
+        init, prune, TRUE, verbose, timeout, ...
     )
     
     if( target %in% complex_modules ){

@@ -24,6 +24,9 @@ drawPath(graph, ...)
 
 \item{exclude}{\code{Character vector}. Nodes to avoid in the path.
 (Default: \code{NULL})}
+
+\item{res.name}{\code{Character vector}. Names of resources to include in
+the graph. (Default: \code{NULL})}
 }
 \value{
 A data.frame with path steps in the rows and step metadata in the columns.
