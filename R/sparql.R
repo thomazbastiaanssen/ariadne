@@ -16,7 +16,7 @@
         PREFIX uniref: <http://purl.uniprot.org/uniref/>
         PREFIX up: <http://purl.uniprot.org/core/>
         
-        SELECT DISTINCT ?", paste0(c(from, to), collapse = " ?"), "
+        SELECT DISTINCT ?", paste(c(from, to), collapse = " ?"), "
         WHERE {
         "
     )
@@ -63,7 +63,7 @@
         # Limit query with values
         values <- paste0(
             "VALUES ?", spec.from, " {\n",
-                paste0(.iri_table(init, from, to, endpoint), collapse = " "), "
+                paste(.iri_table(init, from, to, endpoint), collapse = " "), "
             }\n")
         # Pre-append values to clause
         clause <- paste0(values, clause)

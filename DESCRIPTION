@@ -56,7 +56,6 @@ Suggests:
     knitr,
     mia,
     miaViz,
-    patchwork,
     remotes,
     rmarkdown,
     R.utils,

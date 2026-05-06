@@ -22,8 +22,8 @@ test_that("weave", {
     # expect_equal(ncol(ko2gmm), 3L)
     
     ko2gbm <- weavePath(graph, ko ~ gbm, use.names = FALSE)
-    expect_equal(ncol(ko2gbm), 2L)
+    expect_identical(ncol(ko2gbm), 2L)
     
     ec2gmm <- weaveComplex(graph, ec ~ gmm)
-    expect_equal(colnames(ec2gmm), c("ec", "gmm", "cov", "gmm.name"))
+    expect_identical(colnames(ec2gmm), c("ec", "gmm", "cov", "gmm.name"))
 })

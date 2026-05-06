@@ -101,7 +101,7 @@
         y <- res$ott_id
     }else{
         # Find ids for each input
-        y <- lapply(tax_sources(res), function(x) x[grepl(to, x, fixed = TRUE)])
+        y <- lapply(tax_sources(res), function(x) grepv(to, x, fixed = TRUE))
         # Match ids to input names
         y <- y[res$unique_name]
     }

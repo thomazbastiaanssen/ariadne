@@ -140,12 +140,12 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
     )
     # Split feature list by tab character
     feature_list <- strsplit(
-        unlist(values, recursive = TRUE, use.names = FALSE), "\t"
+        unlist(values, recursive = TRUE, use.names = FALSE), "\t", fixed = TRUE
     )
     names(feature_list) <- module_component
     # Flatten feature complex list and split by comma to get individual features
     feature_complex <- unlist(feature_list, use.names = FALSE)
-    feature <- strsplit(feature_complex, ",")
+    feature <- strsplit(feature_complex, ",", fixed = TRUE)
     # Create and return structured list of data frames
     out <- list(
         module2component = data.frame(module, component = module_component),

@@ -55,7 +55,7 @@ ariadne <- function(versions = NULL){
     available <- paste(meta$source, meta$version)
     idx <- match(requested, available)
     # Check that versions are valid
-    if( any(is.na(idx)) ){
+    if( anyNA(idx) ){
         stop(
             "Some 'versions' were not found. If it is a very recent release, ",
             "it may not be registered in the database yet.", call. = FALSE
