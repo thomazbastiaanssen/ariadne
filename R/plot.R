@@ -64,10 +64,6 @@ setMethod("plotPath", signature = c(graph = "igraph"),
         stop("'focus' can be TRUE when 'by' is defined.", call. = FALSE)
     }
     
-    if( !is.null(res.name) && !by_null ){
-        stop("'res.name'", call. = FALSE)
-    }
-    
     graph_df <- as_data_frame(graph, what = "both")
     edge_df <- graph_df$edges
     node_df <- graph_df$vertices
@@ -79,7 +75,7 @@ setMethod("plotPath", signature = c(graph = "igraph"),
 
     if( !by_null ){
         
-        path_df <- .draw_path(graph, by, k, include, exclude)
+        path_df <- .draw_path(graph, by, k, include, exclude, res.name)
         
         graph_keys <- .get_edge_keys(edge_df)
         path_keys <- .get_edge_keys(path_df)
@@ -96,8 +92,7 @@ setMethod("plotPath", signature = c(graph = "igraph"),
         edge_df$alpha <- edge_df$mark != 0
         connected_nodes <- unique(c(ends(graph, E(graph)[edge_df$mark != 0])))
         node_df$alpha <- node_df$name %in% connected_nodes
-    }
-    if( !is.null(res.name) ){
+    }else if( !is.null(res.name) ){
         edge_df$alpha <- edge_df$source %in% res.name
         node_df$alpha <- rowSums(!is.na(node_df[ , res.name, drop = FALSE])) != 0L
     }

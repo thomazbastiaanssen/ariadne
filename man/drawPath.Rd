@@ -7,7 +7,7 @@
 \usage{
 drawPath(graph, ...)
 
-\S4method{drawPath}{igraph}(graph, by, k = 1, include = NULL, exclude = NULL)
+\S4method{drawPath}{igraph}(graph, by, k = 1, include = NULL, exclude = NULL, res.name = NULL)
 }
 \arguments{
 \item{graph}{An igraph object.}
