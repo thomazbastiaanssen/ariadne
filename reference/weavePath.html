@@ -23,7 +23,7 @@ of several indispensable components."><!-- mathjax --><script src="https://cdnjs
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ariadne</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.3</span>
       </span>
     </div>
 
@@ -41,13 +41,16 @@ of several indispensable components."><!-- mathjax --><script src="https://cdnjs
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/comparison.html">Comparison</a>
+      <a href="../articles/comparison.html">Predicting functional modules: gene families vs taxa</a>
     </li>
     <li>
       <a href="../articles/database.html">A quick intro to the ariadne database</a>
     </li>
     <li>
       <a href="../articles/msea.html">Microbe-Set Enrichment Analysis</a>
+    </li>
+    <li>
+      <a href="../articles/pathway.html">Metabolic Pathway Enrichment Analysis</a>
     </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
@@ -92,6 +95,7 @@ of several indispensable components.</p>
 <span>  k <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  include <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  exclude <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  res.name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  init <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  prune <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  use.names <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -107,11 +111,11 @@ of several indispensable components.</p>
 <span>  k <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  include <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  exclude <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  res.name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  init <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  prune <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  use.names <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  mode <span class="op">=</span> <span class="st">"presence"</span>,</span>
-<span>  threshold <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  threshold <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  timeout <span class="op">=</span> <span class="fl">1e+06</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -155,6 +159,11 @@ automatically detected when <code>NULL</code>. (Default: <code>NULL</code>)</p><
 (Default: <code>NULL</code>)</p></dd>
 
 
+<dt id="arg-res-name">res.name<a class="anchor" aria-label="anchor" href="#arg-res-name"></a></dt>
+<dd><p><code>Character vector</code>. Names of resources to include in
+the graph. (Default: <code>NULL</code>)</p></dd>
+
+
 <dt id="arg-init">init<a class="anchor" aria-label="anchor" href="#arg-init"></a></dt>
 <dd><p><code>Character vector</code>. Initial values to prune the first
 mapping step. (Default: <code>NULL</code>)</p></dd>
@@ -180,16 +189,10 @@ console. (Default: <code>TRUE</code>)</p></dd>
 (Default: <code>1e6</code>)</p></dd>
 
 
-<dt id="arg-mode">mode<a class="anchor" aria-label="anchor" href="#arg-mode"></a></dt>
-<dd><p><code>Character scalar</code>. The mode of the output, either as
-<code>"presence"</code> or <code>"coverage"</code> information. Only for
-<code>weaveComplex</code>. (Default: <code>"presence"</code>)</p></dd>
-
-
 <dt id="arg-threshold">threshold<a class="anchor" aria-label="anchor" href="#arg-threshold"></a></dt>
-<dd><p><code>Numeric scalar</code>. The coverage threshold to infer
-presence, between 0 and 1. Only for <code>weaveComplex</code>.
-(Default: <code>1</code>)</p></dd>
+<dd><p><code>Numeric scalar</code>. Only for <code>weaveComplex</code>. The
+coverage threshold above which to include links, between 0 and 1. If
+<code>NULL</code>, all non-zero links are returned. (Default: <code>NULL</code>)</p></dd>
 
 </dl></div>
     <div id="value">
@@ -215,33 +218,36 @@ column.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Weave path starting from initial values</span></span></span>
 <span class="r-in"><span><span class="va">tax2bugsig</span> <span class="op">&lt;-</span> <span class="fu">weavePath</span><span class="op">(</span><span class="va">graph</span>, <span class="va">taxname</span> <span class="op">~</span> <span class="va">bugsig</span>, init <span class="op">=</span> <span class="va">tax.labs</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> bugsig -(BugSigDB)-&gt; taxname</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> taxname -(BugSigDB)-&gt; bugsig</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>names for 1103 bugsig ids not found.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Weave 3-rd path</span></span></span>
 <span class="r-in"><span><span class="va">tax2bugsig</span> <span class="op">&lt;-</span> <span class="fu">weavePath</span><span class="op">(</span><span class="va">graph</span>, <span class="va">taxname</span> <span class="op">~</span> <span class="va">bugsig</span>, init <span class="op">=</span> <span class="va">tax.labs</span>, k <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> taxname -(OTT)-&gt; taxid</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> bugsig -(BugSigDB)-&gt; taxid</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> taxid -(BugSigDB)-&gt; bugsig</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>names for 1390 bugsig ids not found.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Weave path including taxid</span></span></span>
 <span class="r-in"><span><span class="va">tax2bugsig</span> <span class="op">&lt;-</span> <span class="fu">weavePath</span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="va">graph</span>, <span class="va">taxname</span> <span class="op">~</span> <span class="va">bugsig</span>, include <span class="op">=</span> <span class="st">"taxid"</span>, init <span class="op">=</span> <span class="va">tax.labs</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> taxname -(UniProt)-&gt; taxid</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> bugsig -(BugSigDB)-&gt; taxid</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> taxid -(BugSigDB)-&gt; bugsig</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>names for 1103 bugsig ids not found.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Weave simple path from KEGG diseases to gut metabolic modules</span></span></span>
-<span class="r-in"><span><span class="va">dis2gmm</span> <span class="op">&lt;-</span> <span class="fu">weavePath</span><span class="op">(</span><span class="va">graph</span>, <span class="va">disease</span> <span class="op">~</span> <span class="va">gmm</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> disease -(KEGG)-&gt; ko</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> gmm -(GM)-&gt; ko</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Weave complex path from KEGG diseases to gut metabolic modules</span></span></span>
-<span class="r-in"><span><span class="va">dis2gmm</span> <span class="op">&lt;-</span> <span class="fu">weaveComplex</span><span class="op">(</span><span class="va">graph</span>, <span class="va">disease</span> <span class="op">~</span> <span class="va">gmm</span>, threshold <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> disease -(KEGG)-&gt; ko</span>
+<span class="r-in"><span><span class="va">dis2gmm</span> <span class="op">&lt;-</span> <span class="fu">weavePath</span><span class="op">(</span><span class="va">graph</span>, <span class="va">kegg_disease</span> <span class="op">~</span> <span class="va">gmm</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> kegg_disease -(KEGG)-&gt; ko</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ko -(GM)-&gt; gmm</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Obtain results in terms of coverage</span></span></span>
-<span class="r-in"><span><span class="va">dis2gmm</span> <span class="op">&lt;-</span> <span class="fu">weaveComplex</span><span class="op">(</span><span class="va">graph</span>, <span class="va">disease</span> <span class="op">~</span> <span class="va">gmm</span>, mode <span class="op">=</span> <span class="st">"coverage"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> disease -(KEGG)-&gt; ko</span>
+<span class="r-in"><span><span class="co"># Weave complex path from KEGG diseases to gut metabolic modules</span></span></span>
+<span class="r-in"><span><span class="va">dis2gmm</span> <span class="op">&lt;-</span> <span class="fu">weaveComplex</span><span class="op">(</span><span class="va">graph</span>, <span class="va">kegg_disease</span> <span class="op">~</span> <span class="va">gmm</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> kegg_disease -(KEGG)-&gt; ko</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ko -(GM)-&gt; gmm</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Specify coverage threshold</span></span></span>
+<span class="r-in"><span><span class="va">dis2gmm</span> <span class="op">&lt;-</span> <span class="fu">weaveComplex</span><span class="op">(</span><span class="va">graph</span>, <span class="va">kegg_disease</span> <span class="op">~</span> <span class="va">gmm</span>, threshold <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> kegg_disease -(KEGG)-&gt; ko</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ko -(GM)-&gt; gmm</span>
 </code></pre></div>
     </div>

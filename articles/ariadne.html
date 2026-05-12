@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ariadne</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.3</span>
       </span>
     </div>
 
@@ -52,13 +52,16 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/comparison.html">Comparison</a>
+      <a href="../articles/comparison.html">Predicting functional modules: gene families vs taxa</a>
     </li>
     <li>
       <a href="../articles/database.html">A quick intro to the ariadne database</a>
     </li>
     <li>
       <a href="../articles/msea.html">Microbe-Set Enrichment Analysis</a>
+    </li>
+    <li>
+      <a href="../articles/pathway.html">Metabolic Pathway Enrichment Analysis</a>
     </li>
   </ul>
 </li>
@@ -92,7 +95,7 @@ Benedetti</h4>
 Turku<br><a class="author_email" href="mailto:#"></a><a href="mailto:giulio.benedetti@utu.fi" class="email">giulio.benedetti@utu.fi</a>
       </address>
                   
-            <h4 data-toc-skip class="date">23 April 2026</h4>
+            <h4 data-toc-skip class="date">12 May 2026</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/Minotau-R/ariadne/blob/devel/vignettes/ariadne.Rmd" class="external-link"><code>vignettes/ariadne.Rmd</code></a></small>
       <div class="hidden name"><code>ariadne.Rmd</code></div>
@@ -239,18 +242,98 @@ the links between biological entities. The resource graph can be
 imported as an igraph object with the function <code>ariadne</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/Minotau-R/ariadne" class="external-link">ariadne</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r.igraph.org/" class="external-link">igraph</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Import resource graph</span></span>
 <span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ariadne.html">ariadne</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># View graph</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">graph</span><span class="op">)</span></span>
-<span><span class="co">#&gt; IGRAPH 69ef279 DN-- 268 970 -- </span></span>
+<span><span class="co">#&gt; IGRAPH dab97b1 DN-- 197 530 -- </span></span>
 <span><span class="co">#&gt; + attr: name (v/c), BugSigDB (v/c), ChocoPhlAn (v/c), GM (v/c), GO</span></span>
 <span><span class="co">#&gt; | (v/c), KEGG (v/c), OTT (v/c), Rhea (v/c), TIGRFAMs (v/c), UniProt</span></span>
 <span><span class="co">#&gt; | (v/c), WoL (v/c), url (v/c), source (e/c), url (e/c)</span></span></code></pre></div>
-<p>The graph can also be visualised with <code>plotPath</code>.</p>
+<p>The graph can be explored using all native functions from the igraph
+package. For example, we can sort its nodes by degree, that is, the
+number of adjacent edges:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">node_degrees</span> <span class="op">&lt;-</span> <span class="va">graph</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://r.igraph.org/reference/degree.html" class="external-link">degree</a></span><span class="op">(</span>mode <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span>decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">node_degrees</span> <span class="op">&lt;-</span> <span class="va">node_degrees</span><span class="op">[</span><span class="va">node_degrees</span> <span class="op">&gt;=</span> <span class="fl">10</span><span class="op">]</span></span>
+<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">node_degrees</span>, col.names <span class="op">=</span> <span class="st">"degree"</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">degree</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">uniref90</td>
+<td align="right">130</td>
+</tr>
+<tr class="even">
+<td align="left">uniref50</td>
+<td align="right">121</td>
+</tr>
+<tr class="odd">
+<td align="left">uniprotkb</td>
+<td align="right">115</td>
+</tr>
+<tr class="even">
+<td align="left">chebi</td>
+<td align="right">44</td>
+</tr>
+<tr class="odd">
+<td align="left">go</td>
+<td align="right">26</td>
+</tr>
+<tr class="even">
+<td align="left">ec</td>
+<td align="right">15</td>
+</tr>
+<tr class="odd">
+<td align="left">rhea</td>
+<td align="right">15</td>
+</tr>
+<tr class="even">
+<td align="left">ko</td>
+<td align="right">14</td>
+</tr>
+<tr class="odd">
+<td align="left">kegg_cpd</td>
+<td align="right">12</td>
+</tr>
+<tr class="even">
+<td align="left">kegg_path</td>
+<td align="right">11</td>
+</tr>
+<tr class="odd">
+<td align="left">taxid</td>
+<td align="right">11</td>
+</tr>
+<tr class="even">
+<td align="left">taxname</td>
+<td align="right">11</td>
+</tr>
+<tr class="odd">
+<td align="left">kegg_rxn</td>
+<td align="right">10</td>
+</tr>
+</tbody>
+</table>
+<p>In addition, we can list all the nodes in the neighbourhood of a
+certain node:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://r.igraph.org/reference/neighbors.html" class="external-link">neighbors</a></span><span class="op">(</span><span class="va">graph</span>, <span class="st">"ko"</span>, mode <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; + 14/197 vertices, named, from dab97b1:</span></span>
+<span><span class="co">#&gt;  [1] brite        ec           gbm          gmm          kegg_disease</span></span>
+<span><span class="co">#&gt;  [6] kegg_drug    kegg_genes   kegg_mod     kegg_net     kegg_path   </span></span>
+<span><span class="co">#&gt; [11] kegg_rxn     rclass       uniref50     uniref90</span></span></code></pre></div>
+<p>The graph can also be visualised with <code>plotPath</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot resource graph</span></span>
 <span><span class="fu"><a href="../reference/plotPath.html">plotPath</a></span><span class="op">(</span><span class="va">graph</span><span class="op">)</span></span></code></pre></div>
 <p><img src="ariadne_files/figure-html/plot-1.png" class="r-plt" alt="" width="700"></p>
@@ -258,7 +341,7 @@ imported as an igraph object with the function <code>ariadne</code>.</p>
 activity represented by KEGG Orthologues (KO) and Enzyme Commission (EC)
 ids, respectively. The function <code>searchPath</code> can be used to
 find the <code>k</code> shortest paths in the graph.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Search for paths from ko to ec</span></span>
 <span><span class="fu"><a href="../reference/searchPath.html">searchPath</a></span><span class="op">(</span><span class="va">graph</span>, <span class="va">ko</span> <span class="op">~</span> <span class="va">ec</span>, k <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Path 1:</span></span>
@@ -268,15 +351,15 @@ find the <code>k</code> shortest paths in the graph.</p>
 <span><span class="co">#&gt; ko -(ChocoPhlAn)-&gt; uniref90 -(UniProt)-&gt; ec</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Path 3:</span></span>
-<span><span class="co">#&gt; ko -(WoL)-&gt; uniref90 -(UniProt)-&gt; ec</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<span><span class="co">#&gt; ko -(ChocoPhlAn)-&gt; uniref50 -(UniProt)-&gt; ec</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotPath.html">plotPath</a></span><span class="op">(</span><span class="va">graph</span>, <span class="va">ko</span> <span class="op">~</span> <span class="va">ec</span>, include <span class="op">=</span> <span class="st">"uniref90"</span>, focus <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="ariadne_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="700"></p>
+<p><img src="ariadne_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="700"></p>
 <p>We decide to go through the simplest path, which corresponds to a
 <code>k</code> of 1. The links between KO and EC are found by the
 function <code>weavePath</code>, which fetches the necessary resources
 and weaves a path from KO to EC.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Weave path from ko to ec</span></span>
 <span><span class="va">ko2ec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/weavePath.html">weavePath</a></span><span class="op">(</span><span class="va">graph</span>, <span class="va">ko</span> <span class="op">~</span> <span class="va">ec</span>, k <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ko -(KEGG)-&gt; ec</span></span>
@@ -296,127 +379,6 @@ table where each row is a pair of ids (one KO and one EC). When
 available, the feature names are returned as a third optional
 column.</p>
 </div>
-<div class="section level3">
-<h3 id="incorporate-relational-knowledge-in-a-dataset">Incorporate relational knowledge in a dataset<a class="anchor" aria-label="anchor" href="#incorporate-relational-knowledge-in-a-dataset"></a>
-</h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://microbiome.github.io/mia/" class="external-link">mia</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Loading required package: MultiAssayExperiment</span></span>
-<span><span class="co">#&gt; Loading required package: SummarizedExperiment</span></span>
-<span><span class="co">#&gt; Loading required package: MatrixGenerics</span></span>
-<span><span class="co">#&gt; Loading required package: matrixStats</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'MatrixGenerics'</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:matrixStats':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,</span></span>
-<span><span class="co">#&gt;     colCounts, colCummaxs, colCummins, colCumprods, colCumsums,</span></span>
-<span><span class="co">#&gt;     colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,</span></span>
-<span><span class="co">#&gt;     colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,</span></span>
-<span><span class="co">#&gt;     colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,</span></span>
-<span><span class="co">#&gt;     colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,</span></span>
-<span><span class="co">#&gt;     colWeightedMeans, colWeightedMedians, colWeightedSds,</span></span>
-<span><span class="co">#&gt;     colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,</span></span>
-<span><span class="co">#&gt;     rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,</span></span>
-<span><span class="co">#&gt;     rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,</span></span>
-<span><span class="co">#&gt;     rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,</span></span>
-<span><span class="co">#&gt;     rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,</span></span>
-<span><span class="co">#&gt;     rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,</span></span>
-<span><span class="co">#&gt;     rowWeightedMads, rowWeightedMeans, rowWeightedMedians,</span></span>
-<span><span class="co">#&gt;     rowWeightedSds, rowWeightedVars</span></span>
-<span><span class="co">#&gt; Loading required package: GenomicRanges</span></span>
-<span><span class="co">#&gt; Loading required package: stats4</span></span>
-<span><span class="co">#&gt; Loading required package: BiocGenerics</span></span>
-<span><span class="co">#&gt; Loading required package: generics</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'generics'</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     as.difftime, as.factor, as.ordered, intersect, is.element, setdiff,</span></span>
-<span><span class="co">#&gt;     setequal, union</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'BiocGenerics'</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     IQR, mad, sd, var, xtabs</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     anyDuplicated, aperm, append, as.data.frame, basename, cbind,</span></span>
-<span><span class="co">#&gt;     colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,</span></span>
-<span><span class="co">#&gt;     get, grep, grepl, is.unsorted, lapply, Map, mapply, match, mget,</span></span>
-<span><span class="co">#&gt;     order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,</span></span>
-<span><span class="co">#&gt;     rbind, Reduce, rownames, sapply, saveRDS, table, tapply, unique,</span></span>
-<span><span class="co">#&gt;     unsplit, which.max, which.min</span></span>
-<span><span class="co">#&gt; Loading required package: S4Vectors</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'S4Vectors'</span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:utils':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     findMatches</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     expand.grid, I, unname</span></span>
-<span><span class="co">#&gt; Loading required package: IRanges</span></span>
-<span><span class="co">#&gt; Loading required package: Seqinfo</span></span>
-<span><span class="co">#&gt; Loading required package: Biobase</span></span>
-<span><span class="co">#&gt; Welcome to Bioconductor</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     Vignettes contain introductory material; view with</span></span>
-<span><span class="co">#&gt;     'browseVignettes()'. To cite Bioconductor, see</span></span>
-<span><span class="co">#&gt;     'citation("Biobase")', and for packages 'citation("pkgname")'.</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'Biobase'</span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:MatrixGenerics':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     rowMedians</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:matrixStats':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     anyMissing, rowMedians</span></span>
-<span><span class="co">#&gt; Loading required package: SingleCellExperiment</span></span>
-<span><span class="co">#&gt; Loading required package: TreeSummarizedExperiment</span></span>
-<span><span class="co">#&gt; Loading required package: Biostrings</span></span>
-<span><span class="co">#&gt; Loading required package: XVector</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'Biostrings'</span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:base':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     strsplit</span></span>
-<span><span class="co">#&gt; This is mia version 1.19.8</span></span>
-<span><span class="co">#&gt; - Online documentation and vignettes: https://microbiome.github.io/mia/</span></span>
-<span><span class="co">#&gt; - Online book 'Orchestrating Microbiome Analysis (OMA)': https://microbiome.github.io/OMA/docs/devel/</span></span>
-<span></span>
-<span><span class="co"># Import dataset</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"Tengeler2020"</span>, package <span class="op">=</span> <span class="st">"mia"</span><span class="op">)</span></span>
-<span><span class="va">tse</span> <span class="op">&lt;-</span> <span class="va">Tengeler2020</span></span>
-<span></span>
-<span><span class="co"># Retrieve taxon names</span></span>
-<span><span class="va">tax.labs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://microbiome.github.io/mia/reference/taxonomy-methods.html" class="external-link">getTaxonomyLabels</a></span><span class="op">(</span><span class="va">tse</span>, make.unique <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="va">tax.labs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"^.+:"</span>, <span class="st">""</span>, <span class="va">tax.labs</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># butyrate</span></span>
-<span><span class="co"># addModules</span></span>
-<span><span class="co"># butyrate producer abundance</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tax2ec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/weavePath.html">weavePath</a></span><span class="op">(</span></span>
-<span>    <span class="va">graph</span>,</span>
-<span>    <span class="va">taxname</span> <span class="op">~</span> <span class="va">ec</span>,</span>
-<span>    include <span class="op">=</span> <span class="st">"uniref90"</span>,</span>
-<span>    init <span class="op">=</span> <span class="va">tax.labs</span>,</span>
-<span>    factor <span class="op">=</span> <span class="fl">8</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; taxname -(UniProt)-&gt; uniref90</span></span>
-<span><span class="co">#&gt; uniref90 -(UniProt)-&gt; ec</span></span>
-<span><span class="co">#&gt; Warning: names for 1239 ec ids not found.</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tax2ec</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                 taxname      ec ec.name</span></span>
-<span><span class="co">#&gt; 1 f__Enterobacteriaceae 1.-.-.-    &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 2    f__Lachnospiraceae 1.-.-.-    &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 3        g__Akkermansia 1.-.-.-    &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 4          g__Alistipes 1.-.-.-    &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 5       g__Anaerostipes 1.-.-.-    &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 6      g__Anaerotruncus 1.-.-.-    &lt;NA&gt;</span></span></code></pre></div>
-</div>
 </div>
 <div class="section level2">
 <h2 id="resources">Resources<a class="anchor" aria-label="anchor" href="#resources"></a>
@@ -427,7 +389,7 @@ column.</p>
 <p>We hope that ariadne will be useful for your research. Please use the
 following information to cite the package and the overall approach.
 Thank you!</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Citation info</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"ariadne"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning in citation("ariadne"): could not determine year for 'ariadne' from</span></span>
@@ -436,14 +398,14 @@ Thank you!</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Benedetti G, Bastiaanssen T, Lahti L (????). _ariadne: Assembling</span></span>
 <span><span class="co">#&gt;   Relational Information Across the Database NEtwork_. R package</span></span>
-<span><span class="co">#&gt;   version 0.2.2, &lt;https://github.com/Minotau-R/ariadne&gt;.</span></span>
+<span><span class="co">#&gt;   version 0.2.3, &lt;https://github.com/Minotau-R/ariadne&gt;.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; A BibTeX entry for LaTeX users is</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   @Manual{,</span></span>
 <span><span class="co">#&gt;     title = {ariadne: Assembling Relational Information Across the Database NEtwork},</span></span>
 <span><span class="co">#&gt;     author = {Giulio Benedetti and Thomaz Bastiaanssen and Leo Lahti},</span></span>
-<span><span class="co">#&gt;     note = {R package version 0.2.2},</span></span>
+<span><span class="co">#&gt;     note = {R package version 0.2.3},</span></span>
 <span><span class="co">#&gt;     url = {https://github.com/Minotau-R/ariadne},</span></span>
 <span><span class="co">#&gt;   }</span></span></code></pre></div>
 </div>
@@ -484,7 +446,7 @@ guidelines</a>.</p>
 <h2 id="reproducibility">Reproducibility<a class="anchor" aria-label="anchor" href="#reproducibility"></a>
 </h2>
 <p>R session information:</p>
-<pre><code><span><span class="co">#&gt; R Under development (unstable) (2026-04-19 r89916)</span></span>
+<pre><code><span><span class="co">#&gt; R version 4.6.0 (2026-04-24)</span></span>
 <span><span class="co">#&gt; Platform: x86_64-pc-linux-gnu</span></span>
 <span><span class="co">#&gt; Running under: Ubuntu 24.04.4 LTS</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -501,51 +463,41 @@ guidelines</a>.</p>
 <span><span class="co">#&gt; tzcode source: system (glibc)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; attached base packages:</span></span>
-<span><span class="co">#&gt; [1] stats4    stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt;  [1] mia_1.19.8                      TreeSummarizedExperiment_2.19.0 Biostrings_2.79.5              </span></span>
-<span><span class="co">#&gt;  [4] XVector_0.51.0                  SingleCellExperiment_1.33.2     MultiAssayExperiment_1.37.4    </span></span>
-<span><span class="co">#&gt;  [7] SummarizedExperiment_1.41.1     Biobase_2.71.0                  GenomicRanges_1.63.2           </span></span>
-<span><span class="co">#&gt; [10] Seqinfo_1.1.0                   IRanges_2.45.0                  S4Vectors_0.49.2               </span></span>
-<span><span class="co">#&gt; [13] BiocGenerics_0.57.1             generics_0.1.4                  MatrixGenerics_1.23.0          </span></span>
-<span><span class="co">#&gt; [16] matrixStats_1.5.0               ariadne_0.2.2                   BiocStyle_2.39.0               </span></span>
+<span><span class="co">#&gt; [1] igraph_2.3.1     ariadne_0.2.3    BiocStyle_2.41.0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
-<span><span class="co">#&gt;   [1] RColorBrewer_1.1-3          jsonlite_2.0.0              magrittr_2.0.5              ggbeeswarm_0.7.3           </span></span>
-<span><span class="co">#&gt;   [5] farver_2.1.2                rmarkdown_2.31              fs_2.1.0                    ragg_1.5.2                 </span></span>
-<span><span class="co">#&gt;   [9] vctrs_0.7.3                 DelayedMatrixStats_1.33.0   memoise_2.0.1               forcats_1.0.1              </span></span>
-<span><span class="co">#&gt;  [13] htmltools_0.5.9             S4Arrays_1.11.1             progress_1.2.3              curl_7.1.0                 </span></span>
-<span><span class="co">#&gt;  [17] BiocNeighbors_2.5.4         SparseArray_1.11.13         sass_0.4.10                 bslib_0.10.0               </span></span>
-<span><span class="co">#&gt;  [21] htmlwidgets_1.6.4           desc_1.4.3                  plyr_1.8.9                  DECIPHER_3.7.1             </span></span>
-<span><span class="co">#&gt;  [25] httr2_1.2.2                 cachem_1.1.0                igraph_2.3.0                lifecycle_1.0.5            </span></span>
-<span><span class="co">#&gt;  [29] pkgconfig_2.0.3             rsvd_1.0.5                  Matrix_1.7-5                R6_2.6.1                   </span></span>
-<span><span class="co">#&gt;  [33] fastmap_1.2.0               digest_0.6.39               scater_1.39.4               irlba_2.3.7                </span></span>
-<span><span class="co">#&gt;  [37] textshaping_1.0.5           RSQLite_2.4.6               vegan_2.7-3                 beachmat_2.27.5            </span></span>
-<span><span class="co">#&gt;  [41] filelock_1.0.3              labeling_0.4.3              MultiFactor_0.1.2           mgcv_1.9-4                 </span></span>
-<span><span class="co">#&gt;  [45] httr_1.4.8                  polyclip_1.10-7             abind_1.4-8                 compiler_4.7.0             </span></span>
-<span><span class="co">#&gt;  [49] bit64_4.8.0                 withr_3.0.2                 S7_0.2.2                    BiocParallel_1.45.0        </span></span>
-<span><span class="co">#&gt;  [53] viridis_0.6.5               DBI_1.3.0                   ggforce_0.5.0               rotl_3.1.1                 </span></span>
-<span><span class="co">#&gt;  [57] MASS_7.3-65                 rappdirs_0.3.4              DelayedArray_0.37.1         bluster_1.21.1             </span></span>
-<span><span class="co">#&gt;  [61] permute_0.9-10              tools_4.7.0                 vipor_0.4.7                 rncl_0.8.9                 </span></span>
-<span><span class="co">#&gt;  [65] otel_0.2.0                  beeswarm_0.4.0              ape_5.8-1                   rentrez_1.2.4              </span></span>
-<span><span class="co">#&gt;  [69] glue_1.8.1                  nlme_3.1-169                grid_4.7.0                  reshape2_1.4.5             </span></span>
-<span><span class="co">#&gt;  [73] cluster_2.1.8.2             gtable_0.3.6                tzdb_0.5.0                  tidyr_1.3.2                </span></span>
-<span><span class="co">#&gt;  [77] data.table_1.18.2.1         hms_1.1.4                   BiocSingular_1.27.1         tidygraph_1.3.1            </span></span>
-<span><span class="co">#&gt;  [81] ScaledMatrix_1.19.0         ggrepel_0.9.8               pillar_1.11.1               stringr_1.6.0              </span></span>
-<span><span class="co">#&gt;  [85] yulab.utils_0.2.4           splines_4.7.0               dplyr_1.2.1                 tweenr_2.0.3               </span></span>
-<span><span class="co">#&gt;  [89] BiocFileCache_3.1.0         treeio_1.35.0               lattice_0.22-9              bit_4.6.0                  </span></span>
-<span><span class="co">#&gt;  [93] DirichletMultinomial_1.53.0 tidyselect_1.2.1            scuttle_1.21.6              knitr_1.51                 </span></span>
-<span><span class="co">#&gt;  [97] gridExtra_2.3               bookdown_0.46               xfun_0.57                   graphlayouts_1.2.3         </span></span>
-<span><span class="co">#&gt; [101] stringi_1.8.7               lazyeval_0.2.3              yaml_2.3.12                 evaluate_1.0.5             </span></span>
-<span><span class="co">#&gt; [105] codetools_0.2-20            ggraph_2.2.2                tibble_3.3.1                BiocManager_1.30.27        </span></span>
-<span><span class="co">#&gt; [109] cli_3.6.6                   arrow_23.0.1.2              systemfonts_1.3.2           jquerylib_0.1.4            </span></span>
-<span><span class="co">#&gt; [113] Rcpp_1.1.1-1                dbplyr_2.5.2                png_0.1-9                   XML_3.99-0.23              </span></span>
-<span><span class="co">#&gt; [117] parallel_4.7.0              pkgdown_2.2.0               ggplot2_4.0.3               readr_2.2.0                </span></span>
-<span><span class="co">#&gt; [121] assertthat_0.2.1            blob_1.3.0                  prettyunits_1.2.0           ecodive_2.2.6              </span></span>
-<span><span class="co">#&gt; [125] sparseMatrixStats_1.23.0    decontam_1.31.0             viridisLite_0.4.3           tidytree_0.4.7             </span></span>
-<span><span class="co">#&gt; [129] scales_1.4.0                purrr_1.2.2                 crayon_1.5.3                rlang_1.2.0                </span></span>
-<span><span class="co">#&gt; [133] KEGGREST_1.51.1</span></span></code></pre>
+<span><span class="co">#&gt;   [1] DBI_1.3.0                   gridExtra_2.3               httr2_1.2.2                 rlang_1.2.0                </span></span>
+<span><span class="co">#&gt;   [5] magrittr_2.0.5              otel_0.2.0                  matrixStats_1.5.0           compiler_4.6.0             </span></span>
+<span><span class="co">#&gt;   [9] RSQLite_3.52.0              png_0.1-9                   systemfonts_1.3.2           vctrs_0.7.3                </span></span>
+<span><span class="co">#&gt;  [13] stringr_1.6.0               pkgconfig_2.0.3             crayon_1.5.3                fastmap_1.2.0              </span></span>
+<span><span class="co">#&gt;  [17] dbplyr_2.5.2                XVector_0.53.0              labeling_0.4.3              ggraph_2.2.2               </span></span>
+<span><span class="co">#&gt;  [21] rmarkdown_2.31              tzdb_0.5.0                  ragg_1.5.2                  purrr_1.2.2                </span></span>
+<span><span class="co">#&gt;  [25] bit_4.6.0                   xfun_0.57                   cachem_1.1.0                jsonlite_2.0.0             </span></span>
+<span><span class="co">#&gt;  [29] progress_1.2.3              blob_1.3.0                  DelayedArray_0.39.1         BiocParallel_1.47.0        </span></span>
+<span><span class="co">#&gt;  [33] tweenr_2.0.3                prettyunits_1.2.0           parallel_4.6.0              R6_2.6.1                   </span></span>
+<span><span class="co">#&gt;  [37] MultiFactor_0.1.2           stringi_1.8.7               bslib_0.10.0                RColorBrewer_1.1-3         </span></span>
+<span><span class="co">#&gt;  [41] GenomicRanges_1.65.0        jquerylib_0.1.4             Rcpp_1.1.1-1.1              Seqinfo_1.3.0              </span></span>
+<span><span class="co">#&gt;  [45] bookdown_0.46               assertthat_0.2.1            SummarizedExperiment_1.43.0 knitr_1.51                 </span></span>
+<span><span class="co">#&gt;  [49] readr_2.2.0                 IRanges_2.47.0              rentrez_1.2.4               rotl_3.1.1                 </span></span>
+<span><span class="co">#&gt;  [53] Matrix_1.7-5                tidyselect_1.2.1            abind_1.4-8                 yaml_2.3.12                </span></span>
+<span><span class="co">#&gt;  [57] viridis_0.6.5               codetools_0.2-20            curl_7.1.0                  lattice_0.22-9             </span></span>
+<span><span class="co">#&gt;  [61] tibble_3.3.1                Biobase_2.73.1              withr_3.0.2                 KEGGREST_1.53.0            </span></span>
+<span><span class="co">#&gt;  [65] S7_0.2.2                    evaluate_1.0.5              desc_1.4.3                  polyclip_1.10-7            </span></span>
+<span><span class="co">#&gt;  [69] BiocFileCache_3.3.0         Biostrings_2.81.1           pillar_1.11.1               BiocManager_1.30.27        </span></span>
+<span><span class="co">#&gt;  [73] filelock_1.0.3              MatrixGenerics_1.25.0       stats4_4.6.0                generics_0.1.4             </span></span>
+<span><span class="co">#&gt;  [77] S4Vectors_0.51.1            hms_1.1.4                   ggplot2_4.0.3               scales_1.4.0               </span></span>
+<span><span class="co">#&gt;  [81] rncl_0.8.9                  glue_1.8.1                  tools_4.6.0                 data.table_1.18.4          </span></span>
+<span><span class="co">#&gt;  [85] XML_3.99-0.23               fs_2.1.0                    graphlayouts_1.2.3          tidygraph_1.3.1            </span></span>
+<span><span class="co">#&gt;  [89] grid_4.6.0                  ape_5.8-1                   tidyr_1.3.2                 nlme_3.1-169               </span></span>
+<span><span class="co">#&gt;  [93] ggforce_0.5.0               cli_3.6.6                   rappdirs_0.3.4              textshaping_1.0.5          </span></span>
+<span><span class="co">#&gt;  [97] S4Arrays_1.13.0             viridisLite_0.4.3           arrow_24.0.0                dplyr_1.2.1                </span></span>
+<span><span class="co">#&gt; [101] gtable_0.3.6                sass_0.4.10                 digest_0.6.39               BiocGenerics_0.59.0        </span></span>
+<span><span class="co">#&gt; [105] SparseArray_1.13.2          ggrepel_0.9.8               htmlwidgets_1.6.4           farver_2.1.2               </span></span>
+<span><span class="co">#&gt; [109] memoise_2.0.1               htmltools_0.5.9             pkgdown_2.2.0               lifecycle_1.0.5            </span></span>
+<span><span class="co">#&gt; [113] httr_1.4.8                  bit64_4.8.0                 MASS_7.3-65</span></span></code></pre>
 </div>
   </div>
 

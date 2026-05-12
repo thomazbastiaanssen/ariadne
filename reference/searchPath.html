@@ -18,7 +18,7 @@ resources."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ariadne</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.3</span>
       </span>
     </div>
 
@@ -36,13 +36,16 @@ resources."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/comparison.html">Comparison</a>
+      <a href="../articles/comparison.html">Predicting functional modules: gene families vs taxa</a>
     </li>
     <li>
       <a href="../articles/database.html">A quick intro to the ariadne database</a>
     </li>
     <li>
       <a href="../articles/msea.html">Microbe-Set Enrichment Analysis</a>
+    </li>
+    <li>
+      <a href="../articles/pathway.html">Metabolic Pathway Enrichment Analysis</a>
     </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
@@ -74,7 +77,7 @@ resources.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">searchPath</span><span class="op">(</span><span class="va">graph</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S4 method for class 'igraph'</span></span>
-<span><span class="fu">searchPath</span><span class="op">(</span><span class="va">graph</span>, <span class="va">by</span>, k <span class="op">=</span> <span class="fl">1</span>, include <span class="op">=</span> <span class="cn">NULL</span>, exclude <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">searchPath</span><span class="op">(</span><span class="va">graph</span>, <span class="va">by</span>, k <span class="op">=</span> <span class="fl">1</span>, include <span class="op">=</span> <span class="cn">NULL</span>, exclude <span class="op">=</span> <span class="cn">NULL</span>, res.name <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -107,6 +110,11 @@ resources.</p>
 <dd><p><code>Character vector</code>. Nodes to avoid in the path.
 (Default: <code>NULL</code>)</p></dd>
 
+
+<dt id="arg-res-name">res.name<a class="anchor" aria-label="anchor" href="#arg-res-name"></a></dt>
+<dd><p><code>Character vector</code>. Names of resources to include in
+the graph. (Default: <code>NULL</code>)</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -127,37 +135,49 @@ resources.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ko -(ChocoPhlAn)-&gt; uniref90 -(UniProt)-&gt; ec</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Path 3:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ko -(WoL)-&gt; uniref90 -(UniProt)-&gt; ec</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ko -(ChocoPhlAn)-&gt; uniref50 -(UniProt)-&gt; ec</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Path 4:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ko -(ChocoPhlAn)-&gt; uniref90 -(ChocoPhlAn)-&gt; ec</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Path 5:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ko -(WoL)-&gt; uniref90 -(ChocoPhlAn)-&gt; ec</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ko -(ChocoPhlAn)-&gt; uniref50 -(ChocoPhlAn)-&gt; ec</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Search first path including uniref90</span></span></span>
 <span class="r-in"><span><span class="fu">searchPath</span><span class="op">(</span><span class="va">graph</span>, <span class="va">taxname</span> <span class="op">~</span> <span class="va">ko</span>, include <span class="op">=</span> <span class="st">"uniref90"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Path 1:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> taxname -(UniProt)-&gt; uniref90 -(WoL)-&gt; ko</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> taxname -(UniProt)-&gt; uniref90 -(ChocoPhlAn)-&gt; ko</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Search first 5 paths excluding uniref50 and uniref100</span></span></span>
-<span class="r-in"><span><span class="fu">searchPath</span><span class="op">(</span><span class="va">graph</span>, <span class="va">taxname</span> <span class="op">~</span> <span class="va">ko</span>, k <span class="op">=</span> <span class="fl">5</span>, exclude <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uniref50"</span>, <span class="st">"uniref100"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">searchPath</span><span class="op">(</span><span class="va">graph</span>, <span class="va">taxname</span> <span class="op">~</span> <span class="va">ko</span>, k <span class="op">=</span> <span class="fl">5</span>, exclude <span class="op">=</span> <span class="st">"uniref50"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Path 1:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> taxname -(UniProt)-&gt; uniref90 -(WoL)-&gt; ko</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Path 2:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> taxname -(UniProt)-&gt; uniref90 -(ChocoPhlAn)-&gt; ko</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Path 2:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> taxname -(UniProt)-&gt; uniref90 -(UniProt)-&gt; kegg_genes -(KEGG)-&gt; ko</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Path 3:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> taxname -(UniProt)-&gt; uniref90 -(UniProt)-&gt; genes -(KEGG)-&gt; ko</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> taxname -(UniProt)-&gt; taxid -(UniProt)-&gt; uniref90 -(ChocoPhlAn)-&gt; ko</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Path 4:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> taxname -(UniProt)-&gt; taxid -(UniProt)-&gt; uniref90 -(WoL)-&gt; ko</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> taxname -(UniProt)-&gt; uniref90 -(UniProt)-&gt; ec -(KEGG)-&gt; ko</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Path 5:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> taxname -(UniProt)-&gt; taxid -(UniProt)-&gt; uniref90 -(ChocoPhlAn)-&gt; ko</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> taxname -(OTT)-&gt; taxid -(UniProt)-&gt; uniref90 -(ChocoPhlAn)-&gt; ko</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Search path for a subset of resources</span></span></span>
+<span class="r-in"><span><span class="fu">searchPath</span><span class="op">(</span><span class="va">graph</span>, <span class="va">uniref90</span> <span class="op">~</span> <span class="va">eggnog</span>, k <span class="op">=</span> <span class="fl">3</span>, res.name <span class="op">=</span> <span class="st">"ChocoPhlAn"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Path 1:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> uniref90 -(ChocoPhlAn)-&gt; eggnog</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Path 2:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> uniref90 -(ChocoPhlAn)-&gt; uniref50 -(ChocoPhlAn)-&gt; eggnog</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Path 3:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> uniref90 -(ChocoPhlAn)-&gt; pfam -(ChocoPhlAn)-&gt; uniref50 -(ChocoPhlAn)-&gt; eggnog</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>
     </div>

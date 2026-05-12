@@ -19,7 +19,7 @@ complement analysis results and ensure reproducibility."><!-- mathjax --><script
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ariadne</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.3</span>
       </span>
     </div>
 
@@ -37,13 +37,16 @@ complement analysis results and ensure reproducibility."><!-- mathjax --><script
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/comparison.html">Comparison</a>
+      <a href="../articles/comparison.html">Predicting functional modules: gene families vs taxa</a>
     </li>
     <li>
       <a href="../articles/database.html">A quick intro to the ariadne database</a>
     </li>
     <li>
       <a href="../articles/msea.html">Microbe-Set Enrichment Analysis</a>
+    </li>
+    <li>
+      <a href="../articles/pathway.html">Metabolic Pathway Enrichment Analysis</a>
     </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
@@ -76,7 +79,7 @@ complement analysis results and ensure reproducibility.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">drawPath</span><span class="op">(</span><span class="va">graph</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S4 method for class 'igraph'</span></span>
-<span><span class="fu">drawPath</span><span class="op">(</span><span class="va">graph</span>, <span class="va">by</span>, k <span class="op">=</span> <span class="fl">1</span>, include <span class="op">=</span> <span class="cn">NULL</span>, exclude <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">drawPath</span><span class="op">(</span><span class="va">graph</span>, <span class="va">by</span>, k <span class="op">=</span> <span class="fl">1</span>, include <span class="op">=</span> <span class="cn">NULL</span>, exclude <span class="op">=</span> <span class="cn">NULL</span>, res.name <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -108,6 +111,11 @@ complement analysis results and ensure reproducibility.</p>
 <dt id="arg-exclude">exclude<a class="anchor" aria-label="anchor" href="#arg-exclude"></a></dt>
 <dd><p><code>Character vector</code>. Nodes to avoid in the path.
 (Default: <code>NULL</code>)</p></dd>
+
+
+<dt id="arg-res-name">res.name<a class="anchor" aria-label="anchor" href="#arg-res-name"></a></dt>
+<dd><p><code>Character vector</code>. Names of resources to include in
+the graph. (Default: <code>NULL</code>)</p></dd>
 
 </dl></div>
     <div id="value">

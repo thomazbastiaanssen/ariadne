@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ariadne</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.3</span>
       </span>
     </div>
 
@@ -35,13 +35,16 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/comparison.html">Comparison</a>
+      <a href="../articles/comparison.html">Predicting functional modules: gene families vs taxa</a>
     </li>
     <li>
       <a href="../articles/database.html">A quick intro to the ariadne database</a>
     </li>
     <li>
       <a href="../articles/msea.html">Microbe-Set Enrichment Analysis</a>
+    </li>
+    <li>
+      <a href="../articles/pathway.html">Metabolic Pathway Enrichment Analysis</a>
     </li>
   </ul></li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
@@ -78,6 +81,7 @@
 <span>  k <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  include <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  exclude <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  res.name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  focus <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -113,6 +117,11 @@
 (Default: <code>NULL</code>)</p></dd>
 
 
+<dt id="arg-res-name">res.name<a class="anchor" aria-label="anchor" href="#arg-res-name"></a></dt>
+<dd><p><code>Character vector</code>. Names of resources to include in
+the graph. (Default: <code>NULL</code>)</p></dd>
+
+
 <dt id="arg-focus">focus<a class="anchor" aria-label="anchor" href="#arg-focus"></a></dt>
 <dd><p><code>Logical scalar</code>. Whether the edges and nodes in the path
 should be plotted. (Default: <code>FALSE</code>)</p></dd>
@@ -128,17 +137,25 @@ should be plotted. (Default: <code>FALSE</code>)</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Retrieve resource graph</span></span></span>
 <span class="r-in"><span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu"><a href="ariadne.html">ariadne</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Plot graph for a subset of resources</span></span></span>
+<span class="r-in"><span><span class="fu">plotPath</span><span class="op">(</span><span class="va">graph</span>, res.name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"KEGG"</span>, <span class="st">"WoL"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Using alpha for a discrete variable is not advised.</span>
+<span class="r-plt img"><img src="plotPath-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot fifth path from ko to ec</span></span></span>
 <span class="r-in"><span><span class="fu">plotPath</span><span class="op">(</span><span class="va">graph</span>, <span class="va">ko</span> <span class="op">~</span> <span class="va">ec</span>, k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plotPath-1.png" alt="" width="700" height="433"></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Using alpha for a discrete variable is not advised.</span>
+<span class="r-plt img"><img src="plotPath-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot first path including uniref90</span></span></span>
 <span class="r-in"><span><span class="fu">plotPath</span><span class="op">(</span><span class="va">graph</span>, <span class="va">taxname</span> <span class="op">~</span> <span class="va">ko</span>, include <span class="op">=</span> <span class="st">"uniref90"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plotPath-2.png" alt="" width="700" height="433"></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Using alpha for a discrete variable is not advised.</span>
+<span class="r-plt img"><img src="plotPath-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot first 5 paths excluding uniref50 and uniref100</span></span></span>
-<span class="r-in"><span><span class="fu">plotPath</span><span class="op">(</span><span class="va">graph</span>, <span class="va">taxname</span> <span class="op">~</span> <span class="va">ko</span>, k <span class="op">=</span> <span class="fl">5</span>, exclude <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uniref50"</span>, <span class="st">"uniref100"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plotPath-3.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">plotPath</span><span class="op">(</span><span class="va">graph</span>, <span class="va">taxname</span> <span class="op">~</span> <span class="va">ko</span>, k <span class="op">=</span> <span class="fl">5</span>, exclude <span class="op">=</span> <span class="st">"uniref50"</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Using alpha for a discrete variable is not advised.</span>
+<span class="r-plt img"><img src="plotPath-4.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </div>
