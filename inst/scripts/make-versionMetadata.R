@@ -2,7 +2,7 @@
 devtools::load_all()
 source("utils.R")
 
-default.graph <- 18937991
+default.graph <- 19397292
 dfs <- list()
 
 # Add BugSigDB versions
@@ -87,7 +87,3 @@ attr(df, "urls") <- c(
 
 df -> versionMetadata
 usethis::use_data(versionMetadata, internal = TRUE, overwrite = TRUE)
-
-
-
-

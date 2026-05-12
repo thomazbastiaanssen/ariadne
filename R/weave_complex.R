@@ -5,9 +5,9 @@
 #' @importFrom stats as.formula
 #' @importFrom Matrix summary
 setMethod("weaveComplex", signature = c(graph = "igraph"),
-    function(graph, by, k = 1, include = NULL, exclude = NULL, init = NULL,
-    prune = TRUE, use.names = TRUE, threshold = NULL, verbose = TRUE,
-    timeout = 1e6, ...){
+    function(graph, by, k = 1, include = NULL, exclude = NULL, res.name = NULL,
+    init = NULL, prune = TRUE, use.names = TRUE, threshold = NULL,
+    verbose = TRUE, timeout = 1e6, ...){
     # Check threshold
     if( !is.null(threshold) && (!is.numeric(threshold) ||
         length(threshold) != 1L || threshold <= 0 || threshold > 1) ){
@@ -39,8 +39,8 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
     
     # Build MultiFactor from path linkmaps
     mf <- .build_path_mf(
-        graph, inner_by, k, include, exclude, init,
-        prune, TRUE, verbose, timeout, ...
+        graph, inner_by, k, include, exclude, res.name,
+        init, prune, TRUE, verbose, timeout, ...
     )
     
     if( target %in% complex_modules ){
@@ -140,12 +140,12 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
     )
     # Split feature list by tab character
     feature_list <- strsplit(
-        unlist(values, recursive = TRUE, use.names = FALSE), "\t"
+        unlist(values, recursive = TRUE, use.names = FALSE), "\t", fixed = TRUE
     )
     names(feature_list) <- module_component
     # Flatten feature complex list and split by comma to get individual features
     feature_complex <- unlist(feature_list, use.names = FALSE)
-    feature <- strsplit(feature_complex, ",")
+    feature <- strsplit(feature_complex, ",", fixed = TRUE)
     # Create and return structured list of data frames
     out <- list(
         module2component = data.frame(module, component = module_component),

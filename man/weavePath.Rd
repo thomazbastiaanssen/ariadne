@@ -17,6 +17,7 @@ weaveComplex(graph, ...)
   k = 1,
   include = NULL,
   exclude = NULL,
+  res.name = NULL,
   init = NULL,
   prune = TRUE,
   use.names = TRUE,
@@ -31,6 +32,7 @@ weaveComplex(graph, ...)
   k = 1,
   include = NULL,
   exclude = NULL,
+  res.name = NULL,
   init = NULL,
   prune = TRUE,
   use.names = TRUE,
@@ -65,6 +67,9 @@ automatically detected when \code{NULL}. (Default: \code{NULL})
 
 \item{exclude}{\code{Character vector}. Nodes to avoid in the path.
 (Default: \code{NULL})}
+
+\item{res.name}{\code{Character vector}. Names of resources to include in
+the graph. (Default: \code{NULL})}
 
 \item{init}{\code{Character vector}. Initial values to prune the first
 mapping step. (Default: \code{NULL})}

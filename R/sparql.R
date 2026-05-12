@@ -16,7 +16,7 @@
         PREFIX uniref: <http://purl.uniprot.org/uniref/>
         PREFIX up: <http://purl.uniprot.org/core/>
         
-        SELECT DISTINCT ?", paste0(c(from, to), collapse = " ?"), "
+        SELECT DISTINCT ?", paste(c(from, to), collapse = " ?"), "
         WHERE {
         "
     )
@@ -37,8 +37,7 @@
 
 
 #' @importFrom data.table fread
-#' @importFrom httr2 request req_headers req_timeout req_perform
-#'   resp_body_string req_body_form
+#' @importFrom httr2 request req_headers req_timeout req_perform resp_body_string req_body_form
 .sendSPARQL <- function(query, endpoint, timeout) {
     # Get base url from endpoint table
     endpoint <- .endpoint_table(endpoint)
@@ -64,7 +63,7 @@
         # Limit query with values
         values <- paste0(
             "VALUES ?", spec.from, " {\n",
-                paste0(.iri_table(init, from, to, endpoint), collapse = " "), "
+                paste(.iri_table(init, from, to, endpoint), collapse = " "), "
             }\n")
         # Pre-append values to clause
         clause <- paste0(values, clause)

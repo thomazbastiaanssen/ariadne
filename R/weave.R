@@ -26,6 +26,9 @@
 #' @param exclude \code{Character vector}. Nodes to avoid in the path.
 #'   (Default: \code{NULL})
 #' 
+#' @param res.name \code{Character vector}. Names of resources to include in
+#'   the graph. (Default: \code{NULL})
+#' 
 #' @param init \code{Character vector}. Initial values to prune the first
 #'   mapping step. (Default: \code{NULL})
 #' 
@@ -102,11 +105,12 @@ NULL
 #' @importFrom stats as.formula
 #' @importFrom MultiFactor MultiFactor weave
 setMethod("weavePath", signature = c(graph = "igraph"),
-    function(graph, by, k = 1, include = NULL, exclude = NULL, init = NULL,
-    prune = TRUE, use.names = TRUE, verbose = TRUE, timeout = 1e6, ...){
+    function(graph, by, k = 1, include = NULL, exclude = NULL, res.name = NULL,
+    init = NULL, prune = TRUE, use.names = TRUE, verbose = TRUE,
+    timeout = 1e6, ...){
     # Build MultiFactor from path linkmaps
     mf <- .build_path_mf(
-        graph, by, k, include, exclude,
+        graph, by, k, include, exclude, res.name,
         init, prune, prune, verbose, timeout, ...
     )
     # Weave desired linkmap from MultiFactor
@@ -121,8 +125,8 @@ setMethod("weavePath", signature = c(graph = "igraph"),
 })
 
 
-.build_path_mf <- function(graph, by, k, include, exclude, init, prune,
-    prune.last, verbose, timeout, ...){
+.build_path_mf <- function(graph, by, k, include, exclude, res.name, init,
+    prune, prune.last, verbose, timeout, ...){
     # Check shared numeric args
     if( !is.numeric(timeout) || length(timeout) != 1L || timeout <= 0 ){
         stop("'timeout' must be a positive number", call. = FALSE)
@@ -156,7 +160,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     # Select unique input
     init <- unique(init)
     # Draw kth path from source to target
-    path_df <- .draw_path(graph, path_by, k, include, exclude)
+    path_df <- .draw_path(graph, path_by, k, include, exclude, res.name)
     # Add edges metadata
     path_df <- .add_edge_metadata(path_df, graph, internal = TRUE)
     # Create pruning instructions

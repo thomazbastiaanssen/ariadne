@@ -44,8 +44,6 @@ knitr::opts_chunk$set(
 library(ariadne)
 library(igraph)
 library(dplyr)
-library(ggplot2)
-library(patchwork)
 ```
 
 When `ariadne` is executed, the graph for each resource is retrieved from the
@@ -65,7 +63,7 @@ argument `versions`. This defaults to the latest version found in the database.
 
 ```{r res_versions}
 # List available resource versions
-versions <- listResourceVersions()
+versions <- listResourceVersions(default = TRUE)
 
 # View versions
 knitr::kable(versions)
@@ -101,19 +99,11 @@ knitr::kable(df)
 The graph for each resource can be visualized with its own graph.
 
 ```{r plot_graphs}
-plots <- list()
-
-for(res_name in df$source) {
-    # Build graph for individual resource
-    res_df <- edge_df[edge_df$source == res_name, c("from", "to")]
-    res_graph <- graph_from_data_frame(res_df)
-    
-    # Store resource graph
-    plots[[res_name]] <- plotPath(res_graph) + ggtitle(res_name)
-}
+# Create resource graphs
+plots <- lapply(df$source, function(x) plotPath(graph, res.name = x))
 
 # View resource graphs
-wrap_plots(plots)
+plots
 ```
 
 

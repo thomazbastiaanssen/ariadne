@@ -7,7 +7,7 @@
 \usage{
 searchPath(graph, ...)
 
-\S4method{searchPath}{igraph}(graph, by, k = 1, include = NULL, exclude = NULL)
+\S4method{searchPath}{igraph}(graph, by, k = 1, include = NULL, exclude = NULL, res.name = NULL)
 }
 \arguments{
 \item{graph}{An igraph object.}
@@ -24,6 +24,9 @@ searchPath(graph, ...)
 
 \item{exclude}{\code{Character vector}. Nodes to avoid in the path.
 (Default: \code{NULL})}
+
+\item{res.name}{\code{Character vector}. Names of resources to include in
+the graph. (Default: \code{NULL})}
 }
 \value{
 A message.
@@ -43,5 +46,8 @@ searchPath(graph, ko ~ ec, k = 5)
 searchPath(graph, taxname ~ ko, include = "uniref90")
 
 # Search first 5 paths excluding uniref50 and uniref100
-searchPath(graph, taxname ~ ko, k = 5, exclude = c("uniref50", "uniref100"))
+searchPath(graph, taxname ~ ko, k = 5, exclude = "uniref50")
+
+# Search path for a subset of resources
+searchPath(graph, uniref90 ~ eggnog, k = 3, res.name = "ChocoPhlAn")
 }

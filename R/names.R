@@ -79,7 +79,7 @@ setMethod("linkNames", signature = c(graph = "igraph"),
 
 #' @importFrom data.table fread
 #' @importFrom KEGGREST listDatabases keggList
-#' @importFrom stringr str_split
+#' @importFrom stringr str_split fixed
 #' @importFrom readr read_lines
 #' @importFrom MultiFactor LinkMap
 .fetch_node <- function(g, ids){
@@ -101,7 +101,7 @@ setMethod("linkNames", signature = c(graph = "igraph"),
             read_lines(skip = 1L) |>
             str_split(fixed("\t")) |>
             vapply(`[`, 1L, FUN.VALUE = character(1L)) |>
-            str_split("_", n = 2L, simplify = TRUE) |>
+            str_split(fixed("_"), n = 2L, simplify = TRUE) |>
             as.data.frame()
         
         name_links[[1L]] <- sub("bsdb:", "", name_links[[1L]], fixed = TRUE)

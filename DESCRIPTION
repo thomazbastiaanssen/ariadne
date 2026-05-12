@@ -1,5 +1,5 @@
 Package: ariadne
-Version: 0.2.2
+Version: 0.2.3
 Authors@R: 
     c(person(given = "Giulio", family = "Benedetti", role = c("aut", "cre"),
           email = "giulio.benedetti@utu.fi",
@@ -56,17 +56,18 @@ Suggests:
     knitr,
     mia,
     miaViz,
-    patchwork,
     remotes,
     rmarkdown,
     R.utils,
     TreeSummarizedExperiment,
     testthat (>= 3.0.0)
 Remotes:
-    github::Minotau-R/MultiFactor
+    github::Minotau-R/MultiFactor,
+    github::microbiome/mia@fix_modules
 URL: https://github.com/Minotau-R/ariadne
 BugReports: https://github.com/Minotau-R/ariadne/issues
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 VignetteBuilder: knitr
 LazyData: true
+Config/roxygen2/version: 8.0.0
+RoxygenNote: 7.3.3

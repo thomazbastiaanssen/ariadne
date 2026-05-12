@@ -19,6 +19,9 @@
 #' @param exclude \code{Character vector}. Nodes to avoid in the path.
 #'   (Default: \code{NULL})
 #' 
+#' @param res.name \code{Character vector}. Names of resources to include in
+#'   the graph. (Default: \code{NULL})
+#' 
 #' @param ... Unused.
 #' 
 #' @returns
@@ -35,7 +38,10 @@
 #' searchPath(graph, taxname ~ ko, include = "uniref90")
 #' 
 #' # Search first 5 paths excluding uniref50 and uniref100
-#' searchPath(graph, taxname ~ ko, k = 5, exclude = c("uniref50", "uniref100"))
+#' searchPath(graph, taxname ~ ko, k = 5, exclude = "uniref50")
+#' 
+#' # Search path for a subset of resources
+#' searchPath(graph, uniref90 ~ eggnog, k = 3, res.name = "ChocoPhlAn")
 NULL
 
 
@@ -43,7 +49,7 @@ NULL
 #' @rdname searchPath
 #' @importFrom igraph E V k_shortest_paths
 setMethod("searchPath", signature = c(graph = "igraph"),
-    function(graph, by, k = 1, include = NULL, exclude = NULL){
+    function(graph, by, k = 1, include = NULL, exclude = NULL, res.name = NULL){
     # Initialise message
     msg <- c()
     # Print paths up to k
@@ -51,7 +57,7 @@ setMethod("searchPath", signature = c(graph = "igraph"),
         # Add path number
         msg <- c(msg, "Path ", j, ":\n")
         # Get path
-        path_df <- .draw_path(graph, by, j, include, exclude)
+        path_df <- .draw_path(graph, by, j, include, exclude, res.name)
         # Add path string
         path_str <- paste0(
             " -(", path_df$source, ")-> ", path_df$to, collapse = ""
@@ -65,60 +71,3 @@ setMethod("searchPath", signature = c(graph = "igraph"),
     message(msg)
     invisible(NULL)
 })
-
-
-#' @importFrom igraph k_shortest_paths E<- V<-
-.draw_path <- function(
-    graph, by, k, include, exclude, buffer.factor = 2, max.attempts = 5){
-    # Check args
-    if( !is.numeric(k) || length(k) != 1L || k <= 0 ){
-        stop("'k' must be a positive integer.", call. = FALSE)
-    }
-    if( length(intersect(include, exclude)) != 0L ){
-        stop("'include' and 'exclude' cannot overlap.", call. = FALSE)
-    }
-    # Extract by vars
-    by.vars <- all.vars(by)
-    from <- by.vars[1]
-    to <- by.vars[2]
-    # Initialise while vars
-    j <- k
-    i <- 0
-    keep <- logical(0L)
-    # Until enough paths found
-    while( i < max.attempts && k > sum(keep) ){
-        # Find paths
-        sp <- k_shortest_paths(graph, from, to, k = j, mode = "all")
-        # Select suitable paths
-        keep <- vapply(
-          sp$vpaths,
-          function(v) all(include %in% names(v)) & !any(exclude %in% names(v)),
-          logical(1L)
-        )
-        # Increase buffer and attempt
-        j <- buffer.factor * j
-        i <- i + 1
-    }
-    # Check results
-    if( !any(keep) ){
-        stop("No paths meet 'include' and 'exclude' criteria.", call. = FALSE)
-    }
-    if( k > sum(keep) ){
-        stop("'k' is greater than the number of possible paths.", call. = FALSE)
-    }
-    # Select suitable paths
-    sp <- lapply(sp, `[`, keep)
-    # Find edges and nodes indices
-    edge_idx <- sp$epaths[[k]]
-    node_idx <- sp$vpaths[[k]]
-    # Retrieve edges and nodes
-    edges <- E(graph)$source[edge_idx]
-    nodes <- V(graph)$name[node_idx]
-    # Create path data.frame
-    path_df <- data.frame(
-        from = nodes[-length(nodes)],
-        to = nodes[-1],
-        source = edges
-    )
-    return(path_df)
-}
