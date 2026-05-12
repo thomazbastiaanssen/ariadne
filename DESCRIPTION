@@ -63,6 +63,7 @@ Suggests:
     testthat (>= 3.0.0)
 Remotes:
     github::Minotau-R/MultiFactor
+    github::microbiome/mia@fix_modules
 URL: https://github.com/Minotau-R/ariadne
 BugReports: https://github.com/Minotau-R/ariadne/issues
 Roxygen: list(markdown = TRUE)
