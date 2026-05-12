@@ -34,6 +34,7 @@
             x, header = FALSE, select = c(1L, 2L)
         ),
         GO = function(x) .process_one2one(x, header = FALSE),
+        MSigDB = .process_rdslist(x),
         GM = .process_complex_modules
     )
     # Preprocess data
@@ -115,3 +116,42 @@
     linkmap$y <- val.FUN(linkmap$y)
     return(linkmap)
 }
+
+
+#' @importFrom BiocParallel bplapply
+#' @importFrom data.table rbindlist
+#' @importFrom utils download.file unzip
+.process_rdslist <- function(x){
+    
+    url <- "https://zenodo.org/api/records/18968178/files-archive"
+    download.file(url, "msigdb.zip")
+    
+    unzip("msigdb.zip", exdir = "msigdb")
+    file.remove("msigdb.zip")
+    
+    files <- list.files("msigdb", full.names = TRUE)
+    
+    if( length(files) == 1L && endsWith(files, ".zip") ){
+        unzip(files, exdir = "msigdb")
+        file.remove(files)
+    }
+    
+    files <- list.files("msigdb", full.names = TRUE)
+    files <- grepv("summary", files, invert = TRUE)
+    
+    linkmaps <- bplapply(files, readRDS)
+    linkmap <- rbindlist(linkmaps)
+    
+    keep_cols <- c(
+        genesym = "db_gene_symbol", geneid = "db_ncbi_gene",
+        ensembl = "db_ensembl_gene", msig = "gs_id", pmid = "gs_pmid",
+        geo = "gs_geoid", msig.name = "gs_name", msig_col = "gs_collection",
+        msig_col.name = "gs_collection_name"
+    )
+    
+    linkmap <- linkmap[ , .SD, .SDcols = keep_cols]
+    colnames(linkmap) <- names(keep_cols)
+    
+    return(linkmap)
+}
+
