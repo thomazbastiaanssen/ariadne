@@ -141,7 +141,7 @@ top.mods <- getTop(tax.modules, assay.type = "relative_abundance")
 
 plotAbundance(
     tax.modules[top.mods, ],
-    assay.type = "gene_families",
+    assay.type = "relative_abundance",
     col.var = "disease",
     scales = "free_x",
     as.relative = TRUE,
