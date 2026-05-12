@@ -61,7 +61,7 @@ searchPath(graph, uniref90 ~ gmm, k = 3)
 
 ```{r}
 # Weave bindings between taxa and GMMs
-uniref2gmm <- weaveComplex(graph, uniref90 ~ gmm, k = 2, init = rownames(genes))
+uniref2gmm <- weaveComplex(graph, uniref90 ~ gmm, init = rownames(genes))
 
 # Print some results
 head(uniref2gmm)
@@ -121,7 +121,7 @@ searchPath(graph, taxid ~ gmm, k = 3)
 
 ```{r}
 # Link taxa to gut metabolic modules (remove taxid 562 to speed up)
-tax2gmm <- weaveComplex(graph, taxid ~ gmm, k = 3, init = rowData(tse)$species)
+tax2gmm <- weaveComplex(graph, taxid ~ gmm, k = 2, init = rowData(tse)$species)
 
 head(tax2gmm)
 ```
