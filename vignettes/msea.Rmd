@@ -119,7 +119,7 @@ plotAbundanceDensity(
 ```
 
 ```{r}
-idx <- apply(rowData(tse)[adhd.mods], 2L, function(x) which(x))
+idx <- apply(rowData(tse)[adhd.mods], 2L, function(x) which(x != 0L))
 
 to_keep <- lengths(idx) != 0L
 idx <- idx[to_keep]
@@ -135,5 +135,15 @@ res <- lapply(
 ```{r}
 library(patchwork)
 wrap_plots(res)
+```
+
+# Reproducibility
+
+R session information:
+
+```{r reproduce, echo=FALSE}
+# Session info
+options(width = 120)
+sessionInfo()
 ```
 

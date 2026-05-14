@@ -77,3 +77,12 @@ uniref2path <- weaveComplex(graph, ec ~ metacyc_path)
 head(uniref2path)
 ```
 
+# Reproducibility
+
+R session information:
+
+```{r reproduce, echo=FALSE}
+# Session info
+options(width = 120)
+sessionInfo()
+```
