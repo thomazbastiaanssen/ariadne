@@ -240,8 +240,8 @@ setMethod("weavePath", signature = c(graph = "igraph"),
             rownames(df) <- NULL
         }
         # Strip special IRI prefixes
-        df[[1L]] <- .strip_iri(df[[1L]], g$from)
-        df[[2L]] <- .strip_iri(df[[2L]], g$to)
+        df[[1L]] <- .strip_iri(df[[1L]], g$specFrom)
+        df[[2L]] <- .strip_iri(df[[2L]], g$specTo)
     # Fetch linkmap from file
     }else{
         # Get file path to cached resource

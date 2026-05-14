@@ -12,7 +12,7 @@ test_that("plot", {
     expect_in(pdata[[1]]$edge_alpha, TRUE)
     expect_identical(nrow(pdata[[2]]), length(graph))
 
-    p <- plotPath(graph, ec ~ ko, focus = TRUE)
+    p <- plotPath(graph, ec ~ ko, prune = TRUE)
     pdata <- ggplot2::ggplot_build(p)$data
     
     expect_in(pdata[[1]]$edge_colour, c("grey80", "red"))
@@ -22,8 +22,8 @@ test_that("plot", {
     expect_error(plotPath(graph, ec ~ ko, focus = "wrong"))
     
     expect_error(
-        plotPath(graph, focus = TRUE),
-        "'focus' can be TRUE when 'by' is defined."
+        plotPath(graph, prune = TRUE),
+        "'prune' must be FALSE when 'by' is not defined."
     )
 
 })
