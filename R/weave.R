@@ -251,15 +251,14 @@ setMethod("weavePath", signature = c(graph = "igraph"),
             # Filter linkmap before importing
             df <- cached |>
                 open_dataset() |>
+                dplyr::select(g$from, g$to) |>
                 filter(!!sym(g$initFrom) %in% init) |>
                 collect() |>
                 as.data.frame()
         }else{
             # Read linkmap from parquet
-            df <- read_parquet(cached)
+            df <- read_parquet(cached, col_select = c(g$from, g$to))
         }
-        # Swap columns if direction does not equal file order 
-        if( g$from != g$initFrom ) df <- rev(df)
     }
     # Check that result is not empty
     if( nrow(df) == 0L ) stop("Bindings depleted.", call. = FALSE)

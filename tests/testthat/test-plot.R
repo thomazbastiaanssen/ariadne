@@ -25,5 +25,4 @@ test_that("plot", {
         plotPath(graph, prune = TRUE),
         "'prune' must be FALSE when 'by' is not defined."
     )
-
 })
