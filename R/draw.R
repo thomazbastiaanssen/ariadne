@@ -130,17 +130,17 @@ setMethod("drawPath", signature = c(graph = "igraph"),
     path_df$url <- edge_df$url[idx]
     
     if( internal ){
-      
+        # Store path variable order
         path_df$initFrom <- path_df$from
         path_df$initTo <- path_df$to
-        
+        # Use graph variable order for URL resources
         idy <- which(!is.na(path_df$url))
-        path_df[idy, c("from", "to")] <- edge_df[idx[idy], c("from", "to")]
-        
-        # Retrieve specific names for KEGG, OTT and SPARQL queries
+        path_df$from[idy] <- edge_df$from[idx[idy]]
+        path_df$to[idy] <- edge_df$to[idx[idy]]
+        # Retrieve specific names for the queries
         path_df$specFrom <- .generic2specific(path_df, node_df, "from")
         path_df$specTo <- .generic2specific(path_df, node_df, "to")
+        path_df$specInitFrom <- .generic2specific(path_df, node_df, "initFrom")
     }
-    
     return(path_df)
 }

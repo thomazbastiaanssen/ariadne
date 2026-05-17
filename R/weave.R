@@ -186,7 +186,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
 
 #' @importFrom KEGGREST keggConv keggLink
 #' @importFrom arrow read_parquet open_dataset
-#' @importFrom dplyr filter collect
+#' @importFrom dplyr select filter collect
 #' @importFrom MultiFactor LinkMap
 #' @importFrom rlang sym
 .fetch_edge <- function(g, init, timeout, ...){
@@ -245,20 +245,22 @@ setMethod("weavePath", signature = c(graph = "igraph"),
     # Fetch linkmap from file
     }else{
         # Get file path to cached resource
-        cached <- .cache_resource(g$url, g$source, g$from, g$to)
+        cached <- .cache_resource(g$url, g$source, g$specFrom, g$specTo)
         # If initial values are given
         if( is_init ){
             # Filter linkmap before importing
             df <- cached |>
                 open_dataset() |>
-                dplyr::select(g$from, g$to) |>
-                filter(!!sym(g$initFrom) %in% init) |>
+                dplyr::select(g$specFrom, g$specTo) |>
+                filter(!!sym(g$specInitFrom) %in% init) |>
                 collect() |>
                 as.data.frame()
         }else{
             # Read linkmap from parquet
-            df <- read_parquet(cached, col_select = c(g$from, g$to))
+            df <- read_parquet(cached, col_select = c(g$specFrom, g$specTo))
         }
+        # Swap columns if direction does not equal file order 
+        if( g$from != g$initFrom ) df <- rev(df)
     }
     # Check that result is not empty
     if( nrow(df) == 0L ) stop("Bindings depleted.", call. = FALSE)
