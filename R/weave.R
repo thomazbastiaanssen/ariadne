@@ -186,8 +186,9 @@ setMethod("weavePath", signature = c(graph = "igraph"),
 
 #' @importFrom KEGGREST keggConv keggLink
 #' @importFrom arrow read_parquet open_dataset
-#' @importFrom dplyr filter collect
+#' @importFrom dplyr select filter collect
 #' @importFrom MultiFactor LinkMap
+#' @importFrom tidyselect all_of
 #' @importFrom rlang sym
 .fetch_edge <- function(g, init, timeout, ...){
     # Check if init exists
@@ -240,23 +241,26 @@ setMethod("weavePath", signature = c(graph = "igraph"),
             rownames(df) <- NULL
         }
         # Strip special IRI prefixes
-        df[[1L]] <- .strip_iri(df[[1L]], g$from)
-        df[[2L]] <- .strip_iri(df[[2L]], g$to)
+        df[[1L]] <- .strip_iri(df[[1L]], g$specFrom)
+        df[[2L]] <- .strip_iri(df[[2L]], g$specTo)
     # Fetch linkmap from file
     }else{
         # Get file path to cached resource
-        cached <- .cache_resource(g$url, g$source, g$from, g$to)
+        cached <- .cache_resource(g$url, g$source, g$specFrom, g$specTo)
         # If initial values are given
         if( is_init ){
             # Filter linkmap before importing
             df <- cached |>
                 open_dataset() |>
-                filter(!!sym(g$initFrom) %in% init) |>
+                dplyr::select(all_of(c(g$specFrom, g$specTo))) |>
+                filter(!!sym(g$specInitFrom) %in% init) |>
                 collect() |>
                 as.data.frame()
         }else{
             # Read linkmap from parquet
-            df <- read_parquet(cached)
+            df <- read_parquet(
+                cached, col_select = all_of(c(g$specFrom, g$specTo))
+            )
         }
         # Swap columns if direction does not equal file order 
         if( g$from != g$initFrom ) df <- rev(df)

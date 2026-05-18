@@ -1,0 +1,81 @@
+---
+title: "Gene-Set Enrichment Analysis"
+author:
+  - name: Giulio Benedetti
+    affiliation: University of Turku
+    email: giulio.benedetti@utu.fi
+output:
+    BiocStyle::html_document:
+        fig_height: 7
+        fig_width: 10
+        toc: true
+        toc_float: true
+        toc_depth: 2
+        number_sections: true
+        self_contained: true
+        code_folding: show
+date: "`r doc_date()`"
+package: "`r pkg_ver('ariadne')`"
+vignette: >
+    %\VignetteIndexEntry{Gene-Set Enrichment Analysis}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Gene Expression Omnibus
+
+```{r}
+library(ariadne)
+library(GEOquery)
+```
+
+
+```{r}
+eList <- getGEO("GSE11675")
+
+eData <- eList[[1]]
+
+eData
+```
+
+
+```{r}
+head(exprs(eData))
+```
+
+```{r}
+genes <- featureData(eData)@data$ENTREZ_GENE_ID
+
+head(genes)
+```
+
+```{r}
+graph <- ariadne()
+```
+
+```{r}
+plotPath(graph, geneid ~ msig, prune = TRUE, focus = TRUE)
+```
+
+```{r}
+gene2msig <- weavePath(graph, geneid ~ msig, init = genes)
+
+head(gene2msig)
+```
+
+# Reproducibility
+
+R session information:
+
+```{r reproduce, echo=FALSE}
+# Session info
+options(width = 120)
+sessionInfo()
+```

@@ -14,6 +14,7 @@ plotPath(graph, ...)
   include = NULL,
   exclude = NULL,
   res.name = NULL,
+  prune = FALSE,
   focus = FALSE
 )
 }
@@ -36,8 +37,11 @@ plotPath(graph, ...)
 \item{res.name}{\code{Character vector}. Names of resources to include in
 the graph. (Default: \code{NULL})}
 
-\item{focus}{\code{Logical scalar}. Whether the edges and nodes in the path
+\item{prune}{\code{Logical scalar}. Whether the edges and nodes in the path
 should be plotted. (Default: \code{FALSE})}
+
+\item{focus}{\code{Logical scalar}. Whether the selected edges and nodes
+should be zoomed in. (Default: \code{FALSE})}
 }
 \value{
 A ggplot2 object.

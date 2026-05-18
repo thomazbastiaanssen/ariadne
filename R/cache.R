@@ -1,5 +1,4 @@
 
-
 #' @importFrom BiocFileCache bfcquery
 #' @importFrom arrow write_parquet
 .cache_resource <- function(url, res.name, from, to){
@@ -34,12 +33,13 @@
             x, header = FALSE, select = c(1L, 2L)
         ),
         GO = function(x) .process_one2one(x, header = FALSE),
-        GM = .process_complex_modules
+        GM = .process_complex_modules,
+        MSigDB = .process_rdslist
     )
     # Preprocess data
     linkmap <- FUN(url)
     # Add colnames
-    colnames(linkmap) <- c(from, to)
+    if( res.name != "MSigDB" ) colnames(linkmap) <- c(from, to)
     # Store linkmap in cache as parquet file
     .add2cache(linkmap, rname, bfc)
     # Return path to cached preprocessed file
@@ -113,5 +113,33 @@
     )
     # Apply custom processing function to values
     linkmap$y <- val.FUN(linkmap$y)
+    return(linkmap)
+}
+
+
+#' @importFrom BiocParallel bplapply
+#' @importFrom data.table rbindlist
+#' @importFrom utils download.file unzip
+.process_rdslist <- function(x){
+    # Prepare temporary file and directory
+    temp_file <- tempfile(fileext = ".zip")
+    temp_dir <- tempfile("dir")
+    # Download file archive from Zenodo resource
+    download.file(x, temp_file)
+    unzip(temp_file, exdir = temp_dir)
+    # List files from zipped file
+    files <- list.files(temp_dir, full.names = TRUE)
+    # Unzip file if compressed
+    if( length(files) == 1L && endsWith(files, ".zip") ){
+        unzip(files, exdir = temp_dir)
+    }
+    # List relevant unzipped files
+    files <- list.files(temp_dir, full.names = TRUE)
+    files <- grepv("zip|summary", files, invert = TRUE)
+    # Import and bind linkmaps
+    linkmaps <- bplapply(files, readRDS)
+    linkmap <- rbindlist(linkmaps)
+    # Remove temporary file and directory
+    unlink(c(temp_file, temp_dir), recursive = TRUE)
     return(linkmap)
 }

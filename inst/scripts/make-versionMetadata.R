@@ -21,6 +21,14 @@ dfs[["ChocoPhlAn"]] <- data.frame(
     version = names(versions), key = versions, graph = default.graph
 )
 
+# Add MSigDB versions
+record_id <- 15377497
+versions <- fetch_zenodo_versions(record_id)
+
+dfs[["MSigDB"]] <- data.frame(
+    version = names(versions), key = versions, graph = default.graph
+)
+
 # Add GO versions
 versions <- c("2026-03-25", "2026-01-23", "2025-10-10")
 
@@ -78,6 +86,7 @@ attr(df, "urls") <- c(
     GM = "https://github.com/",
     GO = "https://release.geneontology.org/",
     KEGG = "https://www.genome.jp/kegg",
+    MSigDB = "https://zenodo.org/records/",
     OTT = "https://opentreeoflife.github.io",
     Rhea = "https://www.rhea-db.org",
     TIGRFAMs = "https://ftp.ncbi.nlm.nih.gov/hmm/TIGRFAMs/",

@@ -59,6 +59,8 @@ setMethod("linkNames", signature = c(graph = "igraph"),
     }
     # Retrieve corresponding node from graph
     g <- node_df[node_df$name == x, , drop = FALSE]
+    # Get specific name of x for source database
+    g$spec <- .generic2specific(g, node_df, "name")
     # Map ids and names to one another
     name_links <- .fetch_node(g, ids)
     # Return empty object if no names are available
@@ -77,23 +79,24 @@ setMethod("linkNames", signature = c(graph = "igraph"),
 })
 
 
-#' @importFrom data.table fread
 #' @importFrom KEGGREST listDatabases keggList
+#' @importFrom arrow read_parquet open_dataset
+#' @importFrom dplyr select filter collect
 #' @importFrom stringr str_split fixed
+#' @importFrom tidyselect all_of
 #' @importFrom readr read_lines
-#' @importFrom MultiFactor LinkMap
+#' @importFrom data.table fread
+#' @importFrom rlang sym
 .fetch_node <- function(g, ids){
+    # Check if init ids exist
+    is_init <- !is.null(ids)
     # Check nodes where init is necessary
-    if( g$name == "kegg_genes" && is.null(ids) ){
+    if( g$name == "kegg_genes" && !is_init ){
         stop("Only searches with 'ids' are currently supported for ", g$name,
             ".", call. = FALSE)
     }
     
-    if( !is.na(g$url) ){
-        
-        name_links <- fread(g$url, header = FALSE, showProgress = FALSE)
-    
-    }else if( g$name == "bugsig" ){
+    if( g$name == "bugsig" ){
         
         url <- "https://zenodo.org/records/15272273/files/bugsigdb_signatures_mixed_ncbi.gmt"
         
@@ -107,9 +110,34 @@ setMethod("linkNames", signature = c(graph = "igraph"),
         name_links[[1L]] <- sub("bsdb:", "", name_links[[1L]], fixed = TRUE)
         name_links[[2L]] <- sub("^.+:", "", name_links[[2L]])
     
+    }else if( g$name %in% c("gmm", "gbm") ){
+      
+        name_links <- fread(g$url, header = FALSE, showProgress = FALSE)
+    
+    }else if( !is.na(g$url) ){
+        # Build name colname
+        name_col <-  paste0(g$spec, "_name")
+        if( g$name == "msig" ) name_col <- sub("_id", "", name_col, fixed = TRUE)
+        # Get file path to cached resource
+        cached <- .cache_resource(g$url, g$source, g$spec, name_col)
+        # If initial values are given
+        if( is_init ){
+            # Filter linkmap before importing
+            name_links <- cached |>
+                open_dataset() |>
+                dplyr::select(all_of(c(g$spec, name_col))) |>
+                filter(!!sym(g$spec) %in% ids) |>
+                collect() |>
+                as.data.frame()
+        }else{
+            # Read linkmap from parquet
+            name_links <- read_parquet(
+                cached, col_select = all_of(c(g$spec, name_col))
+            )
+        }
     }else if( g$KEGG %in% c(listDatabases(), "ec", "network") ){
         # Use ids as input if specified
-        init <- if( is.null(ids) ) g$KEGG else unique(ids)
+        init <- if( is_init ) unique(ids) else g$KEGG
         # For many ids, global search is faster
         if( length(init) > 50 ) init <- g$KEGG
         # Get vector of feature names

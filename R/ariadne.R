@@ -85,12 +85,12 @@ ariadne <- function(versions = NULL){
         rbindlist(idcol = "source", fill = TRUE)
     # Reduce missing characters to standard NA
     node_df$url[node_df$url == "NA"] <- NA
-    # Remove rownames and store node urls
-    node_urls <- unique(node_df[!is.na(node_df$url) , c("name", "url")])
+    # Remove rownames and store node metadata
+    node_meta <- unique(node_df[!is.na(node_df$url), c("name", "source", "url")])
     # Widen database-specific names
     node_df <- dcast(node_df, name ~ source, value.var = "specific")
     # Add back node urls
-    node_df  <- merge(node_df, node_urls, by = "name", all.x = TRUE)
+    node_df  <- merge(node_df, node_meta, by = "name", all.x = TRUE)
     # Build final resource graph
     graph <- graph_from_data_frame(edge_df, vertices = node_df)
     # Add versions as attribute to graph

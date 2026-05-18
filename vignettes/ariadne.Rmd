@@ -201,7 +201,7 @@ searchPath(graph, ko ~ ec, k = 3)
 ```
 
 ```{r}
-plotPath(graph, ko ~ ec, include = "uniref90", focus = TRUE)
+plotPath(graph, ko ~ ec, include = "uniref90", prune = TRUE, focus = TRUE)
 ```
 
 We decide to go through the simplest path, which corresponds to a `k` of 1. The

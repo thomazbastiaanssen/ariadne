@@ -21,8 +21,11 @@
 #' @param res.name \code{Character vector}. Names of resources to include in
 #'   the graph. (Default: \code{NULL})
 #' 
-#' @param focus \code{Logical scalar}. Whether the edges and nodes in the path
+#' @param prune \code{Logical scalar}. Whether the edges and nodes in the path
 #'   should be plotted. (Default: \code{FALSE})
+#' 
+#' @param focus \code{Logical scalar}. Whether the selected edges and nodes
+#'   should be zoomed in. (Default: \code{FALSE})
 #' 
 #' @param ... Unused.
 #' 
@@ -47,21 +50,24 @@ NULL
 
 #' @export
 #' @rdname plotPath
-#' @importFrom igraph as_data_frame graph_from_data_frame ends
+#' @importFrom igraph as_data_frame graph_from_data_frame subgraph_from_edges ends
 #' @importFrom ggplot2 aes theme_void theme
 #' @importFrom ggraph ggraph geom_edge_link geom_node_point geom_node_text scale_edge_colour_manual
 setMethod("plotPath", signature = c(graph = "igraph"),
     function(graph, by = NULL, k = 1, include = NULL, exclude = NULL,
-    res.name = NULL, focus = FALSE){
+    res.name = NULL, prune = FALSE, focus = FALSE){
     # Check args
+    if( !is.logical(prune) || length(prune) != 1L ){
+        stop("'prune' must be TRUE or FALSE.", call. = FALSE)
+    }
     if( !is.logical(focus) || length(focus) != 1L ){
         stop("'focus' must be TRUE or FALSE.", call. = FALSE)
     }
     
     by_null <- is.null(by)
     
-    if( focus && by_null ){
-        stop("'focus' can be TRUE when 'by' is defined.", call. = FALSE)
+    if( prune && by_null ){
+        stop("'prune' must be FALSE when 'by' is not defined.", call. = FALSE)
     }
     
     graph_df <- as_data_frame(graph, what = "both")
@@ -88,7 +94,7 @@ setMethod("plotPath", signature = c(graph = "igraph"),
     # Include grey for edges not in paths
     path_colours <- c("0" = "grey80", "1" = "red")
     # Create a vector for edge alpha: 1 if marked, else 0 (transparent)
-    if( focus ){
+    if( prune ){
         edge_df$alpha <- edge_df$mark != 0
         connected_nodes <- unique(c(ends(graph, E(graph)[edge_df$mark != 0])))
         node_df$alpha <- node_df$name %in% connected_nodes
@@ -98,6 +104,10 @@ setMethod("plotPath", signature = c(graph = "igraph"),
     }
     # Create graph from edges and nodes data
     graph <- graph_from_data_frame(edge_df, vertices = node_df)
+    # Remove transparent nodes and edges
+    if( focus ){
+        graph <- subgraph_from_edges(graph, E(graph)[alpha != 0])
+    }
     # Plot graph with edges marked and others faded
     p <- ggraph(graph, layout = "stress") +
         geom_edge_link(aes(colour = factor(.data$mark), label = .data$name,

@@ -44,6 +44,7 @@ knitr::opts_chunk$set(
 library(ariadne)
 library(igraph)
 library(dplyr)
+library(ggplot2)
 ```
 
 When `ariadne` is executed, the graph for each resource is retrieved from the
@@ -100,7 +101,10 @@ The graph for each resource can be visualized with its own graph.
 
 ```{r plot_graphs}
 # Create resource graphs
-plots <- lapply(df$source, function(x) plotPath(graph, res.name = x))
+plots <- lapply(
+    df$source,
+    function(x) plotPath(graph, res.name = x, focus = TRUE) + ggtitle(x)
+)
 
 # View resource graphs
 plots
