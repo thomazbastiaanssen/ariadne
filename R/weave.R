@@ -252,7 +252,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
             # Filter linkmap before importing
             df <- cached |>
                 open_dataset() |>
-                dplyr::select(all_of(g$specFrom, g$specTo)) |>
+                dplyr::select(all_of(c(g$specFrom, g$specTo))) |>
                 filter(!!sym(g$specInitFrom) %in% init) |>
                 collect() |>
                 as.data.frame()
