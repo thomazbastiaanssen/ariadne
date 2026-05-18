@@ -188,6 +188,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
 #' @importFrom arrow read_parquet open_dataset
 #' @importFrom dplyr select filter collect
 #' @importFrom MultiFactor LinkMap
+#' @importFrom tidyselect all_of
 #' @importFrom rlang sym
 .fetch_edge <- function(g, init, timeout, ...){
     # Check if init exists
@@ -251,13 +252,15 @@ setMethod("weavePath", signature = c(graph = "igraph"),
             # Filter linkmap before importing
             df <- cached |>
                 open_dataset() |>
-                dplyr::select(g$specFrom, g$specTo) |>
+                dplyr::select(all_of(g$specFrom, g$specTo)) |>
                 filter(!!sym(g$specInitFrom) %in% init) |>
                 collect() |>
                 as.data.frame()
         }else{
             # Read linkmap from parquet
-            df <- read_parquet(cached, col_select = c(g$specFrom, g$specTo))
+            df <- read_parquet(
+                cached, col_select = all_of(c(g$specFrom, g$specTo))
+            )
         }
         # Swap columns if direction does not equal file order 
         if( g$from != g$initFrom ) df <- rev(df)
