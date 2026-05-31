@@ -1,5 +1,5 @@
 Package: ariadne
-Version: 0.2.4
+Version: 0.2.5
 Authors@R: 
     c(person(given = "Giulio", family = "Benedetti", role = c("aut", "cre"),
           email = "giulio.benedetti@utu.fi",
@@ -63,8 +63,7 @@ Suggests:
     TreeSummarizedExperiment,
     testthat (>= 3.0.0)
 Remotes:
-    github::Minotau-R/MultiFactor,
-    github::microbiome/mia@fix_modules
+    github::Minotau-R/MultiFactor
 URL: https://github.com/Minotau-R/ariadne
 BugReports: https://github.com/Minotau-R/ariadne/issues
 Roxygen: list(markdown = TRUE)
