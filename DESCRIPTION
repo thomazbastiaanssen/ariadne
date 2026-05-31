@@ -63,6 +63,7 @@ Suggests:
     TreeSummarizedExperiment,
     testthat (>= 3.0.0)
 Remotes:
+    github::microbiome/mia,
     github::Minotau-R/MultiFactor
 URL: https://github.com/Minotau-R/ariadne
 BugReports: https://github.com/Minotau-R/ariadne/issues
