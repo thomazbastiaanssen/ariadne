@@ -1,4 +1,4 @@
-# ariadne: on-demand annotation and module analysis
+# ariadne: assembling relational information across the database network
 
 [![issues](https://img.shields.io/github/issues/Minotau-R/ariadne)](https://github.com/Minotau-R/ariadne/issues)
 [![pulls](https://img.shields.io/github/issues-pr/Minotau-R/ariadne)](https://github.com/Minotau-R/ariadne/pulls)
@@ -6,17 +6,29 @@
 [![codecov](https://codecov.io/gh/Minotau-R/ariadne/graph/badge.svg?token=8P7EK6T6WX)](https://codecov.io/gh/Minotau-R/ariadne)
 [![CodeFactor](https://www.codefactor.io/repository/github/minotau-r/ariadne/badge)](https://www.codefactor.io/repository/github/minotau-r/ariadne)
 
-The goal of ariadne is to make annotation and module analysis straightforward.
+ariadne is a multi-purpose R package that integrates relational knowledge from
+various biological databases. It provides tools to navigate resource graphs,
+find and visualise paths between features and link them across different omics
+by leveraging the resource graph hosted in the companion package
+[ariadne.db](https://github.com/Minotau-R/ariadne.db).
+
+Example applications:
+
+- explore relations across omics using curated knowledge, fetched automatically
+  and efficiently using SPARQL and parquet
+- stratify microbes by BugSig and Gut Metabolic modules for functional or
+  microbe-set enrichment analysis
+- converge features from different taxonomies (NCBI, SILVA, OTT, etc.)
 
 # Usage
 
 ## Installation instructions
 
 In the future, we intend to submit ariadne to Bioconductor. For now, the package
-as follows:
+can be installed with:
 
 ```
-remotes::install_github("thomazbastiaanssen/ariadne")
+remotes::install_github("Minotau-R/ariadne")
 ```
 
 ## Code of Conduct
@@ -31,8 +43,7 @@ contributor guidelines of the miaverse
 ## Acknowledgements
 
 ariadne results from the joint effort of the larger bioinformatics community. In
-particular, this software is mainly related to the following packages:
+particular, this software is related to the following packages:
 
+- [_MultiFactor_](https://github.com/Minotau-R/MultiFactor/)
 - [_mia_](https://bioconductor.org/packages/release/bioc/html/mia.html)
-- [_anansi_](https://github.com/thomazbastiaanssen/anansi/)
-- [_TreeSummarizedExperiment_](https://www.bioconductor.org/packages/release/bioc/html/TreeSummarizedExperiment.html)

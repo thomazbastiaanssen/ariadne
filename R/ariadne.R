@@ -1,94 +1,120 @@
 #' Build ariadne resource graph
 #'
 #' @name ariadne
-#' @rdname ariadne
 #' 
 #' @description
-#' \code{ariadne} imports the resource graph hosted in ariadne.db companion data
-#' package.
+#' \code{ariadne} imports the resource graph hosted in the companion package
+#' ariadne.db.
 #' 
 #' @param versions \code{Character list}. A named list of resource versions to
 #' load. Latest versions are used if not specified. (Default: \code{NULL})
 #' 
-#' @return
-#' An igraph object with the ariadne resource graph.
-#' 
-#' @examples
-#' 
-#' # Import ariadne resource graph
-#' graph <- ariadne()
-#' 
-#' # Specify resource versions
-#' graph <- ariadne(versions = list(BugSigDB = "v1.2.0", WoL = "v2.0"))
+#' @returns An igraph object with the ariadne resource graph.
 #' 
 #' @seealso
+#' \itemize{
+#'   \item \code{\link{listResourceVersions}}
+#'   \item ariadne.db: \url{https://github.com/Minotau-R/ariadne.db}
+#'   \item Zenodo: \url{https://zenodo.org/records/18788725}
+#' }
 #' 
-#' \link[ariadne.db]{ariadne.db}
-#' \url{https://zenodo.org/records/18788725}{Link to Zenodo}
+#' @examples
+#' # Import default resource graph
+#' graph <- ariadne()
 #' 
+#' # Specify custom resource versions
+#' versions <- list(BugSigDB = "v1.2.2", WoL = "v20April2021")
+#' graph <- ariadne(versions = versions)
 NULL
 
+
 #' @export
-#' @importFrom httr2 request req_perform resp_body_json
+#' @rdname ariadne
 #' @importFrom igraph read_graph as_data_frame graph_from_data_frame
-#' @importFrom tools R_user_dir
-#' @importFrom dplyr bind_rows
+#' @importFrom stats setNames reshape
+#' @importFrom BiocParallel bpmapply
+#' @importFrom data.table rbindlist dcast
 ariadne <- function(versions = NULL){
-    # Initialise database
-    db <- R_user_dir("ariadne", "data")
-    # Define database url
-    url <- "https://zenodo.org/api/records/18788725"
-    # Send request to database
-    resp <- url |>
-        request() |>
-        req_perform()
-    # Check if request was successful
-    if( resp$status_code != 200 ){
-        stop("Failed to retrieve ariadne.db.", call. = FALSE)
+    # Import version metadata
+    meta <- versionMetadata
+    # Set default versions
+    default_vers <- meta[meta$default, ]
+    default_vers <- setNames(default_vers$version, default_vers$source)
+    # If custom versions are not specified
+    if( is.null(versions) ){
+        # Set to default versions
+        versions <- default_vers
+    }else{
+        # Find unspecified resource versions
+        to_add <- setdiff(names(default_vers), names(versions))
+        # Add default versions for unspecified resources
+        versions <- c(versions, default_vers[to_add])
     }
-    # Parse JSON content
-    record_json <- resp_body_json(resp)
-    # Extract file download URLs and filenames
-    files <- record_json$files
-    keys <- vapply(files, `[[`, "key", FUN.VALUE = character(1L))
-    urls <- vapply(files, function(x) x$links$self, character(1L))
-    # Initialise edge and node data
-    edge_dfs <- list()
-    node_dfs <- list()
-    # For each resource graph
-    for( i in seq_along(keys) ){
-        # Retrieve current key and url
-        key <- keys[i]
-        url <- urls[i]
-        # Download file
-        file_path <- file.path(db, key)
-        request(url) |>
-            req_perform(path = file_path)
-        # Import graph from file
-        file_path <- file.path(db, key)
-        graph <- read_graph(file_path, format = "gml")
-        graph_df <- as_data_frame(graph, what = "both")
-        # Store edge and node data
-        edge_dfs[[key]] <- graph_df$edges
-        node_dfs[[key]] <- graph_df$vertices
+    # Match requested versions to all available versions
+    requested <- paste(names(versions), versions)
+    available <- paste(meta$source, meta$version)
+    idx <- match(requested, available)
+    # Check that versions are valid
+    if( anyNA(idx) ){
+        stop(
+            "Some 'versions' were not found. If it is a very recent release, ",
+            "it may not be registered in the database yet.", call. = FALSE
+        )
     }
-    # Build and clean edge data
-    edge_df <- bind_rows(edge_dfs, .id = "source")
-    edge_df$source <- sub(".gml", "", edge_df$source, fixed = TRUE)
-    edge_df <- edge_df[c("from", "to", "source", "url")]
-    # Build and clean node data
-    node_df <- bind_rows(node_dfs, .id = "source")
-    node_df$source <- sub(".gml", "", node_df$source, fixed = TRUE)
-    node_df <- node_df[c("name", "specific", "source")]
-    rownames(node_df) <- NULL
-    # Widen database-specific names
-    node_df <- reshape(
-        node_df, idvar = "name", timevar = "source", direction = "wide"
+    # Select desired resource versions
+    meta <- meta[idx, ]
+    # Build urls to download resource graphs
+    urls <- paste0(
+        "https://zenodo.org/records/", meta$graph, "/files/", meta$source, ".gml"
     )
-    names(node_df) <- sub("specific.", "", names(node_df), fixed = TRUE)
+    # Fetch individual resource graphs
+    graph_dfs <- bpmapply(
+        .fetch_graph, meta$key, urls, SIMPLIFY = FALSE, USE.NAMES = FALSE
+    )
+    # Name each graph by corresponding resource
+    names(graph_dfs) <- meta$source
+    # Build edge data
+    edge_df <- graph_dfs |>
+        lapply(`[[`, "edges") |>
+        rbindlist(idcol = "source", fill = TRUE)
+    # Reorder edge columns
+    edge_df <- edge_df[ , c("from", "to", "source", "url")]
+    # Build node data
+    node_df <- graph_dfs |>
+        lapply(`[[`, "vertices") |>
+        rbindlist(idcol = "source", fill = TRUE)
+    # Reduce missing characters to standard NA
+    node_df$url[node_df$url == "NA"] <- NA
+    # Remove rownames and store node metadata
+    node_meta <- unique(node_df[!is.na(node_df$url), c("name", "source", "url")])
+    # Widen database-specific names
+    node_df <- dcast(node_df, name ~ source, value.var = "specific")
+    # Add back node urls
+    node_df  <- merge(node_df, node_meta, by = "name", all.x = TRUE)
     # Build final resource graph
     graph <- graph_from_data_frame(edge_df, vertices = node_df)
+    # Add versions as attribute to graph
+    attr(graph, "versions") <- unlist(versions)
     return(graph)
+}
+
+
+.fetch_graph <- function(key, url){
+    # Fetch graph from ariadne.db
+    graph <- read_graph(url, format = "gml")
+    graph_df <- as_data_frame(graph, what = "both")
+    # Add version to edge and node urls
+    graph_df <- .insert_version(graph_df, key)
+    return(graph_df)
+}
+
+
+.insert_version <- function(graph_df, key){
+    graph_df <- lapply(graph_df, function(x){
+        if(!is.null(x$url)) x$url <- sub("{version}", key, x$url, fixed = TRUE)
+        return(x)
+    })
+    return(graph_df)
 }
 
 

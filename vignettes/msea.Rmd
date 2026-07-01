@@ -1,6 +1,6 @@
 ---
-title: "MSEA"
-author: 
+title: "Microbe-Set Enrichment Analysis"
+author:
   - name: Giulio Benedetti
     affiliation: University of Turku
     email: giulio.benedetti@utu.fi
@@ -17,26 +17,133 @@ output:
 date: "`r doc_date()`"
 package: "`r pkg_ver('ariadne')`"
 vignette: >
-    %\VignetteIndexEntry{ariadne}
+    %\VignetteIndexEntry{Microbe-Set Enrichment Analysis}
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8}
 ---
 
-# RESTful APIs or resources for taxonomic module databases
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
 
-- [BugSigDB](https://waldronlab.io/bugsigdbr/articles/bugsigdbr.html)
-  (bugsigdbr)
+## Incorporate relational knowledge in a dataset
 
-## Health & Disease
-- [GMRepoV2](https://github.com/evolgeniusteam/GMrepoProgrammableAccess/blob/master/programmable-access/R.md)
-  (programmable access)
-- [mBodyMap](https://github.com/whchenlab/mBodymap/blob/main/programmable-access/R.md)
-  (programmable access)
-  
-## Gut Microbe-Microbial Metabolite
-- [gutMGene](https://bio-computing.hrbmu.edu.cn/gutmgene/#/Resource)
-  (literature-based associations, blocked)
-- [MiMeDB](https://mimedb.org/downloads) (pathways)
+```{r lib, message=FALSE, warning=FALSE}
+library(ariadne)
+library(mia)
+library(miaViz)
+```
 
 
+```{r}
+# Import dataset
+data("Tengeler2020", package = "mia")
+tse <- Tengeler2020
+
+tse <- agglomerateByRank(tse, rank = "Genus")
+tse <- transformAssay(tse, method = "relabundance")
+
+tse
+```
+
+### Single-module analysis
+
+```{r}
+data("butyrate", package = "ariadne")
+
+butyrate
+```
+
+```{r}
+tse <- addModules(tse, butyrate, key = "Genus", as = "names")
+
+modules <- agglomerateByModule(tse, by = "rows", group = "butyrate")
+
+modules
+```
+
+
+```{r}
+plotAbundance(modules)
+```
+
+```{r}
+plotBoxplot(modules, assay.type = "relabundance", group.by = "patient_status")
+```
+
+### Multi-module analysis
+
+```{r}
+graph <- ariadne()
+
+searchPath(graph, taxname ~ bugsig)
+```
+
+```{r}
+tax2bugsig <- weavePath(graph, taxname ~ bugsig, init = rowData(tse)$Genus)
+
+head(tax2bugsig)
+```
+
+```{r}
+mod.names <- levels(tax2bugsig$bugsig.name)
+
+adhd.mods <- mod.names[grepl("ADHD", mod.names)]
+
+adhd.mods
+```
+
+
+```{r}
+tse <- addModules(tse, tax2bugsig, key = "Genus", as = "names")
+
+modules <- agglomerateByModule(tse, by = "rows", group = adhd.mods)
+
+modules
+```
+
+```{r}
+plotAbundance(modules)
+```
+
+```{r}
+plotAbundanceDensity(
+    modules,
+    assay.type = "relabundance",
+    layout = "density",
+    colour.by = "patient_status"
+)
+```
+
+```{r}
+idx <- apply(rowData(tse)[adhd.mods], 2L, function(x) which(x != 0L))
+
+to_keep <- lengths(idx) != 0L
+idx <- idx[to_keep]
+adhd.mods <- adhd.mods[to_keep]
+
+res <- lapply(
+    seq_along(adhd.mods),
+    function(i) plotAbundance(tse[idx[[i]], ]) + ggtitle(adhd.mods[i])
+)
+```
+
+
+```{r}
+library(patchwork)
+wrap_plots(res)
+```
+
+# Reproducibility
+
+R session information:
+
+```{r reproduce, echo=FALSE}
+# Session info
+options(width = 120)
+sessionInfo()
+```
 

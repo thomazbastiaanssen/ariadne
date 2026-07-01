@@ -1,26 +1,47 @@
 
-igraph <- S7::new_S3_class("igraph")
+setOldClass("igraph")
 
 #' @export
 #' @rdname searchPath
-searchPath <- S7::new_generic("searchPath", "graph")
+setGeneric("searchPath", signature = c("graph"), function(graph, ...)
+    standardGeneric("searchPath"))
 
 #' @export
 #' @rdname plotPath
-plotPath <- S7::new_generic("plotPath", "graph")
+setGeneric("plotPath", signature = c("graph"), function(graph, ...)
+    standardGeneric("plotPath"))
+
+#' @export
+#' @rdname drawPath
+setGeneric("drawPath", signature = c("graph"), function(graph, ...)
+    standardGeneric("drawPath"))
+
+#' @export
+#' @rdname linkNames
+setGeneric("linkNames", signature = c("graph"), function(graph, ...)
+    standardGeneric("linkNames"))
+
+#' @export
+#' @rdname addResource
+setGeneric("addResource", signature = c("graph"), function(graph, ...)
+    standardGeneric("addResource"))
 
 #' @export
 #' @rdname weavePath
-weavePath <- S7::new_generic("weavePath", "graph")
+setGeneric("weavePath", signature = c("graph"), function(graph, ...)
+    standardGeneric("weavePath"))
 
 #' @export
 #' @rdname weavePath
-weaveComplex <- S7::new_generic("weaveComplex", "graph")
+setGeneric("weaveComplex", signature = c("graph"), function(graph, ...)
+    standardGeneric("weaveComplex"))
 
 #' @export
-#' @rdname getModules
-getModules <- S7::new_generic("getModules", "x")
+#' @rdname addModules
+setGeneric("getModules", signature = c("x"), function(x, ...)
+    standardGeneric("getModules"))
 
 #' @export
-#' @rdname getModules
-addModules <- S7::new_generic("addModules", "x")
+#' @rdname addModules
+setGeneric("addModules", signature = c("x"), function(x, ...)
+    standardGeneric("addModules"))

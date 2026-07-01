@@ -6,10 +6,9 @@
 #' provides a set of butyrate producers that were significantly increased or
 #' reduced in the patient group.
 #' 
-#' @format
-#' A `data.frame` with 16 features (rows) characterised across 6 taxonomic
-#' ranks (columns). One feature was identified at the Species level, whereas all
-#' the others at the Genus level.
+#' @returns
+#' A linkmap with 16 butyrate-producing microbial features characterised at the
+#' genus or species level.
 #' 
 #' @references 
 #' Kullberg, Robert FJ, et al.
@@ -18,9 +17,12 @@
 #' population-based microbiome studies." The Lancet Microbe 5.9 (2024).
 #' \url{https://doi.org/10.1016/S2666-5247(24)00079-X}
 #' 
-#' @usage data("butyrate", package = "ariadne")
+#' @examples
+#' # Import linkmap
+#' data("butyrate", package = "ariadne")
 #' 
-#' @importFrom utils data
-#'
+#' # Print some pairs
+#' head(butyrate)
 #' @name butyrate
+#' @importFrom utils data
 NULL

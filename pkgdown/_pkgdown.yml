@@ -1,15 +1,23 @@
 destination: docs
 reference:
-- title: Main functions
+- title: Work with the resource graph
 - contents:
   - ariadne
-  - weavePath
+  - addResource
   - searchPath
   - plotPath
-  - getModules
-  - addModules
-- title: Other
+  - weavePath
+  - weaveComplex
+- title: Access resource graph metadata
 - contents:
-  - getFullTaxonomyLabels
+  - linkNames
+  - drawPath
+  - listResourceVersions
+- title: Interoperate with Bioconductor
+- contents:
+  - addModules
+  - getModules
   - processGeneFamilies
+- title: Import package datasets
+- contents:
   - butyrate

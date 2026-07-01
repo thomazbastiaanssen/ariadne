@@ -2,12 +2,17 @@
 % Please edit documentation in R/AllGenerics.R, R/search.R
 \name{searchPath}
 \alias{searchPath}
-\title{Search path between resources}
+\alias{searchPath,igraph-method}
+\title{Search paths between resources}
 \usage{
 searchPath(graph, ...)
+
+\S4method{searchPath}{igraph}(graph, by, k = 1, include = NULL, exclude = NULL, res.name = NULL)
 }
 \arguments{
 \item{graph}{An igraph object.}
+
+\item{...}{Unused.}
 
 \item{by}{A formula specifying the path to search.}
 
@@ -19,16 +24,18 @@ searchPath(graph, ...)
 
 \item{exclude}{\code{Character vector}. Nodes to avoid in the path.
 (Default: \code{NULL})}
+
+\item{res.name}{\code{Character vector}. Names of resources to include in
+the graph. (Default: \code{NULL})}
 }
 \value{
-NULL, message
+A message.
 }
 \description{
 \code{searchPath} allows to search the first k-th shortest paths between
 resources.
 }
 \examples{
-
 # Retrieve resource graph
 graph <- ariadne()
 
@@ -39,6 +46,8 @@ searchPath(graph, ko ~ ec, k = 5)
 searchPath(graph, taxname ~ ko, include = "uniref90")
 
 # Search first 5 paths excluding uniref50 and uniref100
-searchPath(graph, taxname ~ ko, k = 5, exclude = c("uniref50", "uniref100"))
+searchPath(graph, taxname ~ ko, k = 5, exclude = "uniref50")
 
+# Search path for a subset of resources
+searchPath(graph, uniref90 ~ eggnog, k = 3, res.name = "ChocoPhlAn")
 }

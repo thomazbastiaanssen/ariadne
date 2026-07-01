@@ -1,6 +1,6 @@
 ---
-title: "Comparison"
-author: 
+title: "Predicting functional modules: gene families vs taxa"
+author:
   - name: Giulio Benedetti
     affiliation: University of Turku
     email: giulio.benedetti@utu.fi
@@ -17,7 +17,7 @@ output:
 date: "`r doc_date()`"
 package: "`r pkg_ver('ariadne')`"
 vignette: >
-    %\VignetteIndexEntry{ariadne}
+    %\VignetteIndexEntry{Predicting functional modules: gene families vs taxa}
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8}
 ---
@@ -29,99 +29,70 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r}
+```{r lib, message=FALSE, warning=FALSE}
 library(ariadne)
 library(curatedMetagenomicData)
 library(mia)
 library(miaViz)
 ```
 
-## Functional module analysis at gene level
+## Predicting modules from functional profile
 
 ```{r}
 # Load gene family experiment
 genes <- curatedMetagenomicData(
-    "SankaranarayananK_2015.gene_families",
-    dryrun = FALSE
+    "SankaranarayananK_2015.gene_families", dryrun = FALSE
 )
 
-# Extract experiment
 genes <- genes[[1]]
-```
 
-```{r}
-# Process experiment
-genes <- processGeneFamilies(genes)
+# Keep only unstratified gene families
+genes <- genes[!grepl("|", rownames(genes), fixed = TRUE), ]
 
 # Print experiment
 genes
 ```
 
 ```{r}
-gmm <- importModules("GMM")
-# gmm <- gmm[1:30]
+graph <- ariadne()
+
+searchPath(graph, uniref90 ~ gmm, k = 3)
 ```
 
 ```{r}
-ko.uniref90 <- importMapping("ChocoPhlAn", ko ~ uniref90)
-```
+# Weave bindings between taxa and GMMs
+uniref2gmm <- weaveComplex(graph, uniref90 ~ gmm, init = rownames(genes))
 
-
-```{r}
-rowData(genes)$Taxon <- gsub(".", "|", rowData(genes)$Taxon, fixed = TRUE)
-uniref90.tax <- split(rowData(genes)$Taxon, rowData(genes)$GeneID)
-```
-
-```{r}
-modules <- mapModules(
-    gmm,
-    list(ko.uniref90, uniref90.tax),
-    mode = "andor",
-    remove.empty = TRUE
-)
+# Print some results
+head(uniref2gmm)
 ```
 
 ```{r}
-genes <- addModules(
-    genes,
-    modules,
-    by = 1L,
-    group = "taxonomy"
-)
-```
+genes <- addModules(genes, uniref2gmm, as = "names")
 
-```{r}
-altExp(genes, "modules") <- agglomerateByModule(
-    genes,
-    by = 1L,
-    group = names(modules)
+uniref.modules <- agglomerateByModule(
+    genes, by = "rows", group = levels(uniref2gmm$gmm.name)
 )
 
-top.mods <- altExp(genes, "modules") |>
-    getTop(assay.type = "gene_families")
+uniref.modules
 ```
 
 ```{r}
-genes <- swapAltExp(
-    genes,
-    name = "modules",
-    saved = "features",
-    withColData = FALSE
-)
-```
+top.mods <- getTop(uniref.modules, assay.type = "gene_families")
 
-```{r}
 plotAbundance(
-    genes[top.mods, ],
+    uniref.modules[top.mods, ],
     assay.type = "gene_families",
+    col.var = "disease",
+    scales = "free_x",
     as.relative = TRUE,
-    order.col.by = "disease"
+    facet.cols = TRUE
 )
 ```
 
 ```{r}
 plotAbundanceDensity(
-    genes,
+    uniref.modules,
     assay.type = "gene_families",
     n = 5,
     layout = "density",
@@ -130,87 +101,99 @@ plotAbundanceDensity(
 ```
 
 
-## Functional module analysis at taxon level
+## Predicting modules from taxonomic profile 
 
 ```{r}
-# Load relative abundance experiment
 tse <- curatedMetagenomicData(
-    pattern = "SankaranarayananK_2015.relative_abundance",
-    dryrun = FALSE,
-    counts = TRUE,
-    rownames = "short"
+    "SankaranarayananK_2015.relative_abundance",
+    rownames = "NCBI",
+    dryrun = FALSE
 )
 
-# Extract experiment
 tse <- tse[[1]]
-```
 
-```{r}
 tse
 ```
 
 ```{r}
-gmm <- importModules("GMM")
+searchPath(graph, taxid ~ gmm, k = 3)
 ```
 
 ```{r}
-ko.uniref90 <- importMapping("ChocoPhlAn", ko ~ uniref90)
+# Link taxa to gut metabolic modules (remove taxid 562 to speed up)
+tax2gmm <- weaveComplex(graph, taxid ~ gmm, k = 2, init = rowData(tse)$species)
+
+head(tax2gmm)
 ```
 
 ```{r}
-modules <- mapModules(
-    gmm,
-    ko.uniref90,
-    mode = "andor",
-    uniprot = TRUE,
-    remove.empty = TRUE
-)
-```
+tse <- addModules(tse, tax2gmm, key = "species", as = "names")
 
-```{r}
-tse <- addModules(tse, modules)
-```
-
-
-```{r}
-altExp(tse, "modules") <- agglomerateByModule(
-    tse,
-    by = 1L,
-    group = names(modules)
+tax.modules <- agglomerateByModule(
+    tse, by = "rows", group = levels(tax2gmm$gmm.name)
 )
 
-top.mods <- altExp(tse, "modules") |>
-    getTop(assay.type = "relative_abundance")
+tax.modules
 ```
 
 ```{r}
-tse <- swapAltExp(
-    tse,
-    name = "modules",
-    saved = "features",
-    withColData = FALSE
+top.mods <- getTop(tax.modules, assay.type = "relative_abundance")
+
+plotAbundance(
+    tax.modules[top.mods, ],
+    assay.type = "relative_abundance",
+    col.var = "disease",
+    scales = "free_x",
+    as.relative = TRUE,
+    facet.cols = TRUE
 )
 ```
 
 ```{r}
 plotAbundanceDensity(
-    tse,
-    layout = "density",
-    n = 5,
+    tax.modules,
     assay.type = "relative_abundance",
-    colour.by = "disease")
+    n = 5,
+    layout = "density",
+    colour.by = "disease"
+)
+```
+
+## Correlating results
+
+```{r}
+mae <- MultiAssayExperiment(
+    experiments = ExperimentList(uniref = uniref.modules, tax = tax.modules)
+)
 ```
 
 ```{r}
-library(ggplot2)
-mse <- meltSE(tse, assay.type = "relative_abundance", add.col = TRUE)
+cor <- getCrossAssociation(
+    mae,
+    assay.type1 = "gene_families",
+    assay.type2 = "relative_abundance",
+    sort = TRUE
+)
 
-ggplot(mse, aes(x = SampleID, y = FeatureID, fill = relative_abundance)) +
-  geom_tile() +
-  theme(axis.text.x = element_blank(),
-        axis.ticks.x = element_blank())
+cor$Var1 <- as.character(cor$Var1)
+cor$Var2 <- as.character(cor$Var2)
 
+cor <- cor[cor$Var1 == cor$Var2, ]
 ```
 
+```{r}
+ggplot(cor, aes(x = cor, y = reorder(Var1, cor))) +
+    geom_point() +
+    labs(y = "GMM") +
+    theme_bw()
+```
 
+# Reproducibility
 
+R session information:
+
+```{r reproduce, echo=FALSE}
+# Session info
+options(width = 120)
+sessionInfo()
+```
