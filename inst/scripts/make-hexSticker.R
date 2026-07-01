@@ -2,13 +2,13 @@
 
 library(igraph)
 library(dplyr)
+library(ggplot2)
 library(ggraph)
 library(tidygraph)
 library(extrafont)
-library(ragg)
 
 # Set random seed based on date
-seed <- as.numeric(format(Sys.time(), "%Y%m%d"))
+seed <- as.numeric(format(Sys.time(), "%y%m%d"))
 set.seed(seed)
 
 # Custom functions ----
@@ -252,6 +252,6 @@ hex_plot <- plot_graph |>
 
 file_path <- "man/figures/ariadne_logo.png"
 
-agg_png(file_path, width = 10, height = 10, units = "in", scaling = 1)
+ggsave(file_path, width = 10, height = 10, units = "in", scale = 1)
 hex_plot
 dev.off()
