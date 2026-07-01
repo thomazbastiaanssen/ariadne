@@ -1,11 +1,5 @@
-# Script used to generate labyrinth-hex stickers
 
-library(igraph)
-library(dplyr)
-library(ggplot2)
-library(ggraph)
-library(tidygraph)
-library(extrafont)
+devtools::load_all()
 
 # Set random seed based on date
 seed <- as.numeric(format(Sys.time(), "%y%m%d"))
@@ -16,7 +10,7 @@ set.seed(seed)
 hex_graph <- function(size = 10) {
     size <- floor(size)
     # height, width, radius, side (apothem)
-    h <- size * 2
+    h <- 2 * size
     w <- round(h * sqrt(3) / 2)
     r <- h / 2
     s <- w / 2
@@ -26,7 +20,7 @@ hex_graph <- function(size = 10) {
     
     y <- seq(from = r / 2, to = 0, length.out = size)
     yy <- c(y, rev(y))
-    xx <- seq(from = 0,  to = w, length.out = size * 2)
+    xx <- seq(from = 0,  to = w, length.out = 2 * size)
     x <- xx[seq_len(size)]
     
     corners_drop <- .carve_corners(size, y, x, h, w)
@@ -250,8 +244,5 @@ hex_plot <- plot_graph |>
 
 # Get sticker! ----
 
-file_path <- "man/figures/ariadne_logo.png"
-
+file_path <- "inst/assets/ariadne_logo.png"
 ggsave(file_path, width = 10, height = 10, units = "in", scale = 1)
-hex_plot
-dev.off()

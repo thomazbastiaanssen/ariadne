@@ -1,5 +1,5 @@
 Package: ariadne
-Version: 0.2.5
+Version: 0.2.6
 Authors@R: 
     c(person(given = "Giulio", family = "Benedetti", role = c("aut", "cre"),
           email = "giulio.benedetti@utu.fi",
@@ -54,6 +54,7 @@ Imports:
 Suggests:
     BiocStyle,
     curatedMetagenomicData,
+    extrafont,
     knitr,
     mia,
     miaViz,
@@ -61,7 +62,8 @@ Suggests:
     rmarkdown,
     R.utils,
     TreeSummarizedExperiment,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    tidygraph
 Remotes:
     github::microbiome/mia,
     github::Minotau-R/MultiFactor
