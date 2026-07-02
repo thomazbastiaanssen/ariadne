@@ -1,5 +1,5 @@
 Package: ariadne
-Version: 0.2.5
+Version: 0.2.6
 Authors@R: 
     c(person(given = "Giulio", family = "Benedetti", role = c("aut", "cre"),
           email = "giulio.benedetti@utu.fi",
@@ -60,6 +60,7 @@ Suggests:
     remotes,
     rmarkdown,
     R.utils,
+    systemfonts,
     TreeSummarizedExperiment,
     testthat (>= 3.0.0)
 Remotes:

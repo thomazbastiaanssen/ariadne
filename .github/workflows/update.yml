@@ -1,0 +1,32 @@
+name: update
+on:
+  schedule:
+    # Runs at 00:00 UTC every Wednesday
+    - cron: '0 0 * * 3'
+jobs:
+  cronjob:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'latest'
+      - name: Install ariadne
+        run: |
+          Rscript -e 'install.packages(c("remotes", "devtools", "usethis"))'
+          Rscript -e 'remotes::install_local(dependencies = TRUE)'
+      - name: Run scripts
+        run: |
+          Rscript inst/scripts/make-versionMetadata.R
+          Rscript inst/scripts/make-hexSticker.R
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add R/sysdata.rda inst/assets/ariadne_logo.png
+          git diff --cached --quiet || git commit -m "Regenerate hex sticker"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

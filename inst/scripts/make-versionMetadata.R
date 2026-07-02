@@ -1,6 +1,6 @@
 
 devtools::load_all()
-source("utils.R")
+source("inst/scripts/utils.R")
 
 default.graph <- 19397292
 dfs <- list()
@@ -72,12 +72,6 @@ rownames(df) <- NULL
 df$default <- !duplicated(df$source)
 # Order resources alphabetically
 df <- df[order(df$source), ]
-
-# default.versions <- c(
-#     BugSigDB = "v1.3.0", ChocoPhlAn = "v201901b", Misc = "v1",
-#     GO = "2026-03-25", KEGG = NA, OTT = NA, Rhea = NA, TIGRFAMs = "v15",
-#     UniProt = NA, WoL = "v2"
-# )
 
 # Add resource base urls as attribute
 attr(df, "urls") <- c(
