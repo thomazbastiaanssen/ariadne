@@ -21,3 +21,12 @@ jobs:
         run: |
           Rscript inst/scripts/make-versionMetadata.R
           Rscript inst/scripts/make-hexSticker.R
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add R/sysdata.rda inst/assets/ariadne_logo.png
+          git diff --cached --quiet || git commit -m "Regenerate hex sticker"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
