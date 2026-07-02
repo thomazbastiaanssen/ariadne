@@ -3,12 +3,14 @@ library(dplyr)
 library(ggplot2)
 library(ggraph)
 library(igraph)
-library(showtext)
+library(systemfonts)
 library(tidygraph)
 
 # Set random seed based on date
 seed <- as.numeric(format(Sys.time(), "%y%m%d"))
 set.seed(seed)
+
+asset_dir <- "inst/assets/"
 
 # Custom functions ----
 
@@ -172,25 +174,23 @@ colour_bg <- "#FE9929"
 colour_border <- "darkred"
 colour_text <- "dodgerblue"
 
-font_paths("inst/assets/")
-
 # https://fontlibrary.org/en/font/dancing-font
-font_add(
-    family = "Dancing Script",
-    regular = "DancingScript-Regular.ttf",
-    bold = "DancingScript-Bold.ttf"
+register_font(
+    name = "Dancing Script",
+    plain = paste0(asset_dir, "DancingScript-Regular.ttf"),
+    bold = paste0(asset_dir, "DancingScript-Bold.ttf")
 )
 
 # https://openmoji.org/
-font_add(
-    family = "OpenMoji",
-    #regular = "OpenMoji-color-untouchedsvgz.ttf"#,
-    regular = "OpenMoji-black-glyf.ttf"
+register_font(
+    name = "OpenMoji",
+    plain = paste0(asset_dir, "OpenMoji-color-colr0_svg.ttf")
 )
 
-showtext_auto()
-
-label_content <- c("🧬", "🍒", "🍄", "🐉", "🕷")
+label_content <- c(
+    "🧬", "🍒", "🍄", "🐉", "🕷", "🫀", "🧠", "🫁", "🦴", "🦠", "💩", "💊",
+    "👽", "🍩", "💉", "🦟", "🧪"
+)
 
 plot_graph <- hex_graph(size) |>
     .carve_rooms() |>
@@ -234,7 +234,7 @@ hex_plot <- plot_graph |>
         "tile",
         x = round(size * sqrt(3) - 1) / 2,
         y = mean(round(c(0, 1) + size * 2 / 3)),
-        height = 10 / 6, width = 35 / 6, size = 2,
+        height = 10 / 6, width = 35 / 6, linewidth = 2,
         fill = colour_path, colour = colour_wall,
         linejoin = "round", lineend = "round"
     ) +
@@ -247,14 +247,14 @@ hex_plot <- plot_graph |>
     geom_node_text(
         aes(x = x - 0.5 + grepl("l$", room), y = y + 0.5 - grepl("^t", room),
             filter = room %in% c("bl", "br", "tl", "tr"), label = label
-        ), family = "OpenMoji", size = 50) +
+        ), family = "OpenMoji", size = 16) +
     annotate(
         "text",
         label = "ariadne",
         x = round(size * sqrt(3) - 1) / 2,
         y = mean(round(c(0, 1) + size * 2 / 3)),
         hjust = 1 / 2, vjust = 1 / 2,
-        size = 206, size.unit = "pt",
+        size = 60, size.unit = "pt",
         family = "Dancing Script",
         fontface = "bold",
         colour = colour_border
@@ -265,5 +265,5 @@ hex_plot <- plot_graph |>
 
 # Get sticker! ----
 
-file_path <- "inst/assets/ariadne_logo.png"
+file_path <- paste0(asset_dir, "ariadne_logo.png")
 ggsave(file_path, width = 10, height = 10, units = "in", scale = 1)

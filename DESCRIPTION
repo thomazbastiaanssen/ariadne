@@ -60,7 +60,7 @@ Suggests:
     remotes,
     rmarkdown,
     R.utils,
-    showtext,
+    systemfonts,
     TreeSummarizedExperiment,
     testthat (>= 3.0.0),
     tidygraph
