@@ -1,4 +1,4 @@
-# ariadne: assembling relational information across the database network
+# ariadne: assembling relational information across the database network <img src="inst/assets/ariadne_logo.png" align="right" width="120" />
 
 [![issues](https://img.shields.io/github/issues/Minotau-R/ariadne)](https://github.com/Minotau-R/ariadne/issues)
 [![pulls](https://img.shields.io/github/issues-pr/Minotau-R/ariadne)](https://github.com/Minotau-R/ariadne/pulls)

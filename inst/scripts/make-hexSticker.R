@@ -1,5 +1,10 @@
 
-devtools::load_all()
+library(dplyr)
+library(extrafont)
+library(ggplot2)
+library(ggraph)
+library(igraph)
+library(tidygraph)
 
 # Set random seed based on date
 seed <- as.numeric(format(Sys.time(), "%y%m%d"))
@@ -167,8 +172,9 @@ colour_bg <- "#FE9929"
 colour_border <- "darkred"
 colour_text <- "dodgerblue"
 
-
-font_import(paths = "~/Downloads/dancing/", pattern = "Bold", prompt = FALSE)
+# https://openmoji.org/
+# https://fontlibrary.org/en/font/dancing-font
+font_import(paths = "inst/assets/", prompt = FALSE)
 loadfonts()
 
 label_content <- c("🧬", "🍒", "🍄", "🐉", "🕷")
@@ -192,18 +198,18 @@ plot_graph <- plot_graph |> mutate(label = label)
 hex_plot <- plot_graph |>
     ggraph(layout = "manual", y = y, x = x) +
     geom_polygon(data = hex_lines(size), aes(x = x, y = y), fill = colour_bg) +
-    geom_edge_link(linewidth = 34/6, colour = colour_wall) +
+    geom_edge_link(linewidth = 34 / 6, colour = colour_wall) +
     geom_node_tile(
         aes(filter = room %in% c("basic")),
-        linewidth = 2, width = 2/3, height = 2/3,
+        linewidth = 2, width = 2 / 3, height = 2 / 3,
         fill = colour_path, colour = colour_wall,
         linejoin = "round", lineend = "round"
     ) +
     geom_node_tile(
         aes(x = x - 0.5 + grepl("l$", room), y = y +0.5 - grepl("^t", room),
             filter = room %in% c("bl", "br", "tl", "tr")),
-        linewidth = 2, colour = colour_wall, fill = colour_path, width = 11/6,
-        height = 11/6, linejoin = "round", lineend = "round"
+        linewidth = 2, colour = colour_wall, fill = colour_path, width = 11 / 6,
+        height = 11 / 6, linejoin = "round", lineend = "round"
     ) +
     geom_node_point(
         aes(alpha = room %in% c("entry_left", "entry_right")),
@@ -226,9 +232,9 @@ hex_plot <- plot_graph |>
         colour = colour_border
     ) +
     geom_node_text(
-        aes(x = x -0.5 + (grepl("l$", room)), y = y  +0.5 - (grepl("^t", room)),
+        aes(x = x - 0.5 + grepl("l$", room), y = y + 0.5 - grepl("^t", room),
             filter = room %in% c("bl", "br", "tl", "tr"), label = label
-        ), family = "sans", size = 16) +
+        ), family = "OpenMoji", size = 16) +
     annotate(
         "text",
         label = "ariadne",
