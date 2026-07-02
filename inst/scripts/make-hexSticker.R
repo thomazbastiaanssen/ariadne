@@ -4,7 +4,6 @@ library(ggplot2)
 library(ggraph)
 library(igraph)
 library(systemfonts)
-library(tidygraph)
 
 # Set random seed based on date
 seed <- as.numeric(format(Sys.time(), "%y%m%d"))
@@ -184,7 +183,7 @@ register_font(
 # https://openmoji.org/
 register_font(
     name = "OpenMoji",
-    plain = paste0(asset_dir, "OpenMoji-color-colr0_svg.ttf")
+    plain = paste0(asset_dir, "OpenMoji-color-glyf_colr_0.ttf")
 )
 
 label_content <- c(
@@ -194,17 +193,15 @@ label_content <- c(
 
 plot_graph <- hex_graph(size) |>
     .carve_rooms() |>
-    carve_maze() |>
-    as_tbl_graph()
+    carve_maze()
 
-room <- plot_graph |> pull(room)
-label <- rep("", length(room))
 
-label[room %in% c("bl", "tl", "br", "tr")] <- sample(
+V(plot_graph)$label <- ""
+room <- V(plot_graph)$room
+
+V(plot_graph)$label[room %in% c("bl", "tl", "br", "tr")] <- sample(
     label_content, sum(room %in% c("bl", "tl", "br", "tr"))
 )
-
-plot_graph <- plot_graph |> mutate(label = label)
 
 # ggplot2 code ----
 

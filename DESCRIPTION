@@ -62,8 +62,7 @@ Suggests:
     R.utils,
     systemfonts,
     TreeSummarizedExperiment,
-    testthat (>= 3.0.0),
-    tidygraph
+    testthat (>= 3.0.0)
 Remotes:
     github::microbiome/mia,
     github::Minotau-R/MultiFactor
