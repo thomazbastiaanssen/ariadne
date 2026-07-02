@@ -54,13 +54,13 @@ Imports:
 Suggests:
     BiocStyle,
     curatedMetagenomicData,
-    extrafont,
     knitr,
     mia,
     miaViz,
     remotes,
     rmarkdown,
     R.utils,
+    showtext,
     TreeSummarizedExperiment,
     testthat (>= 3.0.0),
     tidygraph

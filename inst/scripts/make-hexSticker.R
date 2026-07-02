@@ -1,9 +1,9 @@
 
 library(dplyr)
-library(extrafont)
 library(ggplot2)
 library(ggraph)
 library(igraph)
+library(showtext)
 library(tidygraph)
 
 # Set random seed based on date
@@ -172,10 +172,23 @@ colour_bg <- "#FE9929"
 colour_border <- "darkred"
 colour_text <- "dodgerblue"
 
-# https://openmoji.org/
+font_paths("inst/assets/")
+
 # https://fontlibrary.org/en/font/dancing-font
-font_import(paths = "inst/assets/", prompt = FALSE)
-loadfonts()
+font_add(
+    family = "Dancing Script",
+    regular = "DancingScript-Regular.ttf",
+    bold = "DancingScript-Bold.ttf"
+)
+
+# https://openmoji.org/
+font_add(
+    family = "OpenMoji",
+    #regular = "OpenMoji-color-untouchedsvgz.ttf"#,
+    regular = "OpenMoji-black-glyf.ttf"
+)
+
+showtext_auto()
 
 label_content <- c("🧬", "🍒", "🍄", "🐉", "🕷")
 
@@ -234,15 +247,17 @@ hex_plot <- plot_graph |>
     geom_node_text(
         aes(x = x - 0.5 + grepl("l$", room), y = y + 0.5 - grepl("^t", room),
             filter = room %in% c("bl", "br", "tl", "tr"), label = label
-        ), family = "OpenMoji", size = 16) +
+        ), family = "OpenMoji", size = 50) +
     annotate(
         "text",
         label = "ariadne",
         x = round(size * sqrt(3) - 1) / 2,
         y = mean(round(c(0, 1) + size * 2 / 3)),
         hjust = 1 / 2, vjust = 1 / 2,
-        size = 52, size.unit = "pt",
-        family = "Dancing Script"
+        size = 206, size.unit = "pt",
+        family = "Dancing Script",
+        fontface = "bold",
+        colour = colour_border
     ) +
     scale_alpha_identity() +
     coord_equal() +
