@@ -37,7 +37,7 @@ Imports:
     ggplot2,
     ggraph,
     httr2,
-    igraph,
+    igraph (>= 2.3.0),
     KEGGREST,
     Matrix,
     methods,
