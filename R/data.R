@@ -28,22 +28,22 @@
 NULL
 
 
-#' Dataframe for pathway from chebi to gmm
+#' Data frame for pathway from chebi to gmm
 #' 
-#' \code{pathMeta} provides a minimal example of a dataframe describing one
-#' pathway in the ariadne graph from chebi to gmm. This kind of dataframe is
-#' typically the output of \code{drawPath} and works as input for
-#' \code{weavePath} and \code{weaveComplex}.
+#' \code{pathMeta} provides a minimal example of a data frame describing one
+#' pathway in the ariadne graph from chebi to gmm. This kind of data frame is
+#' typically the output of \code{\link{drawPath}} and works as input for
+#' \code{\link{weavePath}} and \code{\link{weaveComplex}}.
 #' 
 #' @returns
-#' A pathway dataframe with four rows (steps) and four columns (from, to, source
-#' and version).
+#' A pathway data frame with four rows (steps) and four columns (from, to,
+#' source and version).
 #' 
 #' @examples
-#' # Import dataframe for pathway from chebi to gmm
+#' # Import data frame for pathway from chebi to gmm
 #' data("pathMeta", package = "ariadne")
 #' 
-#' # Print pathway dataframe
+#' # Print pathway data frame
 #' pathMeta
 #' 
 #' # Recreate pathMeta using ariadne

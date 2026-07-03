@@ -66,7 +66,8 @@ weaveComplex(graph, ...)
 )
 }
 \arguments{
-\item{graph}{An igraph object.}
+\item{graph}{An igraph or data.frame object, which can be obtained from
+\code{\link{ariadne}} and \code{\link{drawPath}}, respectively.}
 
 \item{...}{Additional arguments.
 \itemize{

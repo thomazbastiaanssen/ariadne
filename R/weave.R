@@ -13,7 +13,8 @@
 #' coverage threshold, which is useful for pathways or functional modules made
 #' of several indispensable components.
 #' 
-#' @param graph An igraph object.
+#' @param graph An igraph or data.frame object, which can be obtained from
+#'   \code{\link{ariadne}} and \code{\link{drawPath}}, respectively.
 #' 
 #' @param by A formula specifying the path to weave.
 #' 
