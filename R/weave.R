@@ -191,10 +191,10 @@ setMethod("weavePath", signature = c(graph = "igraph"),
         stop("'timeout' must be a positive number", call. = FALSE)
     }
     # Check shared logical args
-    if( !is.logical(prune) || length(prune) != 1L ){
+    if( length(prune) != 1L || !is.logical(prune) || is.na(prune) ){
         stop("'prune' must be TRUE or FALSE.", call. = FALSE)
     }
-    if( !is.logical(verbose) || length(verbose) != 1L ){
+    if( length(verbose) != 1L || !is.logical(verbose) || is.na(verbose) ){
         stop("'verbose' must be TRUE or FALSE.", call. = FALSE)
     }
     # Set timeout for downloads

@@ -57,10 +57,10 @@ setMethod("plotPath", signature = c(graph = "igraph"),
     function(graph, by = NULL, k = 1, include = NULL, exclude = NULL,
     res.name = NULL, prune = FALSE, focus = FALSE){
     # Check args
-    if( !is.logical(prune) || length(prune) != 1L ){
+    if( length(prune) != 1L || !is.logical(prune) || is.na(prune) ){
         stop("'prune' must be TRUE or FALSE.", call. = FALSE)
     }
-    if( !is.logical(focus) || length(focus) != 1L ){
+    if( length(focus) != 1L || !is.logical(focus) || is.na(focus) ){
         stop("'focus' must be TRUE or FALSE.", call. = FALSE)
     }
     

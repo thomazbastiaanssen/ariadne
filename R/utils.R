@@ -26,6 +26,9 @@ NULL
 #' @export
 #' @rdname listResourceVersions
 listResourceVersions <- function(default = FALSE){
+    if( length(default) != 1L || !is.logical(default) || is.na(default) ){
+        stop("'default' must be TRUE or FALSE.", call. = FALSE)
+    }
     # Retrieve metadata on resource versions
     meta <- versionMetadata
     # If default is turned on

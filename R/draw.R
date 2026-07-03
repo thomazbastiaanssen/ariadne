@@ -106,7 +106,7 @@ setMethod("drawPath", signature = c(graph = "igraph"),
     # Create path data.frame
     path_df <- data.frame(
         from = nodes[-length(nodes)],
-        to = nodes[-1],
+        to = nodes[-1L],
         source = edges
     )
     return(path_df)
