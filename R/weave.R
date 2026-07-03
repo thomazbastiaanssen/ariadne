@@ -13,7 +13,8 @@
 #' coverage threshold, which is useful for pathways or functional modules made
 #' of several indispensable components.
 #' 
-#' @param graph An igraph object.
+#' @param graph An igraph or data.frame object, which can be obtained from
+#'   \code{\link{ariadne}} and \code{\link{drawPath}}, respectively.
 #' 
 #' @param by A formula specifying the path to weave.
 #' 
@@ -65,14 +66,32 @@
 #' column.
 #' 
 #' @examples
+#' # Load resource graph
+#' graph <- ariadne()
+#' 
+#' # Weave simple path from KEGG diseases to gut metabolic modules
+#' dis2gmm <- weavePath(graph, kegg_disease ~ gmm)
+#' 
+#' # Weave complex path from KEGG diseases to gut metabolic modules
+#' dis2gmm <- weaveComplex(graph, kegg_disease ~ gmm)
+#' 
+#' # Specify coverage threshold
+#' dis2gmm <- weaveComplex(graph, kegg_disease ~ gmm, threshold = 0.8)
+#' 
+#' 
+#' # Load example pathway dataframe
+#' data("pathMeta", package = "ariadne")
+#' 
+#' # Weave pathway from chebi to gmm with three initial chebi ids
+#' chebi2gmm <- weavePath(pathMeta, init = c(15377, 30616, 4167))
+#' 
+#' 
+#' # Import mia package
 #' library(mia)
 #' 
 #' # Import dataset
 #' data("Tengeler2020", package = "mia")
 #' tse <- Tengeler2020
-#' 
-#' # Load resource graph
-#' graph <- ariadne()
 #' 
 #' # Retrieve taxon names
 #' tax.labs <- getTaxonomyLabels(tse, make.unique = FALSE)
@@ -88,16 +107,57 @@
 #' tax2bugsig <- weavePath(
 #'     graph, taxname ~ bugsig, include = "taxid", init = tax.labs
 #' )
-#' 
-#' # Weave simple path from KEGG diseases to gut metabolic modules
-#' dis2gmm <- weavePath(graph, kegg_disease ~ gmm)
-#' 
-#' # Weave complex path from KEGG diseases to gut metabolic modules
-#' dis2gmm <- weaveComplex(graph, kegg_disease ~ gmm)
-#' 
-#' # Specify coverage threshold
-#' dis2gmm <- weaveComplex(graph, kegg_disease ~ gmm, threshold = 0.8)
 NULL
+
+
+#' @export
+#' @rdname weavePath
+#' @importFrom stats as.formula
+setMethod("weavePath", signature = c(graph = "data.frame"),
+    function(graph, init = NULL, prune = TRUE, use.names = TRUE, verbose = TRUE,
+    timeout = 1e6, ...){
+    # Derive formula from pathway dataframe
+    by <- c(graph$from[1L], graph$to[nrow(graph)]) |>
+        paste(collapse = "~") |>
+        as.formula()
+    # Retrieve minimal graph for the pathway
+    graph <- .graph_from_path_df(graph)
+    # Weave linkmap from minimal graph
+    linkmap <- weavePath(
+        graph, by, init = init, prune = prune, use.names = use.names,
+        verbose = verbose, timeout = timeout, ...
+    )
+    return(linkmap)
+})
+
+
+#' @importFrom igraph as_data_frame subgraph_from_edges
+.graph_from_path_df <- function(path_df){
+    # If versions are provided
+    if( "version" %in% names(path_df) ){
+        # Derive versions from pathway dataframe
+        res_df <- unique(path_df[ , c("source", "version")])
+        # Omit missing versions
+        res_df <- na.omit(res_df)
+        # Create versions list
+        versions <- as.list(res_df$version)
+        names(versions) <- res_df$source
+    }else{
+        # Use empty versions
+        versions <- NULL
+    }
+    # Import ariadne graph
+    graph <- ariadne(versions = versions)
+    # Get keys of graph edges
+    E(graph)$name <- graph |>
+        as_data_frame(what = "edges") |>
+        .get_edge_keys()
+    # Get keys of pathway steps
+    keep <- .get_edge_keys(path_df)
+    # Subset graph based on pathway steps
+    graph <- subgraph_from_edges(graph, keep)
+    return(graph)
+}
 
 
 #' @export
@@ -132,10 +192,10 @@ setMethod("weavePath", signature = c(graph = "igraph"),
         stop("'timeout' must be a positive number", call. = FALSE)
     }
     # Check shared logical args
-    if( !is.logical(prune) || length(prune) != 1L ){
+    if( length(prune) != 1L || !is.logical(prune) || is.na(prune) ){
         stop("'prune' must be TRUE or FALSE.", call. = FALSE)
     }
-    if( !is.logical(verbose) || length(verbose) != 1L ){
+    if( length(verbose) != 1L || !is.logical(verbose) || is.na(verbose) ){
         stop("'verbose' must be TRUE or FALSE.", call. = FALSE)
     }
     # Set timeout for downloads

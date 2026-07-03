@@ -26,3 +26,29 @@
 #' @name butyrate
 #' @importFrom utils data
 NULL
+
+
+#' Data frame for pathway from chebi to gmm
+#' 
+#' \code{pathMeta} provides a minimal example of a data frame describing one
+#' pathway in the ariadne graph from chebi to gmm. This kind of data frame is
+#' typically the output of \code{\link{drawPath}} and works as input for
+#' \code{\link{weavePath}} and \code{\link{weaveComplex}}.
+#' 
+#' @returns
+#' A pathway data frame with four rows (steps) and four columns (from, to,
+#' source and version).
+#' 
+#' @examples
+#' # Import data frame for pathway from chebi to gmm
+#' data("pathMeta", package = "ariadne")
+#' 
+#' # Print pathway data frame
+#' pathMeta
+#' 
+#' # Recreate pathMeta using ariadne
+#' # graph <- ariadne()
+#' # pathMeta <- drawPath(graph, chebi ~ gmm, include = "rhea")
+#' @name pathMeta
+#' @importFrom utils data
+NULL
