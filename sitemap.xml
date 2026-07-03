@@ -3,6 +3,7 @@
 <url><loc>/articles/ariadne.html</loc></url>
 <url><loc>/articles/comparison.html</loc></url>
 <url><loc>/articles/database.html</loc></url>
+<url><loc>/articles/gsea.html</loc></url>
 <url><loc>/articles/index.html</loc></url>
 <url><loc>/articles/msea.html</loc></url>
 <url><loc>/articles/pathway.html</loc></url>
@@ -16,6 +17,7 @@
 <url><loc>/reference/index.html</loc></url>
 <url><loc>/reference/linkNames.html</loc></url>
 <url><loc>/reference/listResourceVersions.html</loc></url>
+<url><loc>/reference/pathMeta.html</loc></url>
 <url><loc>/reference/plotPath.html</loc></url>
 <url><loc>/reference/processGeneFamilies.html</loc></url>
 <url><loc>/reference/searchPath.html</loc></url>

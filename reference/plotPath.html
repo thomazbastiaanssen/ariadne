@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ariadne</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.7</span>
       </span>
     </div>
 
@@ -39,6 +39,9 @@
     </li>
     <li>
       <a href="../articles/database.html">A quick intro to the ariadne database</a>
+    </li>
+    <li>
+      <a href="../articles/gsea.html">Gene-Set Enrichment Analysis</a>
     </li>
     <li>
       <a href="../articles/msea.html">Microbe-Set Enrichment Analysis</a>
@@ -82,6 +85,7 @@
 <span>  include <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  exclude <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  res.name <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  prune <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  focus <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -122,9 +126,14 @@
 the graph. (Default: <code>NULL</code>)</p></dd>
 
 
-<dt id="arg-focus">focus<a class="anchor" aria-label="anchor" href="#arg-focus"></a></dt>
+<dt id="arg-prune">prune<a class="anchor" aria-label="anchor" href="#arg-prune"></a></dt>
 <dd><p><code>Logical scalar</code>. Whether the edges and nodes in the path
 should be plotted. (Default: <code>FALSE</code>)</p></dd>
+
+
+<dt id="arg-focus">focus<a class="anchor" aria-label="anchor" href="#arg-focus"></a></dt>
+<dd><p><code>Logical scalar</code>. Whether the selected edges and nodes
+should be zoomed in. (Default: <code>FALSE</code>)</p></dd>
 
 </dl></div>
     <div id="value">

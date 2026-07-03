@@ -1,10 +1,11 @@
-pandoc: 3.9.0.2
+pandoc: '3.10'
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   ariadne: ariadne.html
   comparison: comparison.html
   database: database.html
+  gsea: gsea.html
   msea: msea.html
   pathway: pathway.html
-last_built: 2026-05-12T15:14Z
+last_built: 2026-07-03T11:45Z

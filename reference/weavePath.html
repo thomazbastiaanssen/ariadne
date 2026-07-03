@@ -23,7 +23,7 @@ of several indispensable components."><!-- mathjax --><script src="https://cdnjs
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ariadne</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.7</span>
       </span>
     </div>
 
@@ -45,6 +45,9 @@ of several indispensable components."><!-- mathjax --><script src="https://cdnjs
     </li>
     <li>
       <a href="../articles/database.html">A quick intro to the ariadne database</a>
+    </li>
+    <li>
+      <a href="../articles/gsea.html">Gene-Set Enrichment Analysis</a>
     </li>
     <li>
       <a href="../articles/msea.html">Microbe-Set Enrichment Analysis</a>
@@ -88,6 +91,17 @@ of several indispensable components.</p>
 <span></span>
 <span><span class="fu">weaveComplex</span><span class="op">(</span><span class="va">graph</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># S4 method for class 'data.frame'</span></span>
+<span><span class="fu">weavePath</span><span class="op">(</span></span>
+<span>  <span class="va">graph</span>,</span>
+<span>  init <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  prune <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  use.names <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  timeout <span class="op">=</span> <span class="fl">1e+06</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
 <span><span class="co"># S4 method for class 'igraph'</span></span>
 <span><span class="fu">weavePath</span><span class="op">(</span></span>
 <span>  <span class="va">graph</span>,</span>
@@ -99,6 +113,18 @@ of several indispensable components.</p>
 <span>  init <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  prune <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  use.names <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  timeout <span class="op">=</span> <span class="fl">1e+06</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for class 'data.frame'</span></span>
+<span><span class="fu">weaveComplex</span><span class="op">(</span></span>
+<span>  <span class="va">graph</span>,</span>
+<span>  init <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  prune <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  use.names <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  threshold <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  timeout <span class="op">=</span> <span class="fl">1e+06</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -127,7 +153,8 @@ of several indispensable components.</p>
 
 
 <dl><dt id="arg-graph">graph<a class="anchor" aria-label="anchor" href="#arg-graph"></a></dt>
-<dd><p>An igraph object.</p></dd>
+<dd><p>An igraph or data.frame object, which can be obtained from
+<code><a href="ariadne.html">ariadne</a></code> and <code><a href="drawPath.html">drawPath</a></code>, respectively.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -138,30 +165,6 @@ automatically detected when <code>NULL</code>. (Default: <code>NULL</code>)</p><
 <li><p><code>factor</code>: <code>Numeric scalar</code>. Number of jobs per worker.
 (Default: <code>3</code>)</p></li>
 </ul></dd>
-
-
-<dt id="arg-by">by<a class="anchor" aria-label="anchor" href="#arg-by"></a></dt>
-<dd><p>A formula specifying the path to weave.</p></dd>
-
-
-<dt id="arg-k">k<a class="anchor" aria-label="anchor" href="#arg-k"></a></dt>
-<dd><p><code>Numeric scalar</code>. The kth shortest path to weave.
-(Default: <code>1</code>)</p></dd>
-
-
-<dt id="arg-include">include<a class="anchor" aria-label="anchor" href="#arg-include"></a></dt>
-<dd><p><code>Character vector</code>. Nodes to cross in the path.
-(Default: <code>NULL</code>)</p></dd>
-
-
-<dt id="arg-exclude">exclude<a class="anchor" aria-label="anchor" href="#arg-exclude"></a></dt>
-<dd><p><code>Character vector</code>. Nodes to avoid in the path.
-(Default: <code>NULL</code>)</p></dd>
-
-
-<dt id="arg-res-name">res.name<a class="anchor" aria-label="anchor" href="#arg-res-name"></a></dt>
-<dd><p><code>Character vector</code>. Names of resources to include in
-the graph. (Default: <code>NULL</code>)</p></dd>
 
 
 <dt id="arg-init">init<a class="anchor" aria-label="anchor" href="#arg-init"></a></dt>
@@ -189,6 +192,30 @@ console. (Default: <code>TRUE</code>)</p></dd>
 (Default: <code>1e6</code>)</p></dd>
 
 
+<dt id="arg-by">by<a class="anchor" aria-label="anchor" href="#arg-by"></a></dt>
+<dd><p>A formula specifying the path to weave.</p></dd>
+
+
+<dt id="arg-k">k<a class="anchor" aria-label="anchor" href="#arg-k"></a></dt>
+<dd><p><code>Numeric scalar</code>. The kth shortest path to weave.
+(Default: <code>1</code>)</p></dd>
+
+
+<dt id="arg-include">include<a class="anchor" aria-label="anchor" href="#arg-include"></a></dt>
+<dd><p><code>Character vector</code>. Nodes to cross in the path.
+(Default: <code>NULL</code>)</p></dd>
+
+
+<dt id="arg-exclude">exclude<a class="anchor" aria-label="anchor" href="#arg-exclude"></a></dt>
+<dd><p><code>Character vector</code>. Nodes to avoid in the path.
+(Default: <code>NULL</code>)</p></dd>
+
+
+<dt id="arg-res-name">res.name<a class="anchor" aria-label="anchor" href="#arg-res-name"></a></dt>
+<dd><p><code>Character vector</code>. Names of resources to include in
+the graph. (Default: <code>NULL</code>)</p></dd>
+
+
 <dt id="arg-threshold">threshold<a class="anchor" aria-label="anchor" href="#arg-threshold"></a></dt>
 <dd><p><code>Numeric scalar</code>. Only for <code>weaveComplex</code>. The
 coverage threshold above which to include links, between 0 and 1. If
@@ -203,14 +230,42 @@ column.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://microbiome.github.io/mia/" class="external-link">mia</a></span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load resource graph</span></span></span>
+<span class="r-in"><span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu"><a href="ariadne.html">ariadne</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Weave simple path from KEGG diseases to gut metabolic modules</span></span></span>
+<span class="r-in"><span><span class="va">dis2gmm</span> <span class="op">&lt;-</span> <span class="fu">weavePath</span><span class="op">(</span><span class="va">graph</span>, <span class="va">kegg_disease</span> <span class="op">~</span> <span class="va">gmm</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> kegg_disease -(KEGG)-&gt; ko</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ko -(GM)-&gt; gmm</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Weave complex path from KEGG diseases to gut metabolic modules</span></span></span>
+<span class="r-in"><span><span class="va">dis2gmm</span> <span class="op">&lt;-</span> <span class="fu">weaveComplex</span><span class="op">(</span><span class="va">graph</span>, <span class="va">kegg_disease</span> <span class="op">~</span> <span class="va">gmm</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> kegg_disease -(KEGG)-&gt; ko</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ko -(GM)-&gt; gmm</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Specify coverage threshold</span></span></span>
+<span class="r-in"><span><span class="va">dis2gmm</span> <span class="op">&lt;-</span> <span class="fu">weaveComplex</span><span class="op">(</span><span class="va">graph</span>, <span class="va">kegg_disease</span> <span class="op">~</span> <span class="va">gmm</span>, threshold <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> kegg_disease -(KEGG)-&gt; ko</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ko -(GM)-&gt; gmm</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Load example pathway dataframe</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"pathMeta"</span>, package <span class="op">=</span> <span class="st">"ariadne"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Weave pathway from chebi to gmm with three initial chebi ids</span></span></span>
+<span class="r-in"><span><span class="va">chebi2gmm</span> <span class="op">&lt;-</span> <span class="fu">weavePath</span><span class="op">(</span><span class="va">pathMeta</span>, init <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">15377</span>, <span class="fl">30616</span>, <span class="fl">4167</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> chebi -(Rhea)-&gt; rhea</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> rhea -(Rhea)-&gt; ec</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ec -(KEGG)-&gt; ko</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ko -(GM)-&gt; gmm</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Import mia package</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://microbiome.github.io/mia/" class="external-link">mia</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Import dataset</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"Tengeler2020"</span>, package <span class="op">=</span> <span class="st">"mia"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">tse</span> <span class="op">&lt;-</span> <span class="va">Tengeler2020</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Load resource graph</span></span></span>
-<span class="r-in"><span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu"><a href="ariadne.html">ariadne</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Retrieve taxon names</span></span></span>
 <span class="r-in"><span><span class="va">tax.labs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://microbiome.github.io/mia/reference/taxonomy-methods.html" class="external-link">getTaxonomyLabels</a></span><span class="op">(</span><span class="va">tse</span>, make.unique <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
@@ -234,21 +289,6 @@ column.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> taxname -(UniProt)-&gt; taxid</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> taxid -(BugSigDB)-&gt; bugsig</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>names for 1103 bugsig ids not found.</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Weave simple path from KEGG diseases to gut metabolic modules</span></span></span>
-<span class="r-in"><span><span class="va">dis2gmm</span> <span class="op">&lt;-</span> <span class="fu">weavePath</span><span class="op">(</span><span class="va">graph</span>, <span class="va">kegg_disease</span> <span class="op">~</span> <span class="va">gmm</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> kegg_disease -(KEGG)-&gt; ko</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ko -(GM)-&gt; gmm</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Weave complex path from KEGG diseases to gut metabolic modules</span></span></span>
-<span class="r-in"><span><span class="va">dis2gmm</span> <span class="op">&lt;-</span> <span class="fu">weaveComplex</span><span class="op">(</span><span class="va">graph</span>, <span class="va">kegg_disease</span> <span class="op">~</span> <span class="va">gmm</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> kegg_disease -(KEGG)-&gt; ko</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ko -(GM)-&gt; gmm</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Specify coverage threshold</span></span></span>
-<span class="r-in"><span><span class="va">dis2gmm</span> <span class="op">&lt;-</span> <span class="fu">weaveComplex</span><span class="op">(</span><span class="va">graph</span>, <span class="va">kegg_disease</span> <span class="op">~</span> <span class="va">gmm</span>, threshold <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> kegg_disease -(KEGG)-&gt; ko</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ko -(GM)-&gt; gmm</span>
 </code></pre></div>
     </div>
   </div>
