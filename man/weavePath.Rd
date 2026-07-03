@@ -3,13 +3,25 @@
 \name{weavePath}
 \alias{weavePath}
 \alias{weaveComplex}
+\alias{weavePath,data.frame-method}
 \alias{weavePath,igraph-method}
+\alias{weaveComplex,data.frame-method}
 \alias{weaveComplex,igraph-method}
 \title{Weave paths between resources}
 \usage{
 weavePath(graph, ...)
 
 weaveComplex(graph, ...)
+
+\S4method{weavePath}{data.frame}(
+  graph,
+  init = NULL,
+  prune = TRUE,
+  use.names = TRUE,
+  verbose = TRUE,
+  timeout = 1e+06,
+  ...
+)
 
 \S4method{weavePath}{igraph}(
   graph,
@@ -21,6 +33,17 @@ weaveComplex(graph, ...)
   init = NULL,
   prune = TRUE,
   use.names = TRUE,
+  verbose = TRUE,
+  timeout = 1e+06,
+  ...
+)
+
+\S4method{weaveComplex}{data.frame}(
+  graph,
+  init = NULL,
+  prune = TRUE,
+  use.names = TRUE,
+  threshold = NULL,
   verbose = TRUE,
   timeout = 1e+06,
   ...
@@ -57,20 +80,6 @@ automatically detected when \code{NULL}. (Default: \code{NULL})
 (Default: \code{3})
 }}
 
-\item{by}{A formula specifying the path to weave.}
-
-\item{k}{\code{Numeric scalar}. The kth shortest path to weave.
-(Default: \code{1})}
-
-\item{include}{\code{Character vector}. Nodes to cross in the path.
-(Default: \code{NULL})}
-
-\item{exclude}{\code{Character vector}. Nodes to avoid in the path.
-(Default: \code{NULL})}
-
-\item{res.name}{\code{Character vector}. Names of resources to include in
-the graph. (Default: \code{NULL})}
-
 \item{init}{\code{Character vector}. Initial values to prune the first
 mapping step. (Default: \code{NULL})}
 
@@ -85,6 +94,20 @@ console. (Default: \code{TRUE})}
 
 \item{timeout}{\code{Numeric scalar}. The timeout for downloading resources.
 (Default: \code{1e6})}
+
+\item{by}{A formula specifying the path to weave.}
+
+\item{k}{\code{Numeric scalar}. The kth shortest path to weave.
+(Default: \code{1})}
+
+\item{include}{\code{Character vector}. Nodes to cross in the path.
+(Default: \code{NULL})}
+
+\item{exclude}{\code{Character vector}. Nodes to avoid in the path.
+(Default: \code{NULL})}
+
+\item{res.name}{\code{Character vector}. Names of resources to include in
+the graph. (Default: \code{NULL})}
 
 \item{threshold}{\code{Numeric scalar}. Only for \code{weaveComplex}. The
 coverage threshold above which to include links, between 0 and 1. If
@@ -105,14 +128,32 @@ coverage threshold, which is useful for pathways or functional modules made
 of several indispensable components.
 }
 \examples{
+# Load resource graph
+graph <- ariadne()
+
+# Weave simple path from KEGG diseases to gut metabolic modules
+dis2gmm <- weavePath(graph, kegg_disease ~ gmm)
+
+# Weave complex path from KEGG diseases to gut metabolic modules
+dis2gmm <- weaveComplex(graph, kegg_disease ~ gmm)
+
+# Specify coverage threshold
+dis2gmm <- weaveComplex(graph, kegg_disease ~ gmm, threshold = 0.8)
+
+
+# Load example pathway dataframe
+data("pathMeta", package = "ariadne")
+
+# Weave pathway from chebi to gmm with three initial chebi ids
+chebi2gmm <- weavePath(pathMeta, init = c(15377, 30616, 4167))
+
+
+# Import mia package
 library(mia)
 
 # Import dataset
 data("Tengeler2020", package = "mia")
 tse <- Tengeler2020
-
-# Load resource graph
-graph <- ariadne()
 
 # Retrieve taxon names
 tax.labs <- getTaxonomyLabels(tse, make.unique = FALSE)
@@ -128,13 +169,4 @@ tax2bugsig <- weavePath(graph, taxname ~ bugsig, init = tax.labs, k = 3)
 tax2bugsig <- weavePath(
     graph, taxname ~ bugsig, include = "taxid", init = tax.labs
 )
-
-# Weave simple path from KEGG diseases to gut metabolic modules
-dis2gmm <- weavePath(graph, kegg_disease ~ gmm)
-
-# Weave complex path from KEGG diseases to gut metabolic modules
-dis2gmm <- weaveComplex(graph, kegg_disease ~ gmm)
-
-# Specify coverage threshold
-dis2gmm <- weaveComplex(graph, kegg_disease ~ gmm, threshold = 0.8)
 }

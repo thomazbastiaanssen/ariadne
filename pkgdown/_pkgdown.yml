@@ -21,3 +21,4 @@ reference:
 - title: Import package datasets
 - contents:
   - butyrate
+  - pathMeta

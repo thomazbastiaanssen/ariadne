@@ -37,11 +37,6 @@ setGeneric("weaveComplex", signature = c("graph"), function(graph, ...)
     standardGeneric("weaveComplex"))
 
 #' @export
-#' @rdname recallPath
-setGeneric("recallPath", signature = c("path_df"), function(path_df, ...)
-    standardGeneric("recallPath"))
-
-#' @export
 #' @rdname addModules
 setGeneric("getModules", signature = c("x"), function(x, ...)
     standardGeneric("getModules"))

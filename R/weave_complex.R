@@ -1,6 +1,27 @@
 
 #' @export
 #' @rdname weavePath
+#' @importFrom stats as.formula
+setMethod("weaveComplex", signature = c(graph = "data.frame"),
+    function(graph, init = NULL, prune = TRUE, use.names = TRUE,
+    threshold = NULL, verbose = TRUE, timeout = 1e6, ...){
+    
+    by <- c(graph$from[1L], graph$to[nrow(graph)]) |>
+        paste(collapse = "~") |>
+        as.formula()
+    
+    graph <- .graph_from_path_df(graph)
+    
+    linkmap <- weaveComplex(
+        graph, by, init = init, prune = prune, use.names = use.names,
+        threshold = threshold, verbose = verbose, timeout = timeout, ...
+    )
+    return(linkmap)
+})
+
+
+#' @export
+#' @rdname weavePath
 #' @importFrom igraph as_data_frame
 #' @importFrom stats as.formula
 #' @importFrom Matrix summary
@@ -36,7 +57,6 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
     }else{
         inner_by <- by
     }
-    
     # Build MultiFactor from path linkmaps
     mf <- .build_path_mf(
         graph, inner_by, k, include, exclude, res.name,
