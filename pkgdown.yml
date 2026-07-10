@@ -1,5 +1,5 @@
 pandoc: '3.10'
-pkgdown: 2.2.0
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   ariadne: ariadne.html
@@ -8,4 +8,4 @@ articles:
   gsea: gsea.html
   msea: msea.html
   pathway: pathway.html
-last_built: 2026-07-03T13:02Z
+last_built: 2026-07-10T16:41Z
