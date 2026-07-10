@@ -16,6 +16,7 @@ jobs:
         with:
           extra-packages: |
             any::devtools
+            any::systemfonts
             any::usethis
       - name: Run scripts
         run: |
