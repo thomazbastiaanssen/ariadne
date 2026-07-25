@@ -112,14 +112,12 @@ NULL
 
 #' @export
 #' @rdname weavePath
-#' @importFrom stats as.formula
+#' @importFrom stats reformulate
 setMethod("weavePath", signature = c(graph = "data.frame"),
     function(graph, init = NULL, prune = TRUE, use.names = TRUE, verbose = TRUE,
     timeout = 1e6, ...){
     # Derive formula from pathway dataframe
-    by <- c(graph$from[1L], graph$to[nrow(graph)]) |>
-        paste(collapse = "~") |>
-        as.formula()
+    by <- reformulate(graph$to[nrow(graph)], graph$from[1L])
     # Retrieve minimal graph for the pathway
     graph <- .graph_from_path_df(graph)
     # Weave linkmap from minimal graph
@@ -162,7 +160,7 @@ setMethod("weavePath", signature = c(graph = "data.frame"),
 
 #' @export
 #' @rdname weavePath
-#' @importFrom stats as.formula
+#' @importFrom stats reformulate
 #' @importFrom MultiFactor MultiFactor weave
 setMethod("weavePath", signature = c(graph = "igraph"),
     function(graph, by, k = 1, include = NULL, exclude = NULL, res.name = NULL,
@@ -207,7 +205,7 @@ setMethod("weavePath", signature = c(graph = "igraph"),
         # Retrieve init variable names
         init_vars <- colnames(init)
         # Remove first step in the path
-        path_by <- as.formula(paste0(init_vars[2L], "~", all.vars(by)[2L]))
+        path_by <- reformulate(all.vars(by)[2L], init_vars[2L])
         # Print stratification
         if( verbose ) message(init_vars[1L], " stratified by ", init_vars[2L])
         # Add init linkmap to linkmaps

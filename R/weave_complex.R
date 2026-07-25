@@ -23,7 +23,7 @@ setMethod("weaveComplex", signature = c(graph = "data.frame"),
 #' @export
 #' @rdname weavePath
 #' @importFrom igraph as_data_frame
-#' @importFrom stats as.formula
+#' @importFrom stats as.formula reformulate
 #' @importFrom Matrix summary
 setMethod("weaveComplex", signature = c(graph = "igraph"),
     function(graph, by, k = 1, include = NULL, exclude = NULL, res.name = NULL,
@@ -51,9 +51,8 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
         
         linkmaps <- .process_complex_modules(url, output.format = "list")
         
-        inner_by <- c(origin, inter_name) |>
-            paste(collapse = "~") |>
-            as.formula()
+        inner_by <- reformulate(inter_name, origin)
+        
     }else{
         inner_by <- by
     }
@@ -66,11 +65,11 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
     if( target %in% complex_modules ){
         # Print step
         if( verbose ) message(inter_name, " -(GM)-> ", target)
-        #
+        # Weave first part of the path
         origin2feature <- weave(mf, inner_by) |> as.data.frame()
-        #
+        # Add names to linkmap columns
         colnames(origin2feature) <- c("origin", "feature")
-        #
+        # Include origin2feature linkmap in list
         linkmaps[["origin2feature"]] <- origin2feature
         # Construct MultiFactor from linkmaps
         mf <- MultiFactor(linkmaps)
