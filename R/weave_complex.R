@@ -45,9 +45,10 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
     if( target %in% complex_modules ){
     
         edge_df <- as_data_frame(graph, what = "edges")
+        idx <- which(edge_df$from == target)
         
-        inter_name <- edge_df$to[edge_df$from == target]
-        url <- edge_df$url[edge_df$from == target]
+        inter_name <- edge_df$to[idx]
+        url <- edge_df$url[idx]
         
         linkmaps <- .process_complex_modules(url, output.format = "list")
         
