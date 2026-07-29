@@ -1,17 +1,15 @@
 
 #' @export
 #' @rdname weavePath
-#' @importFrom stats as.formula
+#' @importFrom stats reformulate
 setMethod("weaveComplex", signature = c(graph = "data.frame"),
     function(graph, init = NULL, prune = TRUE, use.names = TRUE,
     threshold = NULL, verbose = TRUE, timeout = 1e6, ...){
-    
-    by <- c(graph$from[1L], graph$to[nrow(graph)]) |>
-        paste(collapse = "~") |>
-        as.formula()
-    
+    # Derive formula from pathway dataframe
+    by <- reformulate(graph$to[nrow(graph)], graph$from[1L])
+    # Retrieve minimal graph for the pathway
     graph <- .graph_from_path_df(graph)
-    
+    # Weave linkmap from minimal graph
     linkmap <- weaveComplex(
         graph, by, init = init, prune = prune, use.names = use.names,
         threshold = threshold, verbose = verbose, timeout = timeout, ...
@@ -39,10 +37,10 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
     # Identify module name
     origin <- by.vars[1L]
     target <- by.vars[2L]
-    # Define complex modules
-    complex_modules <- c("gbm", "gmm")
+    # Check for complex modules
+    is_complex <- target %in% c("gbm", "gmm")
     
-    if( target %in% complex_modules ){
+    if( is_complex  ){
     
         edge_df <- as_data_frame(graph, what = "edges")
         idx <- which(edge_df$from == target)
@@ -53,7 +51,6 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
         linkmaps <- .process_complex_modules(url, output.format = "list")
         
         inner_by <- reformulate(inter_name, origin)
-        
     }else{
         inner_by <- by
     }
@@ -63,7 +60,7 @@ setMethod("weaveComplex", signature = c(graph = "igraph"),
         init, prune, TRUE, verbose, timeout, ...
     )
     
-    if( target %in% complex_modules ){
+    if( is_complex ){
         # Print step
         if( verbose ) message(inter_name, " -(GM)-> ", target)
         # Weave first part of the path
