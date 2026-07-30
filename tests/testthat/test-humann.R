@@ -1,5 +1,7 @@
 test_that("humann", {
     
+    graph <- ariadne()
+    
     ko_ids <- c(
         # MF0002
         "K03332",
@@ -48,16 +50,49 @@ test_that("humann", {
     ko_mat <- se |>
         addModules(uniref2ko, "rows") |>
         mia::agglomerateByModule(1L, uniref2ko$ko) |>
-        SummarizedExperiment::assay()
+        SummarizedExperiment::assay() |>
+        as.data.frame()
     
     gmm_mat <- se |>
         mia::agglomerateByVariable(1L, "taxname") |>
         addModules(tax2gmm, "rows") |>
         mia::agglomerateByModule(1L, tax2gmm$gmm) |>
-        SummarizedExperiment::assay()
+        SummarizedExperiment::assay() |>
+        as.data.frame()
     
-    #expect_identical()
-    #expect_equal()
-    # against humann and omixer outputs
-
+    ###
+    
+    # write.table(mat, "uniref90.tsv", sep = "\t", quote = FALSE, col.names = NA)
+    
+    # humann_regroup_table \
+    #     -i uniref90.tsv \
+    #     -c utility_mapping/map_ko_uniref90.txt.gz \
+    #     -o ko.tsv
+    
+    library(omixerRpm)
+    
+    db <- loadDB(name = "GMMs.v1.07")
+    
+    choco_ko <- cbind(entry = rownames(choco_ko), choco_ko)
+    rownames(choco_ko) <- NULL
+    
+    omixer_gmm <- choco_ko |>
+        rpm(minimum.coverage = 0, score.estimator = "sum", module.db = db) |>
+        asDataFrame("abundance")
+    
+    omixer_gmm <- omixer_gmm[rowSums(omixer_gmm[c("a", "b", "c")]) > 0, ]
+    omixer_gmm <- omixer_gmm[order(omixer_gmm$Module), ]
+    
+    rownames(omixer_gmm) <- omixer_gmm$Module
+    omixer_gmm[c("Module", "Description")] <- NULL
+    
+    write.table(omixer_gmm, "gmm.tsv", sep = "\t", quote = FALSE, col.names = NA)
+    
+    ###
+    
+    choco_ko <- read.table("ko.tsv", sep = "\t", header = TRUE, row.names = 1)
+    omixer_gmm <- read.table("gmm.tsv", sep = "\t", header = TRUE, row.names = 1)
+    
+    expect_identical(ko_mat, choco_ko)
+    expect_identical(gmm_mat, omixer_gmm)
 })
