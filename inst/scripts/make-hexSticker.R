@@ -242,16 +242,16 @@ hex_plot <- plot_graph |>
         colour = colour_border
     ) +
     geom_node_text(
-        aes(x = x - 0.5 + grepl("l$", room), y = y + 0.5 - grepl("^t", room),
+        aes(x = x - 0.3 + grepl("l$", room), y = y + 0.5 - grepl("^t", room),
             filter = room %in% c("bl", "br", "tl", "tr"), label = label
-        ), family = "OpenMoji", size = 16) +
+        ), family = "OpenMoji", size = 18) +
     annotate(
         "text",
         label = "ariadne",
         x = round(size * sqrt(3) - 1) / 2,
         y = mean(round(c(0, 1) + size * 2 / 3)),
         hjust = 1 / 2, vjust = 1 / 2,
-        size = 60, size.unit = "pt",
+        size = 70, size.unit = "pt",
         family = "Dancing Script",
         fontface = "bold",
         colour = colour_border
