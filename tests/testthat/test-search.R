@@ -1,7 +1,5 @@
 test_that("search", {
     
-    graph <- ariadne()
-    
     expect_error(searchPath(ko ~ ec))
   
     expect_message(

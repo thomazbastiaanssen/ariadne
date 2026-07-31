@@ -66,6 +66,7 @@ Remotes:
     github::Minotau-R/MultiFactor
 URL: https://github.com/Minotau-R/ariadne
 BugReports: https://github.com/Minotau-R/ariadne/issues
+Config/testthat/parallel: true
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
 LazyData: true

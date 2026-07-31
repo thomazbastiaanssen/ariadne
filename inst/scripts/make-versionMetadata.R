@@ -30,7 +30,18 @@ dfs[["MSigDB"]] <- data.frame(
 )
 
 # Add GO versions
-versions <- c("2026-03-25", "2026-01-23", "2025-10-10")
+page <- "https://release.geneontology.org/"
+
+versions <- page |>
+    fetch_page_links() |>
+    str_extract("\\d{4}-\\d{2}-\\d{2}") |>
+    rev()
+
+years <- versions |>
+    substr(1, 4) |>
+    as.numeric()
+
+versions <- versions[years >= 2025]
 
 dfs[["GO"]] <- data.frame(
     version = versions, key = versions, graph = default.graph
