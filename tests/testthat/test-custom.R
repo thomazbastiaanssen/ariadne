@@ -1,8 +1,6 @@
 
 test_that("custom", {
     
-    graph <- ariadne()
-    
     url <- "https://ftp.expasy.org/databases/rhea/tsv/rhea2ec.tsv"
     
     expect_error(addResource(graph, url, select = c("RHEA_ID", "ID"),
@@ -16,10 +14,12 @@ test_that("custom", {
         fixed = TRUE
     )
     
-    graph <- addResource(graph, url, res.name = "Rhea", force = TRUE,
-        select = c("RHEA_ID", "ID"), col.names = c("rhea", "ec"))
-
-    edge_df <- igraph::as_data_frame(graph, what = "edges")
+    edge_df <- graph |>
+        addResource(
+            url, res.name = "Rhea", force = TRUE,
+            select = c("RHEA_ID", "ID"), col.names = c("rhea", "ec")
+        ) |>
+        igraph::as_data_frame(what = "edges")
     
     expect_contains(edge_df$url, url)
     expect_equal(sum(.get_edge_keys(edge_df) == "ec_rhea_Rhea"), 1L)

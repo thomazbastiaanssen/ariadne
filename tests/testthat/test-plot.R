@@ -1,8 +1,6 @@
 
 test_that("plot", {
     
-    graph <- ariadne()
-    
     expect_error(plotPath(ec ~ ko))
     
     expect_error(

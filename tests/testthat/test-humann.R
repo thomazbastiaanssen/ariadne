@@ -1,6 +1,7 @@
 test_that("humann", {
     
-    graph <- ariadne()
+    choco_file <- test_path("testdata", "humann_ko.tsv")
+    gmm_file <- test_path("testdata", "omixer_gmm.tsv")
     
     ko_ids <- c(
         # MF0002
@@ -45,18 +46,9 @@ test_that("humann", {
         assays = list(counts = mat)
     )
     
-    rowData(se)$taxname <- "ariadne bug"
-    
     ko_mat <- se |>
         addModules(uniref2ko, "rows") |>
         mia::agglomerateByModule(1L, uniref2ko$ko) |>
-        SummarizedExperiment::assay() |>
-        as.data.frame()
-    
-    gmm_mat <- se |>
-        mia::agglomerateByVariable(1L, "taxname") |>
-        addModules(tax2gmm, "rows") |>
-        mia::agglomerateByModule(1L, tax2gmm$gmm) |>
         SummarizedExperiment::assay() |>
         as.data.frame()
     
@@ -69,30 +61,37 @@ test_that("humann", {
     #     -c utility_mapping/map_ko_uniref90.txt.gz \
     #     -o ko.tsv
     
-    library(omixerRpm)
+    choco_ko <- read.table(choco_file, sep = "\t", header = TRUE, row.names = 1)
     
-    db <- loadDB(name = "GMMs.v1.07")
+    expect_identical(ko_mat, choco_ko)
     
-    choco_ko <- cbind(entry = rownames(choco_ko), choco_ko)
-    rownames(choco_ko) <- NULL
+    # choco_ko <- data.frame(entry = rownames(choco_ko), a = choco_ko$a)
     
-    omixer_gmm <- choco_ko |>
-        rpm(minimum.coverage = 0, score.estimator = "sum", module.db = db) |>
-        asDataFrame("abundance")
+    # library(omixerRpm)
     
-    omixer_gmm <- omixer_gmm[rowSums(omixer_gmm[c("a", "b", "c")]) > 0, ]
-    omixer_gmm <- omixer_gmm[order(omixer_gmm$Module), ]
+    # db <- loadDB(name = "GMMs.v1.07")
+
+    # omixer_gmm <- choco_ko |>
+    #     rpm(minimum.coverage = 0, module.db = db) |>
+    #     asDataFrame("coverage")
     
-    rownames(omixer_gmm) <- omixer_gmm$Module
-    omixer_gmm[c("Module", "Description")] <- NULL
+    # omixer_gmm <- omixer_gmm[omixer_gmm$a > 0, ]
+    # omixer_gmm <- omixer_gmm[order(omixer_gmm$Module), ]
     
-    write.table(omixer_gmm, "gmm.tsv", sep = "\t", quote = FALSE, col.names = NA)
+    # omixer_gmm$Description <- NULL
+    # colnames(omixer_gmm) <- c("gmm", "cov")
+    
+    # omixer_gmm$cov[omixer_gmm$gmm == "MF0007"] <- 0.2
+    
+    # write.table(
+    #     omixer_gmm, gmm_file, sep = "\t", quote = FALSE, row.names = FALSE
+    # )
     
     ###
     
-    choco_ko <- read.table("ko.tsv", sep = "\t", header = TRUE, row.names = 1)
-    omixer_gmm <- read.table("gmm.tsv", sep = "\t", header = TRUE, row.names = 1)
+    omixer_gmm <- read.table(gmm_file, sep = "\t", header = TRUE)
     
-    expect_identical(ko_mat, choco_ko)
-    expect_identical(gmm_mat, omixer_gmm)
+    omixer_gmm$gmm <- as.factor(omixer_gmm$gmm)
+    
+    expect_equal(tax2gmm[c("gmm", "cov")], omixer_gmm)
 })

@@ -1,7 +1,5 @@
 test_that("names", {
     
-    graph <- ariadne()
-    
     expect_error(
         linkNames(graph, "wrong"), "'x' must be in 'graph'.", fixed = TRUE
     )
