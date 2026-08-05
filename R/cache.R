@@ -1,6 +1,7 @@
 
 #' @importFrom BiocFileCache bfcquery
 #' @importFrom arrow write_parquet
+#' @importFrom stringr str_remove fixed
 .cache_resource <- function(url, res.name, from, to){
     # Initialise cache
     bfc <- .init_cache()
@@ -14,25 +15,29 @@
     FUN <- switch(
         res.name,
         ChocoPhlAn = function(x) .process_one2many(
-            x, key.FUN = function(keys) sub("GO:", "", keys, fixed = TRUE)
+            x, key.FUN = function(keys) str_remove(keys, fixed("GO:"))
         ),
         WoL = function(x) .process_one2many(
             x, key.FUN = ifelse(from == "uniref90",
                 function(keys) paste0("UniRef90_", keys), identity),
-            val.FUN = function(vals) sub("EC-", "", vals, fixed = TRUE)
+            val.FUN = function(vals) str_remove(vals, fixed("EC-"))
         ),
         BugSigDB = function(x) .process_one2many(
             x, val.cols = -c(1L, 2L), skip = 1L, key.FUN = function(keys){
-                # Remove module prefix
-                keys <- sub("bsdb:", "", keys, fixed = TRUE)
-                # Remove module description
-                keys <- sub("_.*$", "", keys)
+                # Remove module prefix and description
+                keys <- keys |>
+                    str_remove(fixed("bsdb:")) |>
+                    str_remove("_.*$")
             }
         ),
         TIGRFAMs = function(x) .process_one2one(
             x, header = FALSE, select = c(1L, 2L)
         ),
-        GO = function(x) .process_one2one(x, header = FALSE),
+        GO = function(x) .process_one2one(
+            x, header = FALSE, key.FUN = function(keys){
+                keys <- str_remove(keys, " >.*")
+            }
+        ),
         GM = .process_complex_modules,
         MSigDB = .process_rdslist
     )
@@ -81,13 +86,16 @@
 
 # from to args?
 #' @importFrom data.table fread
-.process_one2one <- function(x, ...){
+#' @importFrom stringr str_remove fixed
+.process_one2one <- function(x, key.FUN = identity, ...){
     # Read linkmap
     linkmap <- fread(x, ...)
+    # Process keys with custom function
+    linkmap$V1 <- key.FUN(linkmap$V1)
     # Remove id prefix ending with : (for GO resources)
-    linkmap$V1 <- sub("^[^:]*:", "", linkmap$V1)
+    linkmap$V1 <- str_remove(linkmap$V1, "^[^:]*:")
     # Remove GO prefix (for GO and TIGRFAMs resources)
-    linkmap$V2 <- sub("GO:", "", linkmap$V2, fixed = TRUE)
+    linkmap$V2 <- str_remove(linkmap$V2, fixed("GO:"))
     return(linkmap)
 }
 
@@ -95,7 +103,7 @@
 #' @importFrom readr read_lines
 #' @importFrom stringr str_split fixed
 .process_one2many <- function(x, key.col = 1L, val.cols = -key.col,
-    key.FUN = identity, val.FUN = identity,...){
+    key.FUN = identity, val.FUN = identity, ...){
     # Read file content
     x <- read_lines(x, ...)
     # Split elements in each line by tab

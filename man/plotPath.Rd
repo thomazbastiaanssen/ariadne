@@ -15,7 +15,9 @@ plotPath(graph, ...)
   exclude = NULL,
   res.name = NULL,
   prune = FALSE,
-  focus = FALSE
+  focus = FALSE,
+  edge.type = "link",
+  ...
 )
 }
 \arguments{

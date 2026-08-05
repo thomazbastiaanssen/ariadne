@@ -113,6 +113,7 @@ setMethod("getModules", signature = c(x = "SummarizedExperiment"),
 })
 
 
+#' @importFrom stats reformulate
 #' @importFrom data.table set dcast as.data.table
 .get_modules <- function(df, modules, key, as){
     # Check if by is rownames
@@ -127,7 +128,7 @@ setMethod("getModules", signature = c(x = "SummarizedExperiment"),
     # Choose between ids and names
     origin_col <- colnames(modules)[1L]
     target_col <- colnames(modules)[switch(as, ids = 2L, names = ncol(modules))]
-    widen_form <- as.formula(paste(origin_col, "~", target_col))
+    widen_form <- reformulate(target_col, origin_col)
     
     modules <- as.data.table(modules)
     
