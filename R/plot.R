@@ -26,8 +26,12 @@
 #' 
 #' @param focus \code{Logical scalar}. Whether the selected edges and nodes
 #'   should be zoomed in. (Default: \code{FALSE})
+#'  
+#' @param edge.type \code{Character scalar} String specifying the type of edge
+#'   to use from the options available in ggraph (geom_edge_*).
+#'   (Default: \code{"link"})
 #' 
-#' @param ... Unused.
+#' @param ... Additional arguments passed to \code{\link[ggraph:ggraph]{ggraph}}.
 #' 
 #' @returns A ggplot2 object.
 #' 

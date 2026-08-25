@@ -2,9 +2,32 @@
 #' 
 #' @name plotModules
 #' 
+#' @description
+#' \code{plotModules} generates a graph linking origin to target features.
+#' 
+#' @param modules \code{data.frame}. A linkmap as returned by
+#'   \code{\link{weavePath}} or \code{\link{weaveComplex}}. Its first and second
+#'   columns must contain elements to match to \code{key} and the target
+#'   modules, respectively.
+#' 
+#' @param show.labels \code{Logical scalar}. Whether node labels should be
+#'   shown. (Default: \code{TRUE})
+#' 
+#' @param edge.type \code{Character scalar} String specifying the type of edge
+#'   to use from the options available in ggraph (geom_edge_*).
+#'   (Default: \code{"diagonal"})
+#' 
+#' @param ... Additional arguments passed to \code{\link[ggraph:ggraph]{ggraph}}.
+#' 
+#' @returns A ggplot2 object.
+#' 
 #' @examples
+#' library(ggplot2)
+#' 
 #' graph <- ariadne()
 #' ec2gmm <- weaveComplex(graph, ec ~ gmm)
+#' 
+#' plotModules(ec2gmm) + coord_flip()
 NULL
 
 #' @export
@@ -15,8 +38,6 @@ NULL
 #' @importFrom ggplot2 scale_colour_manual guides guide_legend
 setMethod("plotModules", signature = c(modules = "data.frame"),
     function(modules, edge.type = "diagonal", show.labels = TRUE, ...){
-    
-    if( is.null(attr(modules, "path.meta")) ){}
     
     modules <- as.data.table(modules)
     if( !"cov" %in% colnames(modules) ) modules$cov <- 1
@@ -52,31 +73,3 @@ setMethod("plotModules", signature = c(modules = "data.frame"),
     
     return(p)
 })
-
-#mods <- go2kegg_path
-
-#edge_df <- attr(mods, "path.meta") |>
-#    rbindlist(use.names = FALSE)
-
-#node_df <- mods |>
-#    attr("path.meta") |>
-#    levels() |>
-#    lapply(as.data.table) |>
-#    rbindlist(idcol = TRUE)
-
-#node_df <- node_df[ , c(2, 1)]
-
-#colnames(node_df) <- c("name", "type")
-
-#node_df <- node_df[!duplicated(node_df$name), ]
-
-#gr <- graph_from_data_frame(edge_df, vertices = node_df)
-
-#p <- ggraph(gr) +
-#    geom_edge_diagonal(colour = "grey80", alpha = 1/10) +
-#    geom_node_point(aes(colour = .data$type)) +
-#    theme_void() +
-#    guides(
-#      colour = guide_legend(order = 1),
-#      edge_colour = guide_legend(order = 2)
-#    )

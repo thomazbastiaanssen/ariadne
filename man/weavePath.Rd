@@ -18,7 +18,6 @@ weaveComplex(graph, ...)
   init = NULL,
   prune = TRUE,
   use.names = TRUE,
-  add.metadata = FALSE,
   verbose = TRUE,
   timeout = 1e+06,
   ...
@@ -34,7 +33,6 @@ weaveComplex(graph, ...)
   init = NULL,
   prune = TRUE,
   use.names = TRUE,
-  add.metadata = FALSE,
   verbose = TRUE,
   timeout = 1e+06,
   ...
@@ -46,7 +44,6 @@ weaveComplex(graph, ...)
   threshold = NULL,
   prune = TRUE,
   use.names = TRUE,
-  add.metadata = FALSE,
   verbose = TRUE,
   timeout = 1e+06,
   ...
@@ -63,7 +60,6 @@ weaveComplex(graph, ...)
   threshold = NULL,
   prune = TRUE,
   use.names = TRUE,
-  add.metadata = FALSE,
   verbose = TRUE,
   timeout = 1e+06,
   ...

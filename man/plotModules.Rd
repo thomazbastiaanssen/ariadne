@@ -9,10 +9,32 @@ plotModules(modules, ...)
 
 \S4method{plotModules}{data.frame}(modules, edge.type = "diagonal", show.labels = TRUE, ...)
 }
+\arguments{
+\item{modules}{\code{data.frame}. A linkmap as returned by
+\code{\link{weavePath}} or \code{\link{weaveComplex}}. Its first and second
+columns must contain elements to match to \code{key} and the target
+modules, respectively.}
+
+\item{...}{Additional arguments passed to \code{\link[ggraph:ggraph]{ggraph}}.}
+
+\item{edge.type}{\code{Character scalar} String specifying the type of edge
+to use from the options available in ggraph (geom_edge_*).
+(Default: \code{"diagonal"})}
+
+\item{show.labels}{\code{Logical scalar}. Whether node labels should be
+shown. (Default: \code{TRUE})}
+}
+\value{
+A ggplot2 object.
+}
 \description{
-Visualise modules network
+\code{plotModules} generates a graph linking origin to target features.
 }
 \examples{
+library(ggplot2)
+
 graph <- ariadne()
 ec2gmm <- weaveComplex(graph, ec ~ gmm)
+
+plotModules(ec2gmm) + coord_flip()
 }

@@ -114,8 +114,8 @@ NULL
 #' @rdname weavePath
 #' @importFrom stats reformulate
 setMethod("weavePath", signature = c(graph = "data.frame"),
-    function(graph, init = NULL, prune = TRUE, use.names = TRUE,
-    add.metadata = FALSE, verbose = TRUE, timeout = 1e6, ...){
+    function(graph, init = NULL, prune = TRUE, use.names = TRUE, verbose = TRUE,
+    timeout = 1e6, ...){
     # Derive formula from pathway dataframe
     by <- reformulate(graph$to[nrow(graph)], graph$from[1L])
     # Retrieve minimal graph for the pathway
@@ -164,8 +164,8 @@ setMethod("weavePath", signature = c(graph = "data.frame"),
 #' @importFrom MultiFactor MultiFactor weave
 setMethod("weavePath", signature = c(graph = "igraph"),
     function(graph, by, k = 1, include = NULL, exclude = NULL, res.name = NULL,
-    init = NULL, prune = TRUE, use.names = TRUE, add.metadata = FALSE,
-    verbose = TRUE, timeout = 1e6, ...){
+    init = NULL, prune = TRUE, use.names = TRUE, verbose = TRUE, timeout = 1e6,
+    ...){
     # Build MultiFactor from path linkmaps
     mf <- .build_path_mf(
         graph, by, k, include, exclude, res.name,
@@ -179,8 +179,6 @@ setMethod("weavePath", signature = c(graph = "igraph"),
         name_links <- linkNames(graph, target, out[[2L]], verbose = verbose)
         out[paste0(target, ".name")] <- as.factor(name_links[[2L]])
     }
-    # Add pathway metadata
-    if( add.metadata ) attr(out, "path.meta") <- mf
     return(out)
 })
 
