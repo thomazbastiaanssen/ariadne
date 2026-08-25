@@ -26,8 +26,12 @@
 #' 
 #' @param focus \code{Logical scalar}. Whether the selected edges and nodes
 #'   should be zoomed in. (Default: \code{FALSE})
+#'  
+#' @param edge.type \code{Character scalar} String specifying the type of edge
+#'   to use from the options available in ggraph (geom_edge_*).
+#'   (Default: \code{"link"})
 #' 
-#' @param ... Unused.
+#' @param ... Additional arguments passed to \code{\link[ggraph:ggraph]{ggraph}}.
 #' 
 #' @returns A ggplot2 object.
 #' 
@@ -51,11 +55,11 @@ NULL
 #' @export
 #' @rdname plotPath
 #' @importFrom igraph as_data_frame graph_from_data_frame subgraph_from_edges ends
+#' @importFrom ggraph ggraph geom_node_point geom_node_text scale_edge_colour_manual
 #' @importFrom ggplot2 aes theme_void theme
-#' @importFrom ggraph ggraph geom_edge_link geom_node_point geom_node_text scale_edge_colour_manual
 setMethod("plotPath", signature = c(graph = "igraph"),
     function(graph, by = NULL, k = 1, include = NULL, exclude = NULL,
-    res.name = NULL, prune = FALSE, focus = FALSE){
+    res.name = NULL, prune = FALSE, focus = FALSE, edge.type = "link", ...){
     # Check args
     if( length(prune) != 1L || !is.logical(prune) || is.na(prune) ){
         stop("'prune' must be TRUE or FALSE.", call. = FALSE)
@@ -96,11 +100,11 @@ setMethod("plotPath", signature = c(graph = "igraph"),
     # Create a vector for edge alpha: 1 if marked, else 0 (transparent)
     if( prune ){
         edge_df$alpha <- edge_df$mark != 0
-        connected_nodes <- unique(c(ends(graph, E(graph)[edge_df$mark != 0])))
+        connected_nodes <- unique(ends(graph, E(graph)[edge_df$mark != 0]))
         node_df$alpha <- node_df$name %in% connected_nodes
     }else if( !is.null(res.name) ){
         edge_df$alpha <- edge_df$source %in% res.name
-        node_df$alpha <- rowSums(!is.na(node_df[ , res.name, drop = FALSE])) != 0L
+        node_df$alpha <- rowSums(!is.na(node_df[res.name])) != 0L
     }
     # Create graph from edges and nodes data
     graph <- graph_from_data_frame(edge_df, vertices = node_df)
@@ -108,11 +112,12 @@ setMethod("plotPath", signature = c(graph = "igraph"),
     if( focus ){
         graph <- subgraph_from_edges(graph, E(graph)[alpha != 0])
     }
+    # Select custom edge geom
+    geom_edge <- eval(parse(text = paste0("ggraph::geom_edge_", edge.type)))
     # Plot graph with edges marked and others faded
-    p <- ggraph(graph, layout = "stress") +
-        geom_edge_link(aes(colour = factor(.data$mark), label = .data$name,
-            alpha = .data$alpha), edge_width = 1, fontface = "bold",
-            show.legend = TRUE) +
+    p <- ggraph(graph, ...) +
+        geom_edge(aes(colour = factor(.data$mark), label = .data$name,
+            alpha = .data$alpha), edge_width = 1, fontface = "bold") +
         geom_node_point(aes(filter = .data$alpha),
             size = 4, colour = "darkorange") +
         geom_node_text(aes(label = .data$name, filter = .data$alpha),
@@ -134,4 +139,3 @@ setMethod("plotPath", signature = c(graph = "igraph"),
     )
     return(edges)
 }
-

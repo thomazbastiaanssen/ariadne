@@ -1,5 +1,5 @@
 Package: ariadne
-Version: 0.2.7
+Version: 0.2.8
 Authors@R: 
     c(person(given = "Giulio", family = "Benedetti", role = c("aut", "cre"),
           email = "giulio.benedetti@utu.fi",
@@ -27,7 +27,9 @@ biocViews:
 License: Artistic-2.0
 Encoding: UTF-8
 Depends:
-    R (>= 4.1)
+    R (>= 4.1),
+    ggraph,
+    igraph (>= 2.3.0)
 Imports:
     arrow,
     BiocFileCache,
@@ -35,9 +37,8 @@ Imports:
     data.table,
     dplyr,
     ggplot2,
-    ggraph,
+    grid,
     httr2,
-    igraph (>= 2.3.0),
     KEGGREST,
     Matrix,
     methods,

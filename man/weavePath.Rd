@@ -41,9 +41,9 @@ weaveComplex(graph, ...)
 \S4method{weaveComplex}{data.frame}(
   graph,
   init = NULL,
+  threshold = NULL,
   prune = TRUE,
   use.names = TRUE,
-  threshold = NULL,
   verbose = TRUE,
   timeout = 1e+06,
   ...
@@ -57,9 +57,9 @@ weaveComplex(graph, ...)
   exclude = NULL,
   res.name = NULL,
   init = NULL,
+  threshold = NULL,
   prune = TRUE,
   use.names = TRUE,
-  threshold = NULL,
   verbose = TRUE,
   timeout = 1e+06,
   ...

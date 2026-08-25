@@ -15,13 +15,15 @@ plotPath(graph, ...)
   exclude = NULL,
   res.name = NULL,
   prune = FALSE,
-  focus = FALSE
+  focus = FALSE,
+  edge.type = "link",
+  ...
 )
 }
 \arguments{
 \item{graph}{An igraph object.}
 
-\item{...}{Unused.}
+\item{...}{Additional arguments passed to \code{\link[ggraph:ggraph]{ggraph}}.}
 
 \item{by}{A formula specifying the path to plot. (Default: \code{NULL})}
 
@@ -42,6 +44,10 @@ should be plotted. (Default: \code{FALSE})}
 
 \item{focus}{\code{Logical scalar}. Whether the selected edges and nodes
 should be zoomed in. (Default: \code{FALSE})}
+
+\item{edge.type}{\code{Character scalar} String specifying the type of edge
+to use from the options available in ggraph (geom_edge_*).
+(Default: \code{"link"})}
 }
 \value{
 A ggplot2 object.

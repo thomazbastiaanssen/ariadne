@@ -3,16 +3,16 @@
 #' @rdname weavePath
 #' @importFrom stats reformulate
 setMethod("weaveComplex", signature = c(graph = "data.frame"),
-    function(graph, init = NULL, prune = TRUE, use.names = TRUE,
-    threshold = NULL, verbose = TRUE, timeout = 1e6, ...){
+    function(graph, init = NULL, threshold = NULL, prune = TRUE,
+    use.names = TRUE, verbose = TRUE, timeout = 1e6, ...){
     # Derive formula from pathway dataframe
     by <- reformulate(graph$to[nrow(graph)], graph$from[1L])
     # Retrieve minimal graph for the pathway
     graph <- .graph_from_path_df(graph)
     # Weave linkmap from minimal graph
     linkmap <- weaveComplex(
-        graph, by, init = init, prune = prune, use.names = use.names,
-        threshold = threshold, verbose = verbose, timeout = timeout, ...
+        graph, by, init = init, threshold = threshold, prune = prune,
+        use.names = use.names, verbose = verbose, timeout = timeout, ...
     )
     return(linkmap)
 })
@@ -25,7 +25,7 @@ setMethod("weaveComplex", signature = c(graph = "data.frame"),
 #' @importFrom Matrix summary
 setMethod("weaveComplex", signature = c(graph = "igraph"),
     function(graph, by, k = 1, include = NULL, exclude = NULL, res.name = NULL,
-    init = NULL, prune = TRUE, use.names = TRUE, threshold = NULL,
+    init = NULL, threshold = NULL, prune = TRUE, use.names = TRUE,
     verbose = TRUE, timeout = 1e6, ...){
     # Check threshold
     if( !is.null(threshold) && (!is.numeric(threshold) ||

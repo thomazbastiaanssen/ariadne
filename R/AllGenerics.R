@@ -45,3 +45,9 @@ setGeneric("getModules", signature = c("x"), function(x, ...)
 #' @rdname addModules
 setGeneric("addModules", signature = c("x"), function(x, ...)
     standardGeneric("addModules"))
+
+#' @export
+#' @rdname plotModules
+setGeneric("plotModules", signature = c("modules"), function(modules, ...)
+    standardGeneric("plotModules"))
+

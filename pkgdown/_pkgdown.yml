@@ -13,10 +13,11 @@ reference:
   - linkNames
   - drawPath
   - listResourceVersions
-- title: Interoperate with Bioconductor
+- title: Work with output modules
 - contents:
   - addModules
   - getModules
+  - plotModules
   - processGeneFamilies
 - title: Import package datasets
 - contents:
